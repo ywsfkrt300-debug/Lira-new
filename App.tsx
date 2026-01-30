@@ -149,9 +149,6 @@ const App: React.FC = () => {
                 (mergedFeatures as any)[key] = (dbFeatures as any)[key];
             }
         }
-        
-        // As per user request, visitor and conversion tracking is now always enabled.
-        mergedFeatures.enableAnalytics = true;
 
         return {
           ...DEFAULT_ADMIN_SETTINGS,
