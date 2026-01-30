@@ -526,7 +526,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     <p>التعديل معطل بسبب فشل الاتصال بقاعدة البيانات.</p>
                   </div>
                 )}
-                {Object.keys(featureLabels).map((featureKey) => {
+                {Object.keys(featureLabels).filter(key => key !== 'enableAnalytics').map((featureKey) => {
                   const feature = featureKey as keyof AdminSettings['enabledFeatures'];
                   return (
                     <div key={feature} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border dark:border-slate-700">

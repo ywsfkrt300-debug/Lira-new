@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
@@ -150,6 +149,9 @@ const App: React.FC = () => {
                 (mergedFeatures as any)[key] = (dbFeatures as any)[key];
             }
         }
+        
+        // As per user request, visitor and conversion tracking is now always enabled.
+        mergedFeatures.enableAnalytics = true;
 
         return {
           ...DEFAULT_ADMIN_SETTINGS,
