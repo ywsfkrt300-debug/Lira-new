@@ -36,6 +36,9 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const [isSupabaseReady, setIsSupabaseReady] = useState(!!supabase);
   const [isDragging, setIsDragging] = useState(false);
   
+  const isWriteDisabled = !isSupabaseReady || usingFallbackKey;
+  const writeDisabledTooltip = isWriteDisabled ? 'هذه الميزة تتطلب مفتاح Supabase الخاص بك لحفظ التغييرات.' : '';
+
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
@@ -104,8 +107,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
     settingKey: K,
     value: AdminSettings[K]
   ) => {
-    if (!supabase) {
-      alert('خطأ في الإعداد: لم يتم تكوين Supabase. لا يمكن حفظ التغييرات.');
+    if (isWriteDisabled) {
+      alert('الحفظ معطل عند استخدام المفتاح الافتراضي. يرجى إضافة مفتاحك الخاص في تبويب الأمان.');
       return;
     }
     setIsSaving(true);
@@ -122,9 +125,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
         ...prevSettings,
         [settingKey]: value
       }));
-    } catch (e) {
+    } catch (e: any) {
       console.error(`Failed to update setting '${settingKey}':`, e);
-      alert('خطأ في الحفظ السحابي');
+      let alertMessage = 'خطأ في الحفظ السحابي. يرجى التحقق من اتصالك بالإنترنت.';
+      if (e.message && e.message.includes('security policy')) {
+        alertMessage = 'فشل الحفظ بسبب قيود الأمان في Supabase. يرجى التأكد من أن لديك صلاحيات الكتابة (RLS policies) على جدول "admin_settings". يمكنك مراجعة تبويب الأمان لمزيد من المعلومات.';
+      }
+      alert(alertMessage);
     } finally {
       setIsSaving(false);
     }
@@ -135,8 +142,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
       alert("الرجاء إدخال كلمة مرور جديدة.");
       return;
     }
-    if (!supabase) {
-      alert("لا يمكن تغيير كلمة المرور. لم يتم تكوين Supabase.");
+    if (isWriteDisabled) {
+      alert("لا يمكن تغيير كلمة المرور باستخدام المفتاح الافتراضي.");
       return;
     }
 
@@ -152,9 +159,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
       updateSettings({ ...settings, adminPassword: newPass });
       setNewPass('');
       alert('تم تغيير كلمة المرور بنجاح!');
-    } catch (e) {
+    } catch (e: any) {
       console.error("Password change error:", e);
-      alert('حدث خطأ أثناء تغيير كلمة المرور.');
+      let alertMessage = 'حدث خطأ أثناء تغيير كلمة المرور.';
+      if (e.message && e.message.includes('security policy')) {
+        alertMessage = 'فشل تغيير كلمة المرور بسبب قيود الأمان في Supabase. يرجى التأكد من أن لديك صلاحيات الكتابة (RLS policies) على جدول "admin_settings".';
+      }
+      alert(alertMessage);
     } finally {
       setIsPasswordSaving(false);
     }
@@ -183,7 +194,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
 
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
-    setIsDragging(true);
+    if (!isWriteDisabled) setIsDragging(true);
   };
   
   const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
@@ -194,12 +205,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setIsDragging(false);
+    if (isWriteDisabled) return;
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       processImageFile(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isWriteDisabled) return;
     if (e.target.files && e.target.files[0]) {
       processImageFile(e.target.files[0]);
     }
@@ -328,16 +341,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                 <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700">
                   <h4 className="font-bold mb-4 dark:text-white">شعار الموقع</h4>
                   <label 
+                      title={writeDisabledTooltip}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`w-full h-36 cursor-pointer rounded-2xl border-2 border-dashed flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50' : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400'}`}
+                      className={`w-full h-36 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center text-center transition-colors ${isWriteDisabled ? 'cursor-not-allowed bg-slate-100 dark:bg-slate-800/50' : 'cursor-pointer'} ${isDragging ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50' : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400'}`}
                   >
-                      <input type="file" disabled={!isSupabaseReady} accept="image/*" onChange={handleFileChange} className="hidden" />
+                      <input type="file" disabled={isWriteDisabled} accept="image/*" onChange={handleFileChange} className="hidden" />
                       {localSettings.siteLogo ? (
                           <img src={localSettings.siteLogo} alt="Site Logo" className="max-h-full max-w-full object-contain p-2 rounded-lg" />
                       ) : (
-                          <div className="text-slate-400 flex flex-col items-center">
+                          <div className={`text-slate-400 flex flex-col items-center ${isWriteDisabled ? 'opacity-50' : ''}`}>
                               <Icons.Upload className="w-10 h-10 mb-2" />
                               <p className="font-bold text-sm">اسحب وأفلت الصورة هنا</p>
                               <p className="text-xs">أو انقر للاختيار من ملفاتك</p>
@@ -345,7 +359,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                       )}
                   </label>
                   {localSettings.siteLogo && (
-                      <button onClick={() => updateSingleSetting('siteLogo', null)} className="w-full mt-3 py-2 text-xs text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors">
+                      <button onClick={() => updateSingleSetting('siteLogo', null)} disabled={isWriteDisabled} title={writeDisabledTooltip} className="w-full mt-3 py-2 text-xs text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none">
                           إزالة الشعار
                       </button>
                   )}
@@ -355,9 +369,9 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
 
             {activeTab === 'social' && (
               <div className="space-y-6">
-                {!isSupabaseReady && (
+                {isWriteDisabled && (
                   <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-center font-bold border border-amber-200">
-                    <p>لا يمكن تعديل الروابط بدون مفتاح Supabase. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
+                    <p>لا يمكن تعديل الروابط بدون مفتاح Supabase الخاص بك. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
                   </div>
                 )}
                 <h3 className="text-xl font-bold dark:text-white">روابط التواصل الاجتماعي</h3>
@@ -366,13 +380,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     const s = data as { url: string; visible: boolean };
                     return (
                       <div key={platform} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border dark:border-slate-700">
-                        <button disabled={!isSupabaseReady} onClick={() => toggleSocialVisibility(platform)}>
+                        <button disabled={isWriteDisabled} onClick={() => toggleSocialVisibility(platform)} title={writeDisabledTooltip}>
                           {s.visible ? <Icons.ToggleOn className="w-8 h-8 text-emerald-600" /> : <Icons.ToggleOff className="w-8 h-8 text-slate-300" />}
                         </button>
                         <span className="font-bold text-sm w-20 capitalize">{platform}</span>
                         <input 
                             type="text" 
-                            disabled={!isSupabaseReady} 
+                            disabled={isWriteDisabled} 
+                            title={writeDisabledTooltip}
                             value={s.url || ''} 
                             onChange={e => {
                                 const newUrl = e.target.value;
@@ -388,7 +403,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                                 }))
                             }}
                             onBlur={() => {
-                                if (JSON.stringify(localSettings.socialLinks) !== JSON.stringify(settings.socialLinks)) {
+                                if (!isWriteDisabled && JSON.stringify(localSettings.socialLinks) !== JSON.stringify(settings.socialLinks)) {
                                     updateSingleSetting('socialLinks', localSettings.socialLinks);
                                 }
                             }}
@@ -402,15 +417,15 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
 
             {activeTab === 'features' && (
               <div className="space-y-3">
-                {!isSupabaseReady && (
+                {isWriteDisabled && (
                   <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-center font-bold border border-amber-200">
-                    <p>لا يمكن تعديل الميزات بدون مفتاح Supabase. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
+                    <p>لا يمكن تعديل الميزات بدون مفتاح Supabase الخاص بك. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
                   </div>
                 )}
                 {Object.keys(localSettings.enabledFeatures || {}).map((feature) => (
                   <div key={feature} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border dark:border-slate-700">
                     <span className="font-bold capitalize">{feature.replace(/([A-Z])/g, ' $1')}</span>
-                    <button disabled={!isSupabaseReady} onClick={() => toggleFeature(feature as any)}>
+                    <button disabled={isWriteDisabled} onClick={() => toggleFeature(feature as any)} title={writeDisabledTooltip}>
                       {localSettings.enabledFeatures[feature as keyof AdminSettings['enabledFeatures']] ? <Icons.ToggleOn className="w-10 h-10 text-emerald-600" /> : <Icons.ToggleOff className="w-10 h-10 text-slate-300" />}
                     </button>
                   </div>
@@ -420,9 +435,9 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
 
             {activeTab === 'maintenance' && (
               <div className="space-y-6">
-                {!isSupabaseReady && (
+                {isWriteDisabled && (
                   <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-center font-bold border border-amber-200">
-                    <p>لا يمكن تعديل الصيانة بدون مفتاح Supabase. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
+                    <p>لا يمكن تعديل الصيانة بدون مفتاح Supabase الخاص بك. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
                   </div>
                 )}
                 <div className="flex items-center justify-between p-6 bg-amber-50 dark:bg-amber-950/20 rounded-2xl border border-amber-200">
@@ -430,7 +445,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     <Icons.Maintenance className="w-6 h-6 text-amber-600" />
                     <span className="font-bold">وضع الصيانة الكامل</span>
                   </div>
-                  <button disabled={!isSupabaseReady} onClick={() => updateSingleSetting('isMaintenanceMode', !localSettings.isMaintenanceMode)}>
+                  <button disabled={isWriteDisabled} onClick={() => updateSingleSetting('isMaintenanceMode', !localSettings.isMaintenanceMode)} title={writeDisabledTooltip}>
                     {localSettings.isMaintenanceMode ? <Icons.ToggleOn className="w-12 h-12 text-emerald-600" /> : <Icons.ToggleOff className="w-12 h-12 text-slate-300" />}
                   </button>
                 </div>
@@ -438,11 +453,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                   <label className="text-sm font-bold text-slate-500">نص التضامن العلوي</label>
                   <input 
                     type="text" 
-                    disabled={!isSupabaseReady} 
+                    disabled={isWriteDisabled}
+                    title={writeDisabledTooltip} 
                     value={localSettings.bloodEffectText} 
                     onChange={e => setLocalSettings(prev => ({...prev, bloodEffectText: e.target.value}))}
                     onBlur={() => {
-                        if (localSettings.bloodEffectText !== settings.bloodEffectText) {
+                        if (!isWriteDisabled && localSettings.bloodEffectText !== settings.bloodEffectText) {
                             updateSingleSetting('bloodEffectText', localSettings.bloodEffectText);
                         }
                     }}
@@ -461,7 +477,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                         ملاحظة: يتم حالياً استخدام مفتاح اتصال افتراضي.
                       </p>
                       <p className="text-blue-600 dark:text-blue-400 mt-1">
-                        للسيطرة الكاملة على بياناتك وإحصائياتك، يوصى بشدة بإضافة مفتاحك الخاص من مشروع Supabase.
+                        للسيطرة الكاملة على بياناتك وحفظ التغييرات، يجب إضافة مفتاحك الخاص من مشروع Supabase.
                       </p>
                     </div>
                   )}
@@ -493,15 +509,33 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     </p>
                   </div>
                 </div>
+                
+                <div className="mt-8 p-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800/50">
+                  <h4 className="font-black text-lg text-emerald-800 dark:text-emerald-300 flex items-center gap-3 mb-3">
+                    <Icons.About className="w-6 h-6" />
+                    ملاحظة هامة لتفعيل الحفظ
+                  </h4>
+                  <p className="text-emerald-700 dark:text-emerald-400 text-sm leading-relaxed">
+                    لكي يتم حفظ التغييرات (مثل الشعار، الروابط، والميزات)، يجب عليك السماح بالكتابة في قاعدة بيانات Supabase. هذا يتطلب إعداد سياسات الأمان (Row Level Security - RLS) على جداول 
+                    <code className="text-xs bg-emerald-200 dark:bg-emerald-800 p-1 rounded-md mx-1" dir="ltr">admin_settings</code> و 
+                    <code className="text-xs bg-emerald-200 dark:bg-emerald-800 p-1 rounded-md mx-1" dir="ltr">analytics</code>.
+                    <br/>
+                    يجب إنشاء سياسة جديدة تسمح بعمليات <b className="font-black">INSERT</b> و <b className="font-black">UPDATE</b> للدور <b className="font-black">anon</b>.
+                    <a href="https://supabase.com/docs/guides/auth/row-level-security" target="_blank" rel="noopener noreferrer" className="underline font-bold block mt-2 hover:text-emerald-500">
+                      اضغط هنا لزيارة التوثيق الرسمي لـ Supabase ومعرفة كيفية إعداد RLS.
+                    </a>
+                  </p>
+                </div>
 
                 <div>
                   <h3 className="text-xl font-bold dark:text-white">تغيير رمز المرور</h3>
                   <div className="space-y-2 mt-4">
-                    <input type="password" disabled={!isSupabaseReady} value={newPass} onChange={e => setNewPass(e.target.value)} placeholder="الرمز الجديد" className="w-full p-4 rounded-xl border dark:bg-slate-800 disabled:opacity-50" />
+                    <input type="password" disabled={isWriteDisabled} title={writeDisabledTooltip} value={newPass} onChange={e => setNewPass(e.target.value)} placeholder="الرمز الجديد" className="w-full p-4 rounded-xl border dark:bg-slate-800 disabled:opacity-50" />
                     <button 
                       onClick={handlePasswordChange} 
                       className="w-full py-4 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all disabled:bg-slate-400 flex items-center justify-center" 
-                      disabled={!isSupabaseReady || isPasswordSaving}
+                      disabled={isWriteDisabled || isPasswordSaving}
+                      title={writeDisabledTooltip}
                     >
                       {isPasswordSaving ? (
                         <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
