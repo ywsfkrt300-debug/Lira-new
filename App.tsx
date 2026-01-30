@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Language, Theme, RatesResponse, AdminSettings } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
 import Converter from './components/Converter';
@@ -51,11 +51,10 @@ const App: React.FC = () => {
   const [settings, setSettings] = useState<AdminSettings>(DEFAULT_ADMIN_SETTINGS);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [maintenanceMessage] = useState<string>(
-    () => MAINTENANCE_MESSAGES[Math.floor(Math.random() * MAINTENANCE_MESSAGES.length)]
-  );
-  const [vantaEffect, setVantaEffect] = useState<any>(null);
-  const vantaRef = useRef(null);
+  
+  const maintenanceMessage = useMemo(() => {
+    return MAINTENANCE_MESSAGES[Math.floor(Math.random() * MAINTENANCE_MESSAGES.length)];
+  }, []);
 
   const t = translations[lang];
 
@@ -65,41 +64,11 @@ const App: React.FC = () => {
     loadRates();
   }, [lang]);
 
-  // Vanta.js Initialization
-  useEffect(() => {
-    let effect: any = null;
-    if ((window as any).VANTA && vantaRef.current) {
-      effect = (window as any).VANTA.WAVES({
-        el: vantaRef.current,
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        scale: 1.00,
-        scaleMobile: 1.00,
-        shininess: 30.00,
-        waveHeight: 15.00,
-        waveSpeed: 0.8,
-        zoom: 0.85,
-      });
-      setVantaEffect(effect);
-    }
-    return () => {
-      if (effect) effect.destroy();
-    };
-  }, []);
-
-  // Theme and Vanta color synchronization
+  // Theme synchronization
   useEffect(() => {
     const isDark = theme === 'dark';
     document.documentElement.classList.toggle('dark', isDark);
-    if (vantaEffect) {
-      vantaEffect.setOptions({
-        color: isDark ? 0x0b2c1b : 0x41a44a
-      });
-    }
-  }, [theme, vantaEffect]);
+  }, [theme]);
 
   const loadSettings = async () => {
     if (!supabase) {
@@ -192,8 +161,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div ref={vantaRef} className="fixed inset-0 z-0" />
-      <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'}`}>
+      <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'} print:hidden`}>
         {safeFeatures.showBloodEffect && (
           <div className="bg-red-700 text-white py-1.5 overflow-hidden whitespace-nowrap border-b border-red-900 sticky top-0 z-[100] text-xs font-bold uppercase tracking-wider">
             <div className="flex items-center gap-12 animate-[marquee_30s_linear_infinite]">
@@ -243,6 +211,9 @@ const App: React.FC = () => {
                       {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })}
                     </p>
                   )}
+                  <button onClick={() => window.print()} className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all shadow-sm">
+                    <Icons.Print className="w-5 h-5" />
+                  </button>
                   <button onClick={loadRates} disabled={isRefreshing} className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 transition-all shadow-md">
                     <Icons.Refresh className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
                   </button>
@@ -329,4 +300,46 @@ const App: React.FC = () => {
                   {Object.entries(safeSocialLinks).map(([platform, data]) => {
                     const s = data as { url: string; visible: boolean };
                     if (!s || !s.visible) return null;
-                    const Icon
+                    const IconKey = platform.charAt(0).toUpperCase() + platform.slice(1);
+                    const Icon = (Icons as any)[IconKey];
+                    return (
+                      <a key={platform} href={s.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-all">
+                        {Icon ? <Icon className="w-5 h-5" /> : null}
+                      </a>
+                    );
+                  })}
+                </div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+              </div>
+
+              {settings.mobileApp?.visible && (
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-8 rounded-3xl shadow-sm border dark:border-slate-700/50">
+                  <h3 className="text-xl font-bold mb-6 dark:text-white">{t.downloadApp}</h3>
+                  {settings.mobileApp.previewImage && (
+                    <img src={settings.mobileApp.previewImage} alt="Mobile App" className="w-full h-auto rounded-2xl mb-6 shadow-md" />
+                  )}
+                  <a href={settings.mobileApp.url} className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
+                    <Icons.PlayStore className="w-5 h-5" /> {t.directDownload}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+
+        <footer className="max-w-6xl mx-auto px-4 py-12 border-t dark:border-slate-800/50 text-center md:text-right flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-sm font-bold dark:text-white/60 text-slate-600/60">© {new Date().getFullYear()} {t.title} - جميع الحقوق محفوظة</p>
+          <div className="flex gap-6 text-sm font-bold text-slate-600/60 dark:text-slate-400/60">
+            <a href="#" className="hover:text-emerald-600 transition-colors">{t.privacyPolicy}</a>
+            <a href="#" className="hover:text-emerald-600 transition-colors">{t.contactUs}</a>
+          </div>
+        </footer>
+
+        {isAdminOpen && <AdminPortal settings={settings} updateSettings={setSettings} onClose={() => setIsAdminOpen(false)} />}
+        <RatePrintView rates={rates} t={t} lang={lang} />
+      </div>
+    </>
+  );
+};
+
+export default App;

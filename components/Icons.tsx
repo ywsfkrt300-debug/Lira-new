@@ -63,6 +63,13 @@ export const Icons = {
       <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
     </IconContainer>
   ),
+  Print: (props: any) => (
+    <IconContainer {...props}>
+      <polyline points="6 9 6 2 18 2 18 9" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" />
+    </IconContainer>
+  ),
   Sun: (props: any) => (
     <IconContainer {...props}>
       <circle cx="12" cy="12" r="5" />
