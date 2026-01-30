@@ -65,26 +65,44 @@ const App: React.FC = () => {
     setIsRefreshing(false);
   }, [lang]);
 
-  useEffect(() => {
-    trackEvent('PAGE_VIEW');
-    loadSettings();
-    loadRates();
-  }, [lang, loadRates]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     if (!supabase) return;
     try {
       const { data, error } = await supabase.from('admin_settings').select('*').eq('id', 1).single();
       if (error && error.code !== 'PGRST116') throw error;
-      if (data) setSettings(prev => ({ ...prev, ...data, isMaintenanceMode: data.is_maintenance_mode, adminPassword: data.admin_password_hash }));
+      if (data) {
+        // Map snake_case from DB to camelCase for app state
+        setSettings(prev => ({
+          ...prev,
+          isMaintenanceMode: data.is_maintenance_mode ?? prev.isMaintenanceMode,
+          startHour: data.start_hour ?? prev.startHour,
+          endHour: data.end_hour ?? prev.endHour,
+          adminPassword: data.admin_password_hash ?? prev.adminPassword,
+          enabledFeatures: data.enabled_features ?? prev.enabledFeatures,
+          bloodEffectText: data.blood_effect_text ?? prev.bloodEffectText,
+          socialLinks: data.social_links ?? prev.socialLinks,
+          mobileApp: data.mobile_app ?? prev.mobileApp,
+          siteLogo: data.site_logo ?? prev.siteLogo,
+        }));
+      }
     } catch (e) {
       console.error("Failed to load settings from Supabase:", e);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
+  
+  useEffect(() => {
+    trackEvent('PAGE_VIEW');
+    loadSettings();
+  }, [loadSettings]);
+  
+  useEffect(() => {
+    loadRates();
+  }, [loadRates]);
+
 
   if (settings.isMaintenanceMode) {
     return (

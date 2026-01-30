@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AdminSettings } from '../types';
 import { Icons } from './Icons';
-import { supabase, setAndInitializeSupabase, usingFallbackKey } from '../services/supabaseClient';
+import { supabase } from '../services/supabaseClient';
 
 interface AdminPortalProps {
   settings: AdminSettings;
@@ -29,15 +29,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const [activeTab, setActiveTab] = useState<'stats' | 'social' | 'maintenance' | 'features' | 'security'>('stats');
   const [localSettings, setLocalSettings] = useState(settings);
   const [newPass, setNewPass] = useState('');
-  const [keyInput, setKeyInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
   const [analyticsData, setAnalyticsData] = useState({ pageViews: 0, operations: 0 });
   const [isSupabaseReady, setIsSupabaseReady] = useState(!!supabase);
   const [isDragging, setIsDragging] = useState(false);
   
-  const isWriteDisabled = !isSupabaseReady || usingFallbackKey;
-  const writeDisabledTooltip = isWriteDisabled ? 'هذه الميزة تتطلب مفتاح Supabase الخاص بك لحفظ التغييرات.' : '';
+  const isWriteDisabled = !isSupabaseReady;
+  const writeDisabledTooltip = isWriteDisabled ? 'الكتابة معطلة. فشل الاتصال بقاعدة البيانات.' : '';
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -60,43 +59,29 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
     }
   }, [isSupabaseReady, isAuthenticated]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(false);
     setIsLoggingIn(true);
 
-    if (!supabase) {
-        alert('لا يمكن التحقق من كلمة المرور. لم يتم تكوين Supabase.');
+    // Using a timeout to simulate network latency for better UX,
+    // and to allow the shake animation to be noticeable on error.
+    setTimeout(() => {
+      const trimmedPassword = passwordInput.trim();
+      
+      // Use the adminPassword from the settings prop, which is loaded once on app start.
+      // This avoids making a redundant network request and relies on a single source of truth.
+      if (settings.adminPassword && trimmedPassword === settings.adminPassword) {
+        setIsAuthenticated(true);
+      } else {
         setLoginError(true);
+        // Reset the error state after the animation finishes.
         setTimeout(() => setLoginError(false), 820);
-        setIsLoggingIn(false);
-        return;
-    }
-
-    try {
-        const { data, error } = await supabase
-            .from('admin_settings')
-            .select('admin_password_hash')
-            .eq('id', 1)
-            .single();
-
-        if (error) throw error;
-        
-        if (data && data.admin_password_hash === passwordInput) {
-            setIsAuthenticated(true);
-        } else {
-            setLoginError(true);
-            setTimeout(() => setLoginError(false), 820);
-        }
-    } catch (err) {
-        console.error("Login error:", err);
-        alert('حدث خطأ أثناء محاولة تسجيل الدخول. يرجى التحقق من اتصالك بالإنترنت.');
-        setLoginError(true);
-        setTimeout(() => setLoginError(false), 820);
-    } finally {
-        setPasswordInput('');
-        setIsLoggingIn(false);
-    }
+      }
+      
+      setPasswordInput('');
+      setIsLoggingIn(false);
+    }, 300);
   };
 
   const handleLogout = () => {
@@ -108,7 +93,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
     value: AdminSettings[K]
   ) => {
     if (isWriteDisabled) {
-      alert('الحفظ معطل عند استخدام المفتاح الافتراضي. يرجى إضافة مفتاحك الخاص في تبويب الأمان.');
+      alert('لا يمكن الحفظ. فشل الاتصال بقاعدة البيانات.');
       return;
     }
     setIsSaving(true);
@@ -143,7 +128,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
       return;
     }
     if (isWriteDisabled) {
-      alert("لا يمكن تغيير كلمة المرور باستخدام المفتاح الافتراضي.");
+      alert("لا يمكن تغيير كلمة المرور. فشل الاتصال بقاعدة البيانات.");
       return;
     }
 
@@ -237,16 +222,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
     updateSingleSetting('enabledFeatures', newFeatures);
   };
 
-  const handleSaveKey = () => {
-    if (setAndInitializeSupabase(keyInput)) {
-      setIsSupabaseReady(true);
-      setKeyInput('');
-      alert('تم حفظ مفتاح Supabase بنجاح! سيتم الآن تفعيل الميزات.');
-    } else {
-      alert('المفتاح الذي تم إدخاله غير صالح. يرجى التحقق مرة أخرى.');
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-[1000] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 dir-rtl font-['Tajawal']">
       {!isAuthenticated ? (
@@ -318,8 +293,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
               <div className="space-y-8">
                 {!isSupabaseReady && (
                   <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-center font-bold border border-amber-200">
-                    <p className="mb-2">ميزات الإحصائيات معطلة لأن مفتاح Supabase غير موجود.</p>
-                    <button onClick={() => setActiveTab('security')} className="text-sm underline">انتقل إلى قسم الأمان لإضافته الآن</button>
+                    <p>ميزات الإحصائيات معطلة بسبب فشل الاتصال بقاعدة البيانات.</p>
                   </div>
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -371,7 +345,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
               <div className="space-y-6">
                 {isWriteDisabled && (
                   <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-center font-bold border border-amber-200">
-                    <p>لا يمكن تعديل الروابط بدون مفتاح Supabase الخاص بك. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
+                    <p>التعديل معطل بسبب فشل الاتصال بقاعدة البيانات.</p>
                   </div>
                 )}
                 <h3 className="text-xl font-bold dark:text-white">روابط التواصل الاجتماعي</h3>
@@ -419,7 +393,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
               <div className="space-y-3">
                 {isWriteDisabled && (
                   <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-center font-bold border border-amber-200">
-                    <p>لا يمكن تعديل الميزات بدون مفتاح Supabase الخاص بك. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
+                    <p>التعديل معطل بسبب فشل الاتصال بقاعدة البيانات.</p>
                   </div>
                 )}
                 {Object.keys(localSettings.enabledFeatures || {}).map((feature) => (
@@ -437,7 +411,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
               <div className="space-y-6">
                 {isWriteDisabled && (
                   <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-center font-bold border border-amber-200">
-                    <p>لا يمكن تعديل الصيانة بدون مفتاح Supabase الخاص بك. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
+                    <p>التعديل معطل بسبب فشل الاتصال بقاعدة البيانات.</p>
                   </div>
                 )}
                 <div className="flex items-center justify-between p-6 bg-amber-50 dark:bg-amber-950/20 rounded-2xl border border-amber-200">
@@ -469,48 +443,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
 
             {activeTab === 'security' && (
               <div className="space-y-8">
-                <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700">
-                  <h3 className="text-xl font-bold dark:text-white mb-4">إعدادات Supabase</h3>
-                   {usingFallbackKey && (
-                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-sm border border-blue-200 dark:border-blue-800/50">
-                      <p className="font-bold text-blue-700 dark:text-blue-300">
-                        ملاحظة: يتم حالياً استخدام مفتاح اتصال افتراضي.
-                      </p>
-                      <p className="text-blue-600 dark:text-blue-400 mt-1">
-                        للسيطرة الكاملة على بياناتك وحفظ التغييرات، يجب إضافة مفتاحك الخاص من مشروع Supabase.
-                      </p>
-                    </div>
-                  )}
-                  <p className="text-sm text-slate-500 mb-4">
-                    لربط التطبيق بقاعدة بياناتك، يرجى إدخال المفتاح العام (anon key) الخاص بمشروعك في Supabase.
-                    <br />
-                    يمكنك العثور عليه في: <code className="text-xs bg-slate-200 dark:bg-slate-700 p-1 rounded-md" dir="ltr">Project Settings &gt; API</code>
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <input 
-                      type="text" 
-                      value={keyInput} 
-                      onChange={e => setKeyInput(e.target.value)} 
-                      placeholder="الصق مفتاح anon العام هنا" 
-                      className="flex-1 p-4 rounded-xl border dark:bg-slate-800" 
-                      dir="ltr"
-                    />
-                    <button onClick={handleSaveKey} className="px-6 py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all">حفظ المفتاح</button>
-                  </div>
-                   {isSupabaseReady && !usingFallbackKey && <p className="text-sm text-emerald-600 mt-3 font-bold">تم تكوين Supabase بنجاح باستخدام مفتاحك الخاص!</p>}
-                   <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg text-sm border border-red-200 dark:border-red-800/50">
-                    <p className="font-bold text-red-700 dark:text-red-300 flex items-center gap-2">
-                      <Icons.Security className="w-4 h-4"/>
-                      تحذير أمني هام:
-                    </p>
-                    <p className="text-red-600 dark:text-red-400 mt-1">
-                      استخدم فقط المفتاح العام الذي يبدأ بـ <code className="text-xs" dir="ltr">eyJ...</code> (anon key). 
-                      <strong className="font-black"> لا تستخدم أبداً</strong> المفتاح السري (service_role key) هنا، فذلك يعرض قاعدة بياناتك لخطر الاختراق الكامل.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="mt-8 p-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800/50">
+                <div className="p-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800/50">
                   <h4 className="font-black text-lg text-emerald-800 dark:text-emerald-300 flex items-center gap-3 mb-3">
                     <Icons.About className="w-6 h-6" />
                     ملاحظة هامة لتفعيل الحفظ
