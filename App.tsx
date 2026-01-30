@@ -112,17 +112,24 @@ const App: React.FC = () => {
     try {
       const { data, error } = await supabase.from('admin_settings').select('*').eq('id', 1).single();
       if (error && error.code !== 'PGRST116') throw error;
+      
       if (data) {
+        // Robustly merge enabledFeatures to prevent null/undefined values from DB
+        const dbFeatures = data.enabled_features || {};
+        const mergedFeatures = { ...DEFAULT_ADMIN_SETTINGS.enabledFeatures };
+        for (const key in mergedFeatures) {
+            if (typeof (dbFeatures as any)[key] === 'boolean') {
+                (mergedFeatures as any)[key] = (dbFeatures as any)[key];
+            }
+        }
+
         const newSettings = {
           ...DEFAULT_ADMIN_SETTINGS,
           isMaintenanceMode: data.is_maintenance_mode ?? DEFAULT_ADMIN_SETTINGS.isMaintenanceMode,
           startHour: data.start_hour ?? DEFAULT_ADMIN_SETTINGS.startHour,
           endHour: data.end_hour ?? DEFAULT_ADMIN_SETTINGS.endHour,
           adminPassword: data.admin_password_hash ?? DEFAULT_ADMIN_SETTINGS.adminPassword,
-          enabledFeatures: {
-            ...DEFAULT_ADMIN_SETTINGS.enabledFeatures,
-            ...(data.enabled_features || {}),
-          },
+          enabledFeatures: mergedFeatures,
           bloodEffectText: data.blood_effect_text ?? DEFAULT_ADMIN_SETTINGS.bloodEffectText,
           socialLinks: {
             ...DEFAULT_ADMIN_SETTINGS.socialLinks,
