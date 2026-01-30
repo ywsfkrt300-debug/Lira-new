@@ -2,9 +2,8 @@
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7';
 
 const supabaseUrl = 'https://mewvdzovclfhezlemwjg.supabase.co';
-// This is the correct, public anonymous key for the Supabase project.
-// The previous key was incorrect and has now been fixed to ensure analytics work correctly.
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ld3Zkem92Y2xmaGV6bGVtd2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI2MDM2NjUsImV4cCI6MjAyODE3OTY2NX0.Hl24skkn22EM1j-jwf28oADr2T5-WViFk32L9e1dxpM';
+// Public anonymous key for the Supabase project.
+const supabaseAnonKey = 'sb_publishable_efzLvxV0Rf9GKpZKf4Jm6Q_4XVcX1xR';
 
 let supabase: SupabaseClient | null = null;
 
