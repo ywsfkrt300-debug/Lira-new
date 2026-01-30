@@ -1,3 +1,4 @@
+
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7';
 
 const supabaseUrl = 'https://mewvdzovclfhezlemwjg.supabase.co';
@@ -29,13 +30,17 @@ export const trackEvent = async (eventType: 'PAGE_VIEW' | 'CONVERSION_OP') => {
   }
 
   try {
-    const { error } = await supabase.from('analytics').insert([{ event_type: eventType }]);
+    // Invoke the edge function instead of inserting directly.
+    // This allows for server-side logic like IP-based geolocation.
+    const { error } = await supabase.functions.invoke('track-event', {
+      body: { event_type: eventType },
+    });
     
     if (error) {
       // Don't throw, but log as it's a non-critical background task.
-      console.error(`Supabase analytics error (${eventType}):`, error.message);
+      console.error(`Error invoking track-event function (${eventType}):`, error.message);
     }
   } catch (e: any) {
-    console.error(`Exception during Supabase analytics call (${eventType}):`, e.message);
+    console.error(`Exception during Supabase function invocation (${eventType}):`, e.message);
   }
 };
