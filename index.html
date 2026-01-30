@@ -32,6 +32,11 @@
           animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
         }
 
+        #preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .background-shapes {
             position: fixed;
             top: 0;
@@ -116,6 +121,17 @@
 </script>
 </head>
 <body class="text-slate-900 selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden">
+    <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-500 ease-in-out" style="font-family: 'Tajawal', sans-serif;">
+        <div class="relative w-24 h-24 mb-8">
+            <div class="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-t-emerald-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-emerald-500 font-black text-4xl">L</div>
+        </div>
+        <p class="text-lg font-bold tracking-widest animate-pulse">جاري تحميل ليرتنا...</p>
+        <div class="absolute bottom-10 text-xs text-slate-500">
+            <p>دليلك الموثوق للعملة السورية</p>
+        </div>
+    </div>
     <div class="background-shapes">
         <div class="circle"></div>
         <div class="circle"></div>

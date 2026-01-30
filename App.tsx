@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Language, Theme, RatesResponse, AdminSettings } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
 import Converter from './components/Converter';
@@ -21,10 +21,10 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
   },
   bloodEffectText: 'دمتي قوية يا حلب',
   socialLinks: {
-    whatsapp: { url: '#', visible: true },
-    telegram: { url: '#', visible: true },
-    facebook: { url: '#', visible: true },
-    instagram: { url: '#', visible: true },
+    whatsapp: { url: 'https://whatsapp.com', visible: true },
+    telegram: { url: 'https://telegram.org', visible: true },
+    facebook: { url: 'https://facebook.com', visible: true },
+    instagram: { url: 'https://instagram.com', visible: true },
   },
   mobileApp: {
     url: '#',
@@ -51,6 +51,7 @@ const App: React.FC = () => {
   const [settings, setSettings] = useState<AdminSettings>(DEFAULT_ADMIN_SETTINGS);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const firstLoad = useRef(true);
   
   const maintenanceMessage = useMemo(() => {
     return MAINTENANCE_MESSAGES[Math.floor(Math.random() * MAINTENANCE_MESSAGES.length)];
@@ -95,13 +96,25 @@ const App: React.FC = () => {
   }, [theme]);
   
   useEffect(() => {
-    trackEvent('PAGE_VIEW');
-    loadSettings();
-  }, [loadSettings]);
-  
-  useEffect(() => {
-    loadRates();
-  }, [loadRates]);
+    const executeLoad = async () => {
+        if (firstLoad.current) {
+            trackEvent('PAGE_VIEW');
+            await loadSettings();
+        }
+
+        await loadRates();
+
+        if (firstLoad.current) {
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                preloader.classList.add('fade-out');
+                setTimeout(() => preloader.remove(), 500);
+            }
+            firstLoad.current = false;
+        }
+    };
+    executeLoad();
+  }, [loadSettings, loadRates]);
 
 
   if (settings.isMaintenanceMode) {
