@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { AdminSettings } from '../types';
 import { Icons } from './Icons';
@@ -37,7 +38,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
   const [isDraggingPreloader, setIsDraggingPreloader] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error'; message: string; key: number } | null>(null);
-
+  const [isResettingViews, setIsResettingViews] = useState(false);
+  const [isResettingOps, setIsResettingOps] = useState(false);
   
   const isWriteDisabled = !isSupabaseReady;
   const writeDisabledTooltip = isWriteDisabled ? 'الكتابة معطلة. فشل الاتصال بقاعدة البيانات.' : '';
@@ -162,6 +164,40 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
       showSaveStatus('error', alertMessage);
     } finally {
       setIsPasswordSaving(false);
+    }
+  };
+
+  const handleResetAnalytics = async (eventType: 'PAGE_VIEW' | 'CONVERSION_OP') => {
+    const eventName = eventType === 'PAGE_VIEW' ? 'الزيارات' : 'عمليات التحويل';
+    if (!window.confirm(`هل أنت متأكد أنك تريد تصفير عداد ${eventName}؟ لا يمكن التراجع عن هذا الإجراء.`)) {
+        return;
+    }
+
+    if (isWriteDisabled) {
+        showSaveStatus('error', 'فشل التصفير: لا يوجد اتصال بقاعدة البيانات.');
+        return;
+    }
+
+    if (eventType === 'PAGE_VIEW') setIsResettingViews(true);
+    else setIsResettingOps(true);
+
+    try {
+        const { error } = await supabase
+            .from('analytics')
+            .delete()
+            .eq('event_type', eventType);
+
+        if (error) throw error;
+        
+        showSaveStatus('success', `تم تصفير عداد ${eventName} بنجاح.`);
+        await fetchStats(); // Refresh stats
+
+    } catch (e: any) {
+        console.error(`Failed to reset analytics for '${eventType}':`, e);
+        showSaveStatus('error', 'حدث خطأ أثناء عملية التصفير.');
+    } finally {
+        if (eventType === 'PAGE_VIEW') setIsResettingViews(false);
+        else setIsResettingOps(false);
     }
   };
 
@@ -338,6 +374,37 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <ImageUploader type="siteLogo" />
                     <ImageUploader type="preloaderImage" />
+                </div>
+                <div className="mt-8 pt-8 border-t dark:border-slate-700">
+                  <h3 className="text-lg font-bold mb-4 dark:text-white">إجراءات خطيرة</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-red-500/5 dark:bg-red-500/10 rounded-2xl border border-red-500/10">
+                      <button 
+                          onClick={() => handleResetAnalytics('PAGE_VIEW')}
+                          disabled={isWriteDisabled || isResettingViews}
+                          title={writeDisabledTooltip}
+                          className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-red-950/20 text-red-600 font-bold rounded-xl border border-red-200 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      >
+                          {isResettingViews ? (
+                              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                          ) : (
+                              <Icons.Trash className="w-4 h-4" />
+                          )}
+                          <span>تصفير عداد الزيارات</span>
+                      </button>
+                      <button 
+                          onClick={() => handleResetAnalytics('CONVERSION_OP')}
+                          disabled={isWriteDisabled || isResettingOps}
+                          title={writeDisabledTooltip}
+                          className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-red-950/20 text-red-600 font-bold rounded-xl border border-red-200 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      >
+                          {isResettingOps ? (
+                              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                          ) : (
+                              <Icons.Trash className="w-4 h-4" />
+                          )}
+                          <span>تصفير عداد التحويلات</span>
+                      </button>
+                  </div>
                 </div>
               </div>
             )}
