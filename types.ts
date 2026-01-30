@@ -1,3 +1,4 @@
+
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
 export type View = 'home' | 'converter' | 'calculator' | 'electricity' | 'privacy' | 'contact';
@@ -14,6 +15,7 @@ export interface AdminSettings {
     marketRates: boolean;
     showBloodEffect: boolean;
     electricityCalculator: boolean;
+    enableAnalytics: boolean;
   };
   bloodEffectText: string;
   socialLinks: {

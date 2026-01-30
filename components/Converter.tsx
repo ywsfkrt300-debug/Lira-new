@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Translation, CONVERSION_RATE } from '../types';
 import { Icons } from './Icons';
@@ -6,11 +7,12 @@ import { trackEvent } from '../services/supabaseClient';
 interface ConverterProps {
   t: Translation;
   lang: 'ar' | 'en';
+  enableAnalytics: boolean;
 }
 
 type CurrencyKey = 'SYP_NEW' | 'SYP_OLD';
 
-const Converter: React.FC<ConverterProps> = ({ t, lang }) => {
+const Converter: React.FC<ConverterProps> = ({ t, lang, enableAnalytics }) => {
   const [amount, setAmount] = useState<string>('');
   const [fromCurrency, setFromCurrency] = useState<CurrencyKey>('SYP_OLD');
   const [toCurrency, setToCurrency] = useState<CurrencyKey>('SYP_NEW');
@@ -36,7 +38,7 @@ const Converter: React.FC<ConverterProps> = ({ t, lang }) => {
   useEffect(() => {
     // A conversion is any action that results in a new, non-zero calculation.
     // We debounce to consolidate rapid changes (like typing) into a single event.
-    if (parseFloat(amount) > 0) {
+    if (enableAnalytics && parseFloat(amount) > 0) {
       const handler = setTimeout(() => {
         trackEvent('CONVERSION_OP');
       }, 800);
@@ -45,7 +47,7 @@ const Converter: React.FC<ConverterProps> = ({ t, lang }) => {
         clearTimeout(handler);
       };
     }
-  }, [amount, fromCurrency, toCurrency]);
+  }, [amount, fromCurrency, toCurrency, enableAnalytics]);
 
   const result = calculateResult();
 

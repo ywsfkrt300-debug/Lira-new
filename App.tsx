@@ -21,6 +21,7 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
     marketRates: true,
     showBloodEffect: false,
     electricityCalculator: true,
+    enableAnalytics: true,
   },
   bloodEffectText: 'دمتي قوية يا حلب',
   socialLinks: {
@@ -99,6 +100,10 @@ const App: React.FC = () => {
 
   const t = translations[lang];
 
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
+
   // Routing and Title Effect
   useEffect(() => {
     const handleHashChange = () => {
@@ -112,9 +117,7 @@ const App: React.FC = () => {
       }
     };
     
-    // Initial load
     handleHashChange();
-
     window.addEventListener('hashchange', handleHashChange);
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
@@ -133,14 +136,13 @@ const App: React.FC = () => {
     setIsRefreshing(false);
   }, [lang]);
 
-  const loadSettings = useCallback(async () => {
-    if (!supabase) return;
+  const loadSettings = useCallback(async (): Promise<AdminSettings> => {
+    if (!supabase) return DEFAULT_ADMIN_SETTINGS;
     try {
       const { data, error } = await supabase.from('admin_settings').select('*').eq('id', 1).single();
       if (error && error.code !== 'PGRST116') throw error;
       
       if (data) {
-        // Robustly merge enabledFeatures to prevent null/undefined values from DB
         const dbFeatures = data.enabled_features || {};
         const mergedFeatures = { ...DEFAULT_ADMIN_SETTINGS.enabledFeatures };
         for (const key in mergedFeatures) {
@@ -149,7 +151,7 @@ const App: React.FC = () => {
             }
         }
 
-        const newSettings = {
+        return {
           ...DEFAULT_ADMIN_SETTINGS,
           isMaintenanceMode: data.is_maintenance_mode ?? DEFAULT_ADMIN_SETTINGS.isMaintenanceMode,
           startHour: data.start_hour ?? DEFAULT_ADMIN_SETTINGS.startHour,
@@ -157,64 +159,58 @@ const App: React.FC = () => {
           adminPassword: data.admin_password_hash ?? DEFAULT_ADMIN_SETTINGS.adminPassword,
           enabledFeatures: mergedFeatures,
           bloodEffectText: data.blood_effect_text ?? DEFAULT_ADMIN_SETTINGS.bloodEffectText,
-          socialLinks: {
-            ...DEFAULT_ADMIN_SETTINGS.socialLinks,
-            ...(data.social_links || {}),
-          },
-          mobileApp: {
-            ...DEFAULT_ADMIN_SETTINGS.mobileApp,
-            ...(data.mobile_app || {}),
-          },
+          socialLinks: { ...DEFAULT_ADMIN_SETTINGS.socialLinks, ...(data.social_links || {}) },
+          mobileApp: { ...DEFAULT_ADMIN_SETTINGS.mobileApp, ...(data.mobile_app || {}) },
           siteLogo: data.site_logo ?? DEFAULT_ADMIN_SETTINGS.siteLogo,
           preloaderImage: data.preloader_image ?? DEFAULT_ADMIN_SETTINGS.preloaderImage,
         };
-        setSettings(newSettings);
-        
-        const imgEl = document.getElementById('preloader-custom-img') as HTMLImageElement;
-        const letterEl = document.getElementById('preloader-default-letter');
-        if (imgEl && letterEl && newSettings.preloaderImage) {
-            imgEl.src = newSettings.preloaderImage;
-            imgEl.classList.remove('hidden');
-            letterEl.classList.add('hidden');
-        }
       }
     } catch (e) {
       console.error("Failed to load settings from Supabase:", e);
     }
+    return DEFAULT_ADMIN_SETTINGS;
   }, []);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
+  const applyPreloaderSettings = useCallback((settingsToApply: AdminSettings) => {
+    const imgEl = document.getElementById('preloader-custom-img') as HTMLImageElement;
+    const letterEl = document.getElementById('preloader-default-letter');
+    if (imgEl && letterEl && settingsToApply.preloaderImage) {
+        imgEl.src = settingsToApply.preloaderImage;
+        imgEl.classList.remove('hidden');
+        letterEl.classList.add('hidden');
+    }
+  }, []);
   
   useEffect(() => {
     const executeLoad = async () => {
-        if (firstLoad.current) {
-            trackEvent('PAGE_VIEW');
-            await loadSettings();
-        }
+      if (firstLoad.current) {
+        const loadedSettings = await loadSettings();
+        setSettings(loadedSettings);
+        applyPreloaderSettings(loadedSettings);
 
-        await loadRates();
-
-        if (firstLoad.current) {
-            const preloader = document.getElementById('preloader');
-            if (preloader) {
-                preloader.classList.add('fade-out');
-                setTimeout(() => preloader.remove(), 500);
-            }
-            firstLoad.current = false;
+        if (loadedSettings.enabledFeatures.enableAnalytics) {
+          trackEvent('PAGE_VIEW');
         }
+      }
+
+      await loadRates();
+
+      if (firstLoad.current) {
+        const preloader = document.getElementById('preloader');
+        if (preloader) {
+          preloader.classList.add('fade-out');
+          setTimeout(() => preloader.remove(), 500);
+        }
+        firstLoad.current = false;
+      }
     };
     executeLoad();
-  }, [loadSettings, loadRates]);
-
+  }, [loadSettings, loadRates, applyPreloaderSettings]);
 
   if (settings.isMaintenanceMode) {
     return (
       <>
-        <div 
-          className="min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white dir-rtl font-['Tajawal']"
-        >
+        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white dir-rtl font-['Tajawal']">
           <div className="text-center space-y-8 max-w-lg">
             <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto shadow-2xl animate-pulse">
               <Icons.Maintenance className="w-10 h-10 text-slate-900" />
@@ -223,12 +219,7 @@ const App: React.FC = () => {
             <p className="text-slate-400 font-medium">{maintenanceMessage}</p>
           </div>
         </div>
-        <button
-          onClick={() => setIsAdminOpen(true)}
-          className="fixed bottom-5 right-5 w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 z-[1001] backdrop-blur-sm"
-          aria-label="الدخول كمسؤول"
-          title="الدخول كمسؤول"
-        >
+        <button onClick={() => setIsAdminOpen(true)} className="fixed bottom-5 right-5 w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 z-[1001] backdrop-blur-sm" aria-label="الدخول كمسؤول" title="الدخول كمسؤول">
           <Icons.Security className="w-6 h-6" />
         </button>
         {isAdminOpen && <AdminPortal settings={settings} updateSettings={setSettings} onClose={() => setIsAdminOpen(false)} />}
@@ -304,7 +295,7 @@ const App: React.FC = () => {
             </div>
           </>
         );
-      case 'converter': return <div className="max-w-4xl mx-auto"><Converter t={t} lang={lang} /></div>;
+      case 'converter': return <div className="max-w-4xl mx-auto"><Converter t={t} lang={lang} enableAnalytics={safeFeatures.enableAnalytics} /></div>;
       case 'calculator': return <div className="max-w-4xl mx-auto"><ChangeCalculator t={t} /></div>;
       case 'electricity': return <div className="max-w-5xl mx-auto"><ElectricityCalculator t={t} lang={lang} /></div>;
       case 'privacy': return <StaticPage title={t.privacyTitle} content={t.privacyContent} />;

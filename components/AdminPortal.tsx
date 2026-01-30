@@ -46,6 +46,15 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const isWriteDisabled = !isSupabaseReady;
   const writeDisabledTooltip = isWriteDisabled ? 'الكتابة معطلة. فشل الاتصال بقاعدة البيانات.' : '';
 
+  const featureLabels: { [key in keyof AdminSettings['enabledFeatures']]: string } = {
+    converter: 'محول العملات',
+    calculator: 'حاسبة الباقي',
+    marketRates: 'أسعار الصرف الحية',
+    showBloodEffect: 'شريط التضامن العلوي',
+    electricityCalculator: 'حاسبة الكهرباء',
+    enableAnalytics: 'تفعيل الإحصائيات والتتبع'
+  };
+
   useEffect(() => {
     if (saveStatus) {
       const timer = setTimeout(() => setSaveStatus(null), 4000);
@@ -509,14 +518,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     <p>التعديل معطل بسبب فشل الاتصال بقاعدة البيانات.</p>
                   </div>
                 )}
-                {Object.keys(localSettings.enabledFeatures || {}).map((feature) => (
-                  <div key={feature} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border dark:border-slate-700">
-                    <span className="font-bold capitalize">{feature.replace(/([A-Z])/g, ' $1')}</span>
-                    <button disabled={isWriteDisabled} onClick={() => toggleFeature(feature as any)} title={writeDisabledTooltip}>
-                      {localSettings.enabledFeatures[feature as keyof AdminSettings['enabledFeatures']] ? <Icons.ToggleOn className="w-10 h-10 text-emerald-600" /> : <Icons.ToggleOff className="w-10 h-10 text-slate-300" />}
-                    </button>
-                  </div>
-                ))}
+                {Object.keys(featureLabels).map((featureKey) => {
+                  const feature = featureKey as keyof AdminSettings['enabledFeatures'];
+                  return (
+                    <div key={feature} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border dark:border-slate-700">
+                      <span className="font-bold">{featureLabels[feature]}</span>
+                      <button disabled={isWriteDisabled} onClick={() => toggleFeature(feature)} title={writeDisabledTooltip}>
+                        {localSettings.enabledFeatures[feature] ? <Icons.ToggleOn className="w-10 h-10 text-emerald-600" /> : <Icons.ToggleOff className="w-10 h-10 text-slate-300" />}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
