@@ -30,6 +30,8 @@ export interface AdminSettings {
 export interface Translation {
   title: string;
   subtitle: string;
+  home: string;
+  services: string;
   converter: string;
   calculator: string;
   newToOld: string;
@@ -64,7 +66,6 @@ export interface Translation {
   directDownload: string;
   appNote: string;
   rateError: string;
-  printRates: string;
 }
 
 export interface ExchangeRate {

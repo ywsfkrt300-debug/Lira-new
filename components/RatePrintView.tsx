@@ -36,7 +36,7 @@ const RatePrintView: React.FC<RatePrintViewProps> = ({ rates, t, lang }) => {
                    (rates.blackMarketRates && rates.blackMarketRates.length > 0));
 
   return (
-    <div id="printable-document" className="hidden print:block bg-white p-12 text-slate-900 dir-rtl font-['Tajawal'] min-h-screen">
+    <div id="printable-document" className="absolute -top-[9999px] -left-[9999px] bg-white p-12 text-slate-900 dir-rtl font-['Tajawal'] w-[800px]">
       {/* Header */}
       <div className="border-b-4 border-emerald-600 pb-8 mb-10 flex justify-between items-end">
         <div>

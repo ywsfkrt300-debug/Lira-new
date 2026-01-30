@@ -2,19 +2,17 @@ import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-
 
 const supabaseUrl = 'https://mewvdzovclfhezlemwjg.supabase.co';
 const LOCAL_STORAGE_KEY = 'LIRATNA_SUPABASE_ANON_KEY';
+const FALLBACK_ANON_KEY = 'sb_publishable_efzLvxV0Rf9GKpZKf4Jm6Q_4XVcX1xR';
 
-// The client instance, mutable so it can be re-initialized.
 let supabase: SupabaseClient | null = null;
+let usingFallbackKey = false;
 
-// Function to initialize the client. Can be called on startup and later if a new key is provided.
 const initializeSupabase = (key: string | null | undefined): SupabaseClient | null => {
   if (key) {
     try {
-      // Create and return a new client instance
       return createClient(supabaseUrl, key);
     } catch (error) {
       console.error("Failed to create Supabase client:", error);
-      // Clear a potentially bad key from storage
       localStorage.removeItem(LOCAL_STORAGE_KEY);
       return null;
     }
@@ -22,17 +20,22 @@ const initializeSupabase = (key: string | null | undefined): SupabaseClient | nu
   return null;
 };
 
-// Use the provided publishable key as a fallback.
-// This ensures the app works out-of-the-box, while still allowing overrides via localStorage or environment variables.
-const hardcodedKey = 'sb_publishable_efzLvxV0Rf9GKpZKf4Jm6Q_4XVcX1xR';
-const initialKey = (process.env as any).SUPABASE_ANON_KEY || localStorage.getItem(LOCAL_STORAGE_KEY) || hardcodedKey;
-supabase = initializeSupabase(initialKey);
+let keyToUse = localStorage.getItem(LOCAL_STORAGE_KEY);
 
-if (!supabase) {
-  console.warn("Configuration Warning: Supabase key not found. Supabase-dependent features will be disabled.");
+if (!keyToUse) {
+  keyToUse = FALLBACK_ANON_KEY;
+  usingFallbackKey = true;
+  console.log("Using fallback Supabase key.");
+} else {
+  console.log("Using Supabase key from localStorage.");
 }
 
-// Function to allow setting the key from the UI
+supabase = initializeSupabase(keyToUse);
+
+if (!supabase) {
+  console.warn("Configuration Warning: Supabase key not found or invalid. Supabase-dependent features will be disabled.");
+}
+
 export const setAndInitializeSupabase = (key: string): boolean => {
   if (!key || key.trim() === '') {
     console.error("Attempted to set an empty Supabase key.");
@@ -41,17 +44,18 @@ export const setAndInitializeSupabase = (key: string): boolean => {
   const newClient = initializeSupabase(key);
   if (newClient) {
     localStorage.setItem(LOCAL_STORAGE_KEY, key);
-    supabase = newClient; // Update the exported singleton
+    supabase = newClient;
+    usingFallbackKey = false; // User has set their own key now
     console.log("Supabase client successfully initialized with new key.");
     return true;
   }
   return false;
 };
 
-export { supabase };
+export { supabase, usingFallbackKey };
 
 export const trackEvent = async (eventType: 'PAGE_VIEW' | 'CONVERSION_OP') => {
-  if (!supabase) return; // Gracefully do nothing if supabase is not initialized.
+  if (!supabase) return;
 
   try {
     const { error } = await supabase.from('analytics').insert([{ event_type: eventType }]);

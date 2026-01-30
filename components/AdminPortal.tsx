@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AdminSettings } from '../types';
 import { Icons } from './Icons';
-import { supabase, setAndInitializeSupabase } from '../services/supabaseClient';
+import { supabase, setAndInitializeSupabase, usingFallbackKey } from '../services/supabaseClient';
 
 interface AdminPortalProps {
   settings: AdminSettings;
@@ -455,10 +455,20 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
               <div className="space-y-8">
                 <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700">
                   <h3 className="text-xl font-bold dark:text-white mb-4">إعدادات Supabase</h3>
+                   {usingFallbackKey && (
+                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-sm border border-blue-200 dark:border-blue-800/50">
+                      <p className="font-bold text-blue-700 dark:text-blue-300">
+                        ملاحظة: يتم حالياً استخدام مفتاح اتصال افتراضي.
+                      </p>
+                      <p className="text-blue-600 dark:text-blue-400 mt-1">
+                        للسيطرة الكاملة على بياناتك وإحصائياتك، يوصى بشدة بإضافة مفتاحك الخاص من مشروع Supabase.
+                      </p>
+                    </div>
+                  )}
                   <p className="text-sm text-slate-500 mb-4">
-                    هذا المفتاح مطلوب لميزات مثل الإحصائيات وحفظ الإعدادات. يمكنك العثور على مفتاح 'anon' (العام) في لوحة تحكم Supabase الخاصة بك ضمن:
+                    لربط التطبيق بقاعدة بياناتك، يرجى إدخال المفتاح العام (anon key) الخاص بمشروعك في Supabase.
                     <br />
-                    <code className="text-xs bg-slate-200 dark:bg-slate-700 p-1 rounded-md inline-block mt-2" dir="ltr">Project Settings &gt; API &gt; Project API keys</code>
+                    يمكنك العثور عليه في: <code className="text-xs bg-slate-200 dark:bg-slate-700 p-1 rounded-md" dir="ltr">Project Settings &gt; API</code>
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <input 
@@ -471,7 +481,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     />
                     <button onClick={handleSaveKey} className="px-6 py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all">حفظ المفتاح</button>
                   </div>
-                  {isSupabaseReady && <p className="text-sm text-emerald-600 mt-3 font-bold">تم تكوين Supabase بنجاح!</p>}
+                   {isSupabaseReady && !usingFallbackKey && <p className="text-sm text-emerald-600 mt-3 font-bold">تم تكوين Supabase بنجاح باستخدام مفتاحك الخاص!</p>}
+                   <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg text-sm border border-red-200 dark:border-red-800/50">
+                    <p className="font-bold text-red-700 dark:text-red-300 flex items-center gap-2">
+                      <Icons.Security className="w-4 h-4"/>
+                      تحذير أمني هام:
+                    </p>
+                    <p className="text-red-600 dark:text-red-400 mt-1">
+                      استخدم فقط المفتاح العام الذي يبدأ بـ <code className="text-xs" dir="ltr">eyJ...</code> (anon key). 
+                      <strong className="font-black"> لا تستخدم أبداً</strong> المفتاح السري (service_role key) هنا، فذلك يعرض قاعدة بياناتك لخطر الاختراق الكامل.
+                    </p>
+                  </div>
                 </div>
 
                 <div>

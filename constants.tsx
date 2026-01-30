@@ -4,6 +4,8 @@ export const translations: Record<'ar' | 'en', Translation> = {
   ar: {
     title: "ليرتنا",
     subtitle: "محول العملات السورية وأسعار الصرف اللحظية",
+    home: "الرئيسية",
+    services: "الخدمات",
     converter: "محول العملات",
     calculator: "حاسبة الباقي",
     newToOld: "من جديد إلى قديم",
@@ -38,11 +40,12 @@ export const translations: Record<'ar' | 'en', Translation> = {
     directDownload: "تحميل مباشر",
     appNote: "تجربة أفضل وأسرع على هاتفك المحمول.",
     rateError: "تعذر تحميل الأسعار الحية. قد تكون هناك مشكلة في الشبكة أو في الخادم المصدر. يرجى المحاولة مرة أخرى لاحقاً.",
-    printRates: "طباعة الأسعار",
   },
   en: {
     title: "Liratna",
     subtitle: "Syrian Currency Converter & Live Exchange Rates",
+    home: "Home",
+    services: "Services",
     converter: "Currency Converter",
     calculator: "Change Calculator",
     newToOld: "New to Old",
@@ -77,7 +80,6 @@ export const translations: Record<'ar' | 'en', Translation> = {
     directDownload: "Direct Download",
     appNote: "A better and faster experience on your mobile phone.",
     rateError: "Could not load live rates. There might be a network issue or a problem with the source server. Please try again later.",
-    printRates: "Print Rates",
   }
 };
 

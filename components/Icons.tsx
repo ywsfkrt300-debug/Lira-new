@@ -7,6 +7,18 @@ export const IconContainer = ({ children, className = "w-6 h-6" }: { children: R
 );
 
 export const Icons = {
+  Home: (props: any) => (
+    <IconContainer {...props} className="w-4 h-4">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </IconContainer>
+  ),
+  Services: (props: any) => (
+    <IconContainer {...props} className="w-4 h-4">
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+    </IconContainer>
+  ),
   Converter: (props: any) => (
     <IconContainer {...props}>
       <path d="M7 10l5-5 5 5M7 14l5 5 5-5" />
@@ -61,13 +73,6 @@ export const Icons = {
   Refresh: (props: any) => (
     <IconContainer {...props}>
       <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
-    </IconContainer>
-  ),
-  Print: (props: any) => (
-    <IconContainer {...props}>
-      <polyline points="6 9 6 2 18 2 18 9" />
-      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-      <rect x="6" y="14" width="12" height="8" />
     </IconContainer>
   ),
   Sun: (props: any) => (
