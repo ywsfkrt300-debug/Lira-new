@@ -11,6 +11,7 @@ export interface AdminSettings {
     calculator: boolean;
     marketRates: boolean;
     showBloodEffect: boolean;
+    electricityCalculator: boolean;
   };
   bloodEffectText: string;
   socialLinks: {
@@ -66,6 +67,17 @@ export interface Translation {
   directDownload: string;
   appNote: string;
   rateError: string;
+  // Electricity Calculator
+  electricityCalculator: string;
+  consumption: string;
+  kwh: string;
+  subscriptionType: string;
+  billDetails: string;
+  tier: string;
+  rate: string;
+  cost: string;
+  totalBill: string;
+  syp: string;
 }
 
 export interface ExchangeRate {
@@ -87,6 +99,20 @@ export interface Denomination {
   value: number;
   label: string;
 }
+
+export interface ElectricityTier {
+  limit: number | null; // null for the final tier, e.g., "and above"
+  price: number;
+}
+
+export interface ElectricityTariff {
+  id: string;
+  name: { [key in Language]: string };
+  type: 'tiered' | 'flat';
+  tiers?: ElectricityTier[];
+  rate?: number;
+}
+
 
 export const NEW_DENOMINATIONS: Denomination[] = [
   { value: 500, label: '500' },

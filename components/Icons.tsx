@@ -24,6 +24,11 @@ export const Icons = {
       <path d="M7 10l5-5 5 5M7 14l5 5 5-5" />
     </IconContainer>
   ),
+  Electricity: (props: any) => (
+    <IconContainer {...props}>
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+    </IconContainer>
+  ),
   Upload: (props: any) => (
     <IconContainer {...props}>
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

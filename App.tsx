@@ -3,6 +3,7 @@ import { Language, Theme, RatesResponse, AdminSettings } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
 import Converter from './components/Converter';
 import ChangeCalculator from './components/ChangeCalculator';
+import ElectricityCalculator from './components/ElectricityCalculator';
 import AdminPortal from './components/AdminPortal';
 import { fetchLatestRates } from './services/rateService';
 import { Icons } from './components/Icons';
@@ -18,6 +19,7 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
     calculator: true,
     marketRates: true,
     showBloodEffect: false,
+    electricityCalculator: true,
   },
   bloodEffectText: 'دمتي قوية يا حلب',
   socialLinks: {
@@ -285,6 +287,11 @@ const App: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               {safeFeatures.converter && <Converter t={t} lang={lang} />}
               {safeFeatures.calculator && <ChangeCalculator t={t} />}
+              {safeFeatures.electricityCalculator && (
+                <div className="lg:col-span-2">
+                  <ElectricityCalculator t={t} lang={lang} />
+                </div>
+              )}
             </div>
           )}
         </main>

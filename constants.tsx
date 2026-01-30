@@ -1,4 +1,4 @@
-import { Translation } from './types';
+import { Translation, ElectricityTariff } from './types';
 
 export const translations: Record<'ar' | 'en', Translation> = {
   ar: {
@@ -40,6 +40,16 @@ export const translations: Record<'ar' | 'en', Translation> = {
     directDownload: "تحميل مباشر",
     appNote: "تجربة أفضل وأسرع على هاتفك المحمول.",
     rateError: "تعذر تحميل الأسعار الحية. قد تكون هناك مشكلة في الشبكة أو في الخادم المصدر. يرجى المحاولة مرة أخرى لاحقاً.",
+    electricityCalculator: "حاسبة فاتورة الكهرباء",
+    consumption: "الاستهلاك",
+    kwh: "كيلو واط ساعي",
+    subscriptionType: "نوع الاشتراك",
+    billDetails: "تفاصيل الفاتورة",
+    tier: "شريحة",
+    rate: "تعرفة",
+    cost: "التكلفة",
+    totalBill: "إجمالي الفاتورة",
+    syp: "ل.س",
   },
   en: {
     title: "Liratna",
@@ -80,8 +90,41 @@ export const translations: Record<'ar' | 'en', Translation> = {
     directDownload: "Direct Download",
     appNote: "A better and faster experience on your mobile phone.",
     rateError: "Could not load live rates. There might be a network issue or a problem with the source server. Please try again later.",
+    electricityCalculator: "Electricity Bill Calculator",
+    consumption: "Consumption",
+    kwh: "kWh",
+    subscriptionType: "Subscription Type",
+    billDetails: "Bill Details",
+    tier: "Tier",
+    rate: "Rate",
+    cost: "Cost",
+    totalBill: "Total Bill",
+    syp: "SYP",
   }
 };
+
+export const ELECTRICITY_TARIFFS: ElectricityTariff[] = [
+  {
+    id: 'household',
+    name: { ar: 'منزلي', en: 'Household' },
+    type: 'tiered',
+    tiers: [
+      { limit: 300, price: 600 },
+      { limit: null, price: 1400 }, // null limit means "and above"
+    ]
+  },
+  { id: 'commercial', name: { ar: 'تجاري', en: 'Commercial' }, type: 'flat', rate: 1400 },
+  { id: 'billboards', name: { ar: 'لوحات إعلان', en: 'Billboards' }, type: 'flat', rate: 1800 },
+  { id: 'charity', name: { ar: 'جمعيات خيرية', en: 'Charities' }, type: 'flat', rate: 1400 },
+  { id: 'worship', name: { ar: 'دور عبادة', en: 'Places of Worship' }, type: 'flat', rate: 1400 },
+  { id: 'tourism', name: { ar: 'سياحي', en: 'Tourism' }, type: 'flat', rate: 1400 },
+  { id: 'research', name: { ar: 'بحوث علمية', en: 'Scientific Research' }, type: 'flat', rate: 1400 },
+  { id: 'official', name: { ar: 'دوائر رسمية', en: 'Official Depts.' }, type: 'flat', rate: 1400 },
+  { id: 'public_lighting', name: { ar: 'إنارة عامة', en: 'Public Lighting' }, type: 'flat', rate: 1400 },
+  { id: 'public_hospital', name: { ar: 'مشفى عام', en: 'Public Hospital' }, type: 'flat', rate: 1400 },
+  { id: 'industrial', name: { ar: 'صناعي', en: 'Industrial' }, type: 'flat', rate: 1400 },
+  { id: 'agricultural', name: { ar: 'زراعي', en: 'Agricultural' }, type: 'flat', rate: 1400 },
+];
 
 export const MAINTENANCE_MESSAGES: string[] = [
   "نحن نعمل على تحسين تجربتكم. سنعود قريباً.",
