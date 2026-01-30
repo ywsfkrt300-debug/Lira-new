@@ -38,15 +38,6 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
   preloaderImage: null,
 };
 
-const getCurrencyName = (currencyCode: string): string => {
-    const map: { [key: string]: string } = {
-        USD: 'الدولار الأمريكي',
-        EUR: 'اليورو الأوروبي',
-        TRY: 'الليرة التركية'
-    };
-    return map[currencyCode] || currencyCode;
-};
-
 const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, content }) => (
     <div className="max-w-4xl mx-auto bg-white/80 dark:bg-slate-800/80 p-8 md:p-12 rounded-3xl shadow-lg border dark:border-slate-700/50">
         <h2 className="text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h2>
@@ -220,7 +211,7 @@ const App: React.FC = () => {
           </div>
         </div>
         <button onClick={() => setIsAdminOpen(true)} className="fixed bottom-5 right-5 w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 z-[1001] backdrop-blur-sm" aria-label="الدخول كمسؤول" title="الدخول كمسؤول">
-          <Icons.Security className="w-6 h-6" />
+          <Icons.Settings className="w-6 h-6" />
         </button>
         {isAdminOpen && <AdminPortal settings={settings} updateSettings={setSettings} onClose={() => setIsAdminOpen(false)} />}
       </>
@@ -265,13 +256,13 @@ const App: React.FC = () => {
                     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50 transition-all hover:border-emerald-500/30">
                       <div className="flex items-center gap-3 mb-6"><Icons.CentralBank className="w-6 h-6 text-emerald-600" /><h3 className="text-lg font-bold dark:text-white">{t.cbs}</h3></div>
                       <div className="space-y-3">
-                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{getCurrencyName(r.currency)}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
                     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50 transition-all hover:border-blue-500/30">
                       <div className="flex items-center gap-3 mb-6"><Icons.Market className="w-6 h-6 text-blue-600" /><h3 className="text-lg font-bold dark:text-white">{t.blackMarket}</h3></div>
                       <div className="space-y-3">
-                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{getCurrencyName(r.currency)}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
                   </div>

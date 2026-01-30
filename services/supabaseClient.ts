@@ -20,55 +20,16 @@ try {
 
 export { supabase };
 
-/**
- * Gets user's geographical coordinates using the browser's Geolocation API.
- * Returns a promise that resolves with the coordinates or null if permission is
- * denied, the API is not supported, or it times out.
- */
-const getUserCoordinates = (): Promise<{ latitude: number; longitude: number } | null> => {
-  return new Promise((resolve) => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        () => {
-          // Error or permission denied
-          resolve(null);
-        },
-        // Options: low accuracy, 5s timeout, cache for 30 mins to reduce requests
-        { enableHighAccuracy: false, timeout: 5000, maximumAge: 1000 * 60 * 30 }
-      );
-    } else {
-      // Geolocation not supported by the browser
-      resolve(null);
-    }
-  });
-};
-
-
 export const trackEvent = async (eventType: 'PAGE_VIEW' | 'CONVERSION_OP') => {
   if (!supabase) {
     console.warn(`Supabase client not available, skipping trackEvent for '${eventType}'.`);
     return;
   }
-  
-  // Attempt to get user location. This will prompt for permission if not already granted.
-  const coordinates = await getUserCoordinates();
 
   const trackUrl = `${supabaseUrl}/functions/v1/track-event`;
 
   try {
-    const payload: { event_type: string; coordinates?: { latitude: number; longitude: number } } = {
-        event_type: eventType
-    };
-
-    if (coordinates) {
-        payload.coordinates = coordinates;
-    }
+    const payload = { event_type: eventType };
 
     // Both 'apikey' and 'Authorization' headers are required. 'apikey' is for the Supabase gateway,
     // and 'Authorization' is for the Edge Function itself. For anonymous users, the token is the anon key.

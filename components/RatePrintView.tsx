@@ -7,15 +7,6 @@ interface RatePrintViewProps {
   lang: 'ar' | 'en';
 }
 
-const getCurrencyNameForPrint = (currencyCode: string): string => {
-    switch (currencyCode) {
-        case 'USD': return 'الدولار الأمريكي';
-        case 'EUR': return 'اليورو الأوروبي';
-        case 'TRY': return 'الليرة التركية';
-        default: return currencyCode;
-    }
-};
-
 const RatePrintView: React.FC<RatePrintViewProps> = ({ rates, t, lang }) => {
   const now = new Date();
   const dateStr = now.toLocaleDateString(lang === 'ar' ? 'ar-SY' : 'en-US', {
@@ -74,7 +65,7 @@ const RatePrintView: React.FC<RatePrintViewProps> = ({ rates, t, lang }) => {
                 <tbody>
                   {rates.cbsRates.map(rate => (
                     <tr key={rate.currency}>
-                      <td className="border-2 border-slate-200 p-6 font-black">{getCurrencyNameForPrint(rate.currency)}</td>
+                      <td className="border-2 border-slate-200 p-6 font-black">{rate.currency}</td>
                       <td className="border-2 border-slate-200 p-6 text-center font-black text-emerald-700">{formatValue(rate.buy)}</td>
                       <td className="border-2 border-slate-200 p-6 text-center font-black">{formatValue(rate.sell)}</td>
                     </tr>
@@ -101,7 +92,7 @@ const RatePrintView: React.FC<RatePrintViewProps> = ({ rates, t, lang }) => {
                 <tbody>
                   {rates.blackMarketRates.map(rate => (
                     <tr key={rate.currency}>
-                      <td className="border-2 border-slate-200 p-6 font-black">{getCurrencyNameForPrint(rate.currency)}</td>
+                      <td className="border-2 border-slate-200 p-6 font-black">{rate.currency}</td>
                       <td className="border-2 border-slate-200 p-6 text-center font-black text-emerald-700">{formatValue(rate.buy)}</td>
                       <td className="border-2 border-slate-200 p-6 text-center font-black">{formatValue(rate.sell)}</td>
                     </tr>
