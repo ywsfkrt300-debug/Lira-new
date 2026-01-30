@@ -90,11 +90,9 @@ const App: React.FC = () => {
     return (
       <>
         <div 
-          className="min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white dir-rtl font-['Tajawal'] cursor-pointer"
-          onDoubleClick={() => setIsAdminOpen(true)}
-          title="انقر نقراً مزدوجاً للدخول كمسؤول"
+          className="min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white dir-rtl font-['Tajawal']"
         >
-          <div className="text-center space-y-8 max-w-lg pointer-events-none">
+          <div className="text-center space-y-8 max-w-lg">
             <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto shadow-2xl animate-pulse">
               <Icons.Maintenance className="w-10 h-10 text-slate-900" />
             </div>
@@ -102,6 +100,14 @@ const App: React.FC = () => {
             <p className="text-slate-400 font-medium">{maintenanceMessage}</p>
           </div>
         </div>
+        <button
+          onClick={() => setIsAdminOpen(true)}
+          className="fixed bottom-5 right-5 w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 z-[1001] backdrop-blur-sm"
+          aria-label="الدخول كمسؤول"
+          title="الدخول كمسؤول"
+        >
+          <Icons.Security className="w-6 h-6" />
+        </button>
         {isAdminOpen && <AdminPortal settings={settings} updateSettings={setSettings} onClose={() => setIsAdminOpen(false)} />}
       </>
     );
