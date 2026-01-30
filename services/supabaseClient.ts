@@ -29,26 +29,30 @@ export const trackEvent = async (eventType: 'PAGE_VIEW' | 'CONVERSION_OP') => {
     return;
   }
 
+  const trackUrl = `${supabaseUrl}/functions/v1/track-event`;
+
   try {
-    // This function sends tracking data to the 'track-event' Edge Function.
-    // The full endpoint URL is: https://mewvdzovclfhezlemwjg.supabase.co/functions/v1/track-event
-    
-    // The previous implementation used 'Content-Type: text/plain' as a workaround for
-    // potential CORS preflight issues. However, the error "Edge Function returned a non-2xx status code"
-    // suggests the request is reaching the function but is being rejected, possibly due to an
-    // incorrect Content-Type or body format.
-    // We are now reverting to the standard method of invoking the function, passing the body as a
-    // JavaScript object. The supabase-js client will automatically stringify it and set the
-    // 'Content-Type' header to 'application/json', which is the expected format for most Edge Functions.
-    const { error } = await supabase.functions.invoke('track-event', {
-      body: { event_type: eventType },
+    // The error "401 - Missing authorization header" clearly indicates the 'Authorization' header is required.
+    // While the `apikey` header is needed for the Supabase gateway, the function itself requires the
+    // standard `Authorization: Bearer <token>` header. For anonymous calls, the token is the anon key.
+    // We are adding both headers to ensure the request is properly authenticated at all levels.
+    const response = await fetch(trackUrl, {
+      method: 'POST',
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ event_type: eventType })
     });
-    
-    if (error) {
-      // Don't throw, but log as it's a non-critical background task.
-      console.error(`Error invoking track-event function (${eventType}):`, error.message);
+
+    if (!response.ok) {
+      // The response.statusText and body might give more insight into the error.
+      const errorText = await response.text();
+      throw new Error(`Edge Function returned a non-2xx status code: ${response.status} ${response.statusText} - ${errorText}`);
     }
   } catch (e: any) {
-    console.error(`Exception during Supabase function invocation (${eventType}):`, e.message);
+    // This will catch both fetch network errors and the non-ok response error thrown above.
+    console.error(`Error invoking track-event function (${eventType}):`, e.message);
   }
 };

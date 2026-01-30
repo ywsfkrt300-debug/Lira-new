@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Translation, ElectricityTariff } from '../types';
 import { ELECTRICITY_TARIFFS } from '../constants';
