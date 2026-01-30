@@ -34,8 +34,22 @@ export const translations: Record<'ar' | 'en', Translation> = {
     privacyPolicy: "سياسة الخصوصية",
     contactUs: "اتصل بنا",
     aboutContent: "موقع ليرتنا هو منصة مستقلة تهدف لتسهيل العمليات المالية للمواطن السوري عبر توفير أدوات تحويل دقيقة بين فئات العملة القديمة والجديدة ومتابعة أسعار الصرف العالمية.",
-    privacyContent: "نحن نحترم خصوصيتك. لا نقوم بجمع أي بيانات شخصية أو مالية حساسة. جميع الحسابات تتم محلياً في متصفحك.",
-    contactContent: "يسعدنا تواصلكم معنا عبر منصات التواصل الاجتماعي الرسمية الموضحة أدناه لأي استفسار أو اقتراح.",
+    privacyTitle: "سياسة الخصوصية",
+    privacyContent: [
+      "في ليرتنا، خصوصيتك هي أولويتنا القصوى. تم تصميم هذه السياسة لمساعدتك على فهم كيفية تعاملنا مع البيانات.",
+      "نحن لا نجمع أو نخزن أي معلومات تعريف شخصية (PII) من زوارنا. جميع الأدوات المتاحة على موقعنا، مثل محول العملات وحاسبة الباقي، تعمل بالكامل على جهازك (من جانب العميل). هذا يعني أن أي أرقام تدخلها لا تترك متصفحك أبداً ولا يتم إرسالها إلى خوادمنا.",
+      "نستخدم خدمة تحليلات بسيطة (Supabase Analytics) لفهم كيفية استخدام موقعنا بشكل عام، مثل عدد الزيارات ونوع الأدوات المستخدمة. هذه البيانات مجهولة تماماً ولا ترتبط بأي فرد. هدفها الوحيد هو تحسين خدماتنا.",
+      "لا نستخدم ملفات تعريف الارتباط (Cookies) لتتبعك عبر الإنترنت. قد يتم استخدام التخزين المحلي في متصفحك لحفظ تفضيلاتك، مثل اللغة أو المظهر المختار، لتحسين تجربتك عند العودة للموقع.",
+      "نحن لا نشارك أي بيانات مع أطراف ثالثة، لأننا ببساطة لا نجمع أي بيانات شخصية لمشاركتها.",
+      "قد يتم تحديث هذه السياسة من وقت لآخر. سنقوم بنشر أي تغييرات على هذه الصفحة."
+    ],
+    contactTitle: "اتصل بنا",
+    contactContent: [
+        "يسعدنا دائماً الاستماع إليك! سواء كان لديك سؤال، أو اقتراح لتحسين خدماتنا، أو ترغب فقط في إلقاء التحية، فإننا نرحب بتواصلك.",
+        "أفضل وأسرع طريقة للتواصل معنا هي عبر منصات التواصل الاجتماعي الرسمية. فريقنا متواجد للرد على استفساراتكم وتقديم الدعم اللازم.",
+        "يمكنك العثور على روابط مباشرة إلى صفحاتنا على فيسبوك، تيليجرام، واتساب، وإنستغرام في الصفحة الرئيسية للموقع. انقر على الأيقونة المناسبة للوصول إلينا.",
+        "نحن نقدر ملاحظاتك ونعتبرها جزءاً أساسياً من تطوير منصة ليرتنا لتلبية احتياجاتكم بشكل أفضل."
+    ],
     downloadApp: "حمل التطبيق الآن",
     directDownload: "تحميل مباشر",
     appNote: "تجربة أفضل وأسرع على هاتفك المحمول.",
@@ -84,8 +98,22 @@ export const translations: Record<'ar' | 'en', Translation> = {
     privacyPolicy: "Privacy Policy",
     contactUs: "Contact Us",
     aboutContent: "Liratna is an independent platform aimed at facilitating financial operations for Syrian citizens by providing accurate conversion tools between old and new currency denominations.",
-    privacyContent: "We respect your privacy. We do not collect any sensitive personal or financial data. All calculations are done locally in your browser.",
-    contactContent: "We are happy to connect with you through our official social media platforms listed below for any inquiries or suggestions.",
+    privacyTitle: "Privacy Policy",
+    privacyContent: [
+        "At Liratna, your privacy is our top priority. This policy is designed to help you understand how we handle data.",
+        "We do not collect or store any Personally Identifiable Information (PII) from our visitors. All tools on our site, such as the currency converter and change calculator, operate entirely on your device (client-side). This means any numbers you enter never leave your browser and are not sent to our servers.",
+        "We use a simple analytics service (Supabase Analytics) to understand how our site is used in general, such as the number of visits and which tools are popular. This data is completely anonymous and not linked to any individual. Its sole purpose is to improve our services.",
+        "We do not use cookies to track you online. Your browser's local storage may be used to save your preferences, like your chosen language or theme, to enhance your experience on return visits.",
+        "We do not share any data with third parties because we simply do not collect any personal data to share.",
+        "This policy may be updated from time to time. We will post any changes on this page."
+    ],
+    contactTitle: "Contact Us",
+    contactContent: [
+        "We are always happy to hear from you! Whether you have a question, a suggestion to improve our services, or just want to say hello, we welcome your communication.",
+        "The best and fastest way to reach us is through our official social media platforms. Our team is available to answer your inquiries and provide necessary support.",
+        "You can find direct links to our Facebook, Telegram, WhatsApp, and Instagram pages on the website's homepage. Click on the appropriate icon to get in touch.",
+        "We value your feedback and consider it an essential part of developing the Liratna platform to better meet your needs."
+    ],
     downloadApp: "Download The App",
     directDownload: "Direct Download",
     appNote: "A better and faster experience on your mobile phone.",

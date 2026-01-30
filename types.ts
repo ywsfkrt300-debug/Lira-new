@@ -1,5 +1,7 @@
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
+export type View = 'home' | 'converter' | 'calculator' | 'electricity' | 'privacy' | 'contact';
+
 
 export interface AdminSettings {
   isMaintenanceMode: boolean;
@@ -26,6 +28,7 @@ export interface AdminSettings {
     visible: boolean;
   };
   siteLogo: string | null;
+  preloaderImage: string | null;
 }
 
 export interface Translation {
@@ -61,8 +64,10 @@ export interface Translation {
   privacyPolicy: string;
   contactUs: string;
   aboutContent: string;
-  privacyContent: string;
-  contactContent: string;
+  privacyTitle: string;
+  privacyContent: string[];
+  contactTitle: string;
+  contactContent: string[];
   downloadApp: string;
   directDownload: string;
   appNote: string;
