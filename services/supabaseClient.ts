@@ -30,18 +30,18 @@ export const trackEvent = async (eventType: 'PAGE_VIEW' | 'CONVERSION_OP') => {
   }
 
   try {
-    // The error "Failed to send a request to the Edge Function" often indicates a CORS
-    // issue. This usually requires a server-side fix in the Edge Function to handle
-    // OPTIONS preflight requests correctly.
-    // As a client-side workaround, we are sending the request with a 'text/plain'
-    // Content-Type. This can sometimes bypass strict CORS policies that are not
-    // configured for 'application/json'.
-    // Note: The Edge Function must be adapted to parse the text body as JSON.
+    // This function sends tracking data to the 'track-event' Edge Function.
+    // The full endpoint URL is: https://mewvdzovclfhezlemwjg.supabase.co/functions/v1/track-event
+    
+    // The previous implementation used 'Content-Type: text/plain' as a workaround for
+    // potential CORS preflight issues. However, the error "Edge Function returned a non-2xx status code"
+    // suggests the request is reaching the function but is being rejected, possibly due to an
+    // incorrect Content-Type or body format.
+    // We are now reverting to the standard method of invoking the function, passing the body as a
+    // JavaScript object. The supabase-js client will automatically stringify it and set the
+    // 'Content-Type' header to 'application/json', which is the expected format for most Edge Functions.
     const { error } = await supabase.functions.invoke('track-event', {
-      body: JSON.stringify({ event_type: eventType }),
-      headers: {
-        'Content-Type': 'text/plain',
-      },
+      body: { event_type: eventType },
     });
     
     if (error) {
