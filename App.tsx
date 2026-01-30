@@ -55,6 +55,32 @@ const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, conte
     </div>
 );
 
+const RateCardSkeleton: React.FC = () => (
+  <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50">
+    <div className="flex items-center gap-3 mb-6 animate-pulse">
+      <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+      <div className="w-32 h-5 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+    </div>
+    <div className="space-y-3 animate-pulse">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700 h-[72px]">
+          <div className="w-24 h-5 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="flex gap-6">
+            <div className="text-center space-y-2">
+              <div className="w-8 h-2 mx-auto bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+              <div className="w-12 h-5 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="w-8 h-2 mx-auto bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+              <div className="w-12 h-5 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('ar');
@@ -63,7 +89,7 @@ const App: React.FC = () => {
   const [rates, setRates] = useState<RatesResponse | null>(null);
   const [settings, setSettings] = useState<AdminSettings>(DEFAULT_ADMIN_SETTINGS);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(true);
   const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
   const firstLoad = useRef(true);
   
@@ -236,20 +262,25 @@ const App: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                {rates?.error ? (
+                {isRefreshing ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <RateCardSkeleton />
+                    <RateCardSkeleton />
+                  </div>
+                ) : rates?.error ? (
                   <div className="p-6 bg-red-50 dark:bg-red-950/20 rounded-3xl text-center text-red-700 dark:text-red-300 font-bold border-2 border-red-200 dark:border-red-800/50">{t.rateError}</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50 transition-all hover:border-emerald-500/30">
                       <div className="flex items-center gap-3 mb-6"><Icons.CentralBank className="w-6 h-6 text-emerald-600" /><h3 className="text-lg font-bold dark:text-white">{t.cbs}</h3></div>
                       <div className="space-y-3">
-                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{getCurrencyName(r.currency, lang)}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{isRefreshing ? t.loading : 'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{getCurrencyName(r.currency, lang)}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
                     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50 transition-all hover:border-blue-500/30">
                       <div className="flex items-center gap-3 mb-6"><Icons.Market className="w-6 h-6 text-blue-600" /><h3 className="text-lg font-bold dark:text-white">{t.blackMarket}</h3></div>
                       <div className="space-y-3">
-                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{getCurrencyName(r.currency, lang)}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{isRefreshing ? t.loading : 'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{getCurrencyName(r.currency, lang)}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
                   </div>

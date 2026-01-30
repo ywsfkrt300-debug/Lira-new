@@ -30,10 +30,18 @@ export const trackEvent = async (eventType: 'PAGE_VIEW' | 'CONVERSION_OP') => {
   }
 
   try {
-    // Invoke the edge function instead of inserting directly.
-    // This allows for server-side logic like IP-based geolocation.
+    // The error "Failed to send a request to the Edge Function" often indicates a CORS
+    // issue. This usually requires a server-side fix in the Edge Function to handle
+    // OPTIONS preflight requests correctly.
+    // As a client-side workaround, we are sending the request with a 'text/plain'
+    // Content-Type. This can sometimes bypass strict CORS policies that are not
+    // configured for 'application/json'.
+    // Note: The Edge Function must be adapted to parse the text body as JSON.
     const { error } = await supabase.functions.invoke('track-event', {
-      body: { event_type: eventType },
+      body: JSON.stringify({ event_type: eventType }),
+      headers: {
+        'Content-Type': 'text/plain',
+      },
     });
     
     if (error) {
