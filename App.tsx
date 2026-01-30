@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
@@ -118,10 +119,19 @@ const App: React.FC = () => {
           startHour: data.start_hour ?? DEFAULT_ADMIN_SETTINGS.startHour,
           endHour: data.end_hour ?? DEFAULT_ADMIN_SETTINGS.endHour,
           adminPassword: data.admin_password_hash ?? DEFAULT_ADMIN_SETTINGS.adminPassword,
-          enabledFeatures: data.enabled_features ?? DEFAULT_ADMIN_SETTINGS.enabledFeatures,
+          enabledFeatures: {
+            ...DEFAULT_ADMIN_SETTINGS.enabledFeatures,
+            ...(data.enabled_features || {}),
+          },
           bloodEffectText: data.blood_effect_text ?? DEFAULT_ADMIN_SETTINGS.bloodEffectText,
-          socialLinks: data.social_links ?? DEFAULT_ADMIN_SETTINGS.socialLinks,
-          mobileApp: data.mobile_app ?? DEFAULT_ADMIN_SETTINGS.mobileApp,
+          socialLinks: {
+            ...DEFAULT_ADMIN_SETTINGS.socialLinks,
+            ...(data.social_links || {}),
+          },
+          mobileApp: {
+            ...DEFAULT_ADMIN_SETTINGS.mobileApp,
+            ...(data.mobile_app || {}),
+          },
           siteLogo: data.site_logo ?? DEFAULT_ADMIN_SETTINGS.siteLogo,
           preloaderImage: data.preloader_image ?? DEFAULT_ADMIN_SETTINGS.preloaderImage,
         };
