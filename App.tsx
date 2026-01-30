@@ -161,19 +161,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'} print:hidden`}>
-        {safeFeatures.showBloodEffect && (
-          <div className="bg-red-700 text-white py-1.5 overflow-hidden whitespace-nowrap border-b border-red-900 sticky top-0 z-[100] text-xs font-bold uppercase tracking-wider">
-            <div className="flex items-center gap-12 animate-[marquee_30s_linear_infinite]">
-              {Array.from({ length: 15 }).map((_, i) => (
-                <span key={i} className="flex items-center gap-2">
-                  <Icons.BloodDrop className="w-3 h-3 text-red-300" /> {settings.bloodEffectText}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
+      <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'} print:hidden flex flex-col`}>
         <header className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border-b dark:border-slate-700/50 shadow-sm sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4 cursor-pointer" onDoubleClick={() => setIsAdminOpen(true)}>
@@ -199,7 +187,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10">
+        <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10 flex-grow">
           {/* Market Rates Section */}
           {safeFeatures.marketRates && (
             <div>
@@ -311,23 +299,23 @@ const App: React.FC = () => {
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
               </div>
-
-              {settings.mobileApp?.visible && (
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-8 rounded-3xl shadow-sm border dark:border-slate-700/50">
-                  <h3 className="text-xl font-bold mb-6 dark:text-white">{t.downloadApp}</h3>
-                  {settings.mobileApp.previewImage && (
-                    <img src={settings.mobileApp.previewImage} alt="Mobile App" className="w-full h-auto rounded-2xl mb-6 shadow-md" />
-                  )}
-                  <a href={settings.mobileApp.url} className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
-                    <Icons.PlayStore className="w-5 h-5" /> {t.directDownload}
-                  </a>
-                </div>
-              )}
             </div>
           </div>
         </main>
+        
+        {safeFeatures.showBloodEffect && (
+          <div className="bg-red-700 text-white py-1.5 overflow-hidden whitespace-nowrap border-b border-red-900 text-xs font-bold uppercase tracking-wider my-10">
+            <div className="flex items-center gap-12 animate-[marquee_30s_linear_infinite]">
+              {Array.from({ length: 15 }).map((_, i) => (
+                <span key={i} className="flex items-center gap-2">
+                  <Icons.BloodDrop className="w-3 h-3 text-red-300" /> {settings.bloodEffectText}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
-        <footer className="max-w-6xl mx-auto px-4 py-12 border-t dark:border-slate-800/50 text-center md:text-right flex flex-col md:flex-row justify-between items-center gap-6">
+        <footer className="max-w-6xl mx-auto px-4 py-12 border-t dark:border-slate-800/50 text-center md:text-right flex flex-col md:flex-row justify-between items-center gap-6 w-full">
           <p className="text-sm font-bold dark:text-white/60 text-slate-600/60">© {new Date().getFullYear()} {t.title} - جميع الحقوق محفوظة</p>
           <div className="flex gap-6 text-sm font-bold text-slate-600/60 dark:text-slate-400/60">
             <a href="#" className="hover:text-emerald-600 transition-colors">{t.privacyPolicy}</a>

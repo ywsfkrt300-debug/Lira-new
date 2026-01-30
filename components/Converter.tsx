@@ -1,7 +1,7 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Translation, CONVERSION_RATE } from '../types';
 import { Icons } from './Icons';
+import { trackEvent } from '../services/supabaseClient';
 
 interface ConverterProps {
   t: Translation;
@@ -31,6 +31,21 @@ const Converter: React.FC<ConverterProps> = ({ t, lang }) => {
     }
     return val;
   };
+  
+  // Track conversion operations with debouncing to avoid excessive calls
+  useEffect(() => {
+    // A conversion is any action that results in a new, non-zero calculation.
+    // We debounce to consolidate rapid changes (like typing) into a single event.
+    if (parseFloat(amount) > 0) {
+      const handler = setTimeout(() => {
+        trackEvent('CONVERSION_OP');
+      }, 800);
+      
+      return () => {
+        clearTimeout(handler);
+      };
+    }
+  }, [amount, fromCurrency, toCurrency]);
 
   const result = calculateResult();
 

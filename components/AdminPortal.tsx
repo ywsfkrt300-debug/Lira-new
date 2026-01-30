@@ -27,6 +27,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'stats' | 'social' | 'maintenance' | 'features' | 'security'>('stats');
+  const [localSettings, setLocalSettings] = useState(settings);
   const [newPass, setNewPass] = useState('');
   const [keyInput, setKeyInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -34,6 +35,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const [analyticsData, setAnalyticsData] = useState({ pageViews: 0, operations: 0 });
   const [isSupabaseReady, setIsSupabaseReady] = useState(!!supabase);
   const [isDragging, setIsDragging] = useState(false);
+  
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
 
   const fetchStats = async () => {
     if (!supabase) return;
@@ -200,19 +205,22 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
     }
   };
 
-  const updateSocialLink = (platform: string, field: 'url' | 'visible', value: any) => {
-    const socialLinks = settings.socialLinks || {};
-    const platformData = (socialLinks as any)[platform] || { url: '', visible: true };
-    const newSocial = { 
-      ...socialLinks, 
-      [platform]: { ...platformData, [field]: value } 
+  const toggleSocialVisibility = (platform: string) => {
+    const newSocialLinks = {
+      ...localSettings.socialLinks,
+      [platform]: {
+        ...(localSettings.socialLinks as any)[platform],
+        visible: !(localSettings.socialLinks as any)[platform].visible,
+      },
     };
-    updateSingleSetting('socialLinks', newSocial as any);
+    setLocalSettings(prev => ({...prev, socialLinks: newSocialLinks}));
+    updateSingleSetting('socialLinks', newSocialLinks as any);
   };
 
+
   const toggleFeature = (feature: keyof AdminSettings['enabledFeatures']) => {
-    const features = settings.enabledFeatures || {};
-    const newFeatures = { ...features, [feature]: !features[feature] };
+    const newFeatures = { ...localSettings.enabledFeatures, [feature]: !localSettings.enabledFeatures[feature] };
+    setLocalSettings(prev => ({...prev, enabledFeatures: newFeatures}));
     updateSingleSetting('enabledFeatures', newFeatures);
   };
 
@@ -326,8 +334,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                       className={`w-full h-36 cursor-pointer rounded-2xl border-2 border-dashed flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50' : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400'}`}
                   >
                       <input type="file" disabled={!isSupabaseReady} accept="image/*" onChange={handleFileChange} className="hidden" />
-                      {settings.siteLogo ? (
-                          <img src={settings.siteLogo} alt="Site Logo" className="max-h-full max-w-full object-contain p-2 rounded-lg" />
+                      {localSettings.siteLogo ? (
+                          <img src={localSettings.siteLogo} alt="Site Logo" className="max-h-full max-w-full object-contain p-2 rounded-lg" />
                       ) : (
                           <div className="text-slate-400 flex flex-col items-center">
                               <Icons.Upload className="w-10 h-10 mb-2" />
@@ -336,7 +344,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                           </div>
                       )}
                   </label>
-                  {settings.siteLogo && (
+                  {localSettings.siteLogo && (
                       <button onClick={() => updateSingleSetting('siteLogo', null)} className="w-full mt-3 py-2 text-xs text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors">
                           إزالة الشعار
                       </button>
@@ -354,15 +362,37 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                 )}
                 <h3 className="text-xl font-bold dark:text-white">روابط التواصل الاجتماعي</h3>
                 <div className="space-y-3">
-                  {Object.entries(settings.socialLinks || {}).map(([platform, data]) => {
+                  {Object.entries(localSettings.socialLinks || {}).map(([platform, data]) => {
                     const s = data as { url: string; visible: boolean };
                     return (
                       <div key={platform} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border dark:border-slate-700">
-                        <button disabled={!isSupabaseReady} onClick={() => updateSocialLink(platform, 'visible', !s.visible)}>
+                        <button disabled={!isSupabaseReady} onClick={() => toggleSocialVisibility(platform)}>
                           {s.visible ? <Icons.ToggleOn className="w-8 h-8 text-emerald-600" /> : <Icons.ToggleOff className="w-8 h-8 text-slate-300" />}
                         </button>
                         <span className="font-bold text-sm w-20 capitalize">{platform}</span>
-                        <input type="text" disabled={!isSupabaseReady} value={s.url} onChange={e => updateSocialLink(platform, 'url', e.target.value)} className="flex-1 p-2 bg-white dark:bg-slate-800 border rounded-lg text-sm disabled:opacity-50" />
+                        <input 
+                            type="text" 
+                            disabled={!isSupabaseReady} 
+                            value={s.url || ''} 
+                            onChange={e => {
+                                const newUrl = e.target.value;
+                                setLocalSettings(prev => ({
+                                    ...prev,
+                                    socialLinks: {
+                                        ...prev.socialLinks,
+                                        [platform]: {
+                                            ...(prev.socialLinks as any)[platform],
+                                            url: newUrl,
+                                        }
+                                    }
+                                }))
+                            }}
+                            onBlur={() => {
+                                if (JSON.stringify(localSettings.socialLinks) !== JSON.stringify(settings.socialLinks)) {
+                                    updateSingleSetting('socialLinks', localSettings.socialLinks);
+                                }
+                            }}
+                            className="flex-1 p-2 bg-white dark:bg-slate-800 border rounded-lg text-sm disabled:opacity-50" />
                       </div>
                     );
                   })}
@@ -377,11 +407,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     <p>لا يمكن تعديل الميزات بدون مفتاح Supabase. <button onClick={() => setActiveTab('security')} className="underline">أضف المفتاح</button></p>
                   </div>
                 )}
-                {Object.keys(settings.enabledFeatures || {}).map((feature) => (
+                {Object.keys(localSettings.enabledFeatures || {}).map((feature) => (
                   <div key={feature} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border dark:border-slate-700">
                     <span className="font-bold capitalize">{feature.replace(/([A-Z])/g, ' $1')}</span>
                     <button disabled={!isSupabaseReady} onClick={() => toggleFeature(feature as any)}>
-                      {settings.enabledFeatures[feature as keyof AdminSettings['enabledFeatures']] ? <Icons.ToggleOn className="w-10 h-10 text-emerald-600" /> : <Icons.ToggleOff className="w-10 h-10 text-slate-300" />}
+                      {localSettings.enabledFeatures[feature as keyof AdminSettings['enabledFeatures']] ? <Icons.ToggleOn className="w-10 h-10 text-emerald-600" /> : <Icons.ToggleOff className="w-10 h-10 text-slate-300" />}
                     </button>
                   </div>
                 ))}
@@ -400,13 +430,23 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
                     <Icons.Maintenance className="w-6 h-6 text-amber-600" />
                     <span className="font-bold">وضع الصيانة الكامل</span>
                   </div>
-                  <button disabled={!isSupabaseReady} onClick={() => updateSingleSetting('isMaintenanceMode', !settings.isMaintenanceMode)}>
-                    {settings.isMaintenanceMode ? <Icons.ToggleOn className="w-12 h-12 text-emerald-600" /> : <Icons.ToggleOff className="w-12 h-12 text-slate-300" />}
+                  <button disabled={!isSupabaseReady} onClick={() => updateSingleSetting('isMaintenanceMode', !localSettings.isMaintenanceMode)}>
+                    {localSettings.isMaintenanceMode ? <Icons.ToggleOn className="w-12 h-12 text-emerald-600" /> : <Icons.ToggleOff className="w-12 h-12 text-slate-300" />}
                   </button>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-500">نص التضامن العلوي</label>
-                  <input type="text" disabled={!isSupabaseReady} value={settings.bloodEffectText} onChange={e => updateSingleSetting('bloodEffectText', e.target.value)} className="w-full p-4 rounded-xl border dark:bg-slate-800 disabled:opacity-50" />
+                  <input 
+                    type="text" 
+                    disabled={!isSupabaseReady} 
+                    value={localSettings.bloodEffectText} 
+                    onChange={e => setLocalSettings(prev => ({...prev, bloodEffectText: e.target.value}))}
+                    onBlur={() => {
+                        if (localSettings.bloodEffectText !== settings.bloodEffectText) {
+                            updateSingleSetting('bloodEffectText', localSettings.bloodEffectText);
+                        }
+                    }}
+                    className="w-full p-4 rounded-xl border dark:bg-slate-800 disabled:opacity-50" />
                 </div>
               </div>
             )}

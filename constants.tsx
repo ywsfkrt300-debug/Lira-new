@@ -34,9 +34,10 @@ export const translations: Record<'ar' | 'en', Translation> = {
     aboutContent: "موقع ليرتنا هو منصة مستقلة تهدف لتسهيل العمليات المالية للمواطن السوري عبر توفير أدوات تحويل دقيقة بين فئات العملة القديمة والجديدة ومتابعة أسعار الصرف العالمية.",
     privacyContent: "نحن نحترم خصوصيتك. لا نقوم بجمع أي بيانات شخصية أو مالية حساسة. جميع الحسابات تتم محلياً في متصفحك.",
     contactContent: "يسعدنا تواصلكم معنا عبر منصات التواصل الاجتماعي الرسمية الموضحة أدناه لأي استفسار أو اقتراح.",
-    downloadApp: "تحميل تطبيق ليرتنا",
+    // FIX: Add missing properties to the 'ar' translation object.
+    downloadApp: "حمل التطبيق الآن",
     directDownload: "تحميل مباشر",
-    appNote: "ملاحظة: نسخة التطبيق الحالية معلوماتية ولا تتوفر فيها أسعار الصرف الحية حالياً.",
+    appNote: "تجربة أفضل وأسرع على هاتفك المحمول.",
     rateError: "تعذر تحميل الأسعار الحية. قد تكون هناك مشكلة في الشبكة أو في الخادم المصدر. يرجى المحاولة مرة أخرى لاحقاً.",
   },
   en: {
@@ -72,9 +73,10 @@ export const translations: Record<'ar' | 'en', Translation> = {
     aboutContent: "Liratna is an independent platform aimed at facilitating financial operations for Syrian citizens by providing accurate conversion tools between old and new currency denominations.",
     privacyContent: "We respect your privacy. We do not collect any sensitive personal or financial data. All calculations are done locally in your browser.",
     contactContent: "We are happy to connect with you through our official social media platforms listed below for any inquiries or suggestions.",
-    downloadApp: "Download Liratna App",
+    // FIX: Add missing properties to the 'en' translation object.
+    downloadApp: "Download The App",
     directDownload: "Direct Download",
-    appNote: "Note: The current app version is informative and live rates are not available in it yet.",
+    appNote: "A better and faster experience on your mobile phone.",
     rateError: "Could not load live rates. There might be a network issue or a problem with the source server. Please try again later.",
   }
 };

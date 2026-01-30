@@ -17,8 +17,6 @@ const getCurrencyNameForPrint = (currencyCode: string): string => {
 };
 
 const RatePrintView: React.FC<RatePrintViewProps> = ({ rates, t, lang }) => {
-  if (!rates) return null;
-
   const now = new Date();
   const dateStr = now.toLocaleDateString(lang === 'ar' ? 'ar-SY' : 'en-US', {
     weekday: 'long',
@@ -32,6 +30,10 @@ const RatePrintView: React.FC<RatePrintViewProps> = ({ rates, t, lang }) => {
   });
 
   const formatValue = (val: number) => val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  const hasData = rates && !rates.error && 
+                  ((rates.cbsRates && rates.cbsRates.length > 0) || 
+                   (rates.blackMarketRates && rates.blackMarketRates.length > 0));
 
   return (
     <div id="printable-document" className="hidden print:block bg-white p-12 text-slate-900 dir-rtl font-['Tajawal'] min-h-screen">
@@ -53,57 +55,73 @@ const RatePrintView: React.FC<RatePrintViewProps> = ({ rates, t, lang }) => {
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-12">
-        {/* CBS Table */}
-        <section>
-          <div className="flex items-center gap-4 mb-6 border-r-8 border-emerald-500 pr-4">
-            <h3 className="text-3xl font-black">{t.cbs}</h3>
-          </div>
-          <table className="w-full text-2xl border-collapse">
-            <thead>
-              <tr className="bg-emerald-50 text-emerald-800">
-                <th className="border-2 border-slate-200 p-4 text-right">العملة</th>
-                <th className="border-2 border-slate-200 p-4 text-center">{t.buy}</th>
-                <th className="border-2 border-slate-200 p-4 text-center">{t.sell}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(rates.cbsRates || []).map(rate => (
-                <tr key={rate.currency}>
-                  <td className="border-2 border-slate-200 p-6 font-black">{getCurrencyNameForPrint(rate.currency)}</td>
-                  <td className="border-2 border-slate-200 p-6 text-center font-black text-emerald-700">{formatValue(rate.buy)}</td>
-                  <td className="border-2 border-slate-200 p-6 text-center font-black">{formatValue(rate.sell)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+      {hasData ? (
+        <div className="grid grid-cols-1 gap-12">
+          {/* CBS Table */}
+          {rates.cbsRates && rates.cbsRates.length > 0 && (
+            <section>
+              <div className="flex items-center gap-4 mb-6 border-r-8 border-emerald-500 pr-4">
+                <h3 className="text-3xl font-black">{t.cbs}</h3>
+              </div>
+              <table className="w-full text-2xl border-collapse">
+                <thead>
+                  <tr className="bg-emerald-50 text-emerald-800">
+                    <th className="border-2 border-slate-200 p-4 text-right">العملة</th>
+                    <th className="border-2 border-slate-200 p-4 text-center">{t.buy}</th>
+                    <th className="border-2 border-slate-200 p-4 text-center">{t.sell}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rates.cbsRates.map(rate => (
+                    <tr key={rate.currency}>
+                      <td className="border-2 border-slate-200 p-6 font-black">{getCurrencyNameForPrint(rate.currency)}</td>
+                      <td className="border-2 border-slate-200 p-6 text-center font-black text-emerald-700">{formatValue(rate.buy)}</td>
+                      <td className="border-2 border-slate-200 p-6 text-center font-black">{formatValue(rate.sell)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )}
 
-        {/* Black Market Table */}
-        <section>
-          <div className="flex items-center gap-4 mb-6 border-r-8 border-blue-500 pr-4">
-            <h3 className="text-3xl font-black">{t.blackMarket}</h3>
-          </div>
-          <table className="w-full text-2xl border-collapse">
-            <thead>
-              <tr className="bg-blue-50 text-blue-800">
-                <th className="border-2 border-slate-200 p-4 text-right">العملة</th>
-                <th className="border-2 border-slate-200 p-4 text-center">{t.buy}</th>
-                <th className="border-2 border-slate-200 p-4 text-center">{t.sell}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(rates.blackMarketRates || []).map(rate => (
-                <tr key={rate.currency}>
-                  <td className="border-2 border-slate-200 p-6 font-black">{getCurrencyNameForPrint(rate.currency)}</td>
-                  <td className="border-2 border-slate-200 p-6 text-center font-black text-emerald-700">{formatValue(rate.buy)}</td>
-                  <td className="border-2 border-slate-200 p-6 text-center font-black">{formatValue(rate.sell)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      </div>
+          {/* Black Market Table */}
+          {rates.blackMarketRates && rates.blackMarketRates.length > 0 && (
+            <section>
+              <div className="flex items-center gap-4 mb-6 border-r-8 border-blue-500 pr-4">
+                <h3 className="text-3xl font-black">{t.blackMarket}</h3>
+              </div>
+              <table className="w-full text-2xl border-collapse">
+                <thead>
+                  <tr className="bg-blue-50 text-blue-800">
+                    <th className="border-2 border-slate-200 p-4 text-right">العملة</th>
+                    <th className="border-2 border-slate-200 p-4 text-center">{t.buy}</th>
+                    <th className="border-2 border-slate-200 p-4 text-center">{t.sell}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rates.blackMarketRates.map(rate => (
+                    <tr key={rate.currency}>
+                      <td className="border-2 border-slate-200 p-6 font-black">{getCurrencyNameForPrint(rate.currency)}</td>
+                      <td className="border-2 border-slate-200 p-6 text-center font-black text-emerald-700">{formatValue(rate.buy)}</td>
+                      <td className="border-2 border-slate-200 p-6 text-center font-black">{formatValue(rate.sell)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )}
+        </div>
+      ) : (
+        <div className="text-center mt-20 p-8 border-4 border-dashed border-red-200 rounded-2xl">
+          <h2 className="text-3xl font-black text-red-600">
+            {rates?.error ? "خطأ في تحميل البيانات" : "لا توجد بيانات للطباعة"}
+          </h2>
+          <p className="text-xl text-slate-500 mt-4">
+            {rates?.error ? "تعذر جلب أسعار الصرف من المصدر." : "يرجى التأكد من تحميل الأسعار في الصفحة الرئيسية أولاً."}
+          </p>
+        </div>
+      )}
+
 
       {/* Footer Disclaimer */}
       <div className="mt-20 pt-10 border-t-2 border-slate-100 text-center">
