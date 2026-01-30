@@ -1,5 +1,7 @@
 {
   "name": "Liratna - Syrian Currency Guide",
   "description": "A comprehensive tool for the Syrian Lira, featuring conversion between old and new denominations, a change calculator, and exchange rate insights.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }
