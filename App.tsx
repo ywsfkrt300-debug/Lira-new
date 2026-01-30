@@ -246,8 +246,35 @@ const App: React.FC = () => {
                   {Object.entries(safeSocialLinks).map(([platform, data]) => {
                     const s = data as { url: string; visible: boolean };
                     if (!s || !s.visible) return null;
+
                     const Icon = (Icons as any)[platform.charAt(0).toUpperCase() + platform.slice(1)];
-                    return (<a key={platform} href={s.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-all">{Icon && <Icon className="w-5 h-5" />}</a>);
+                    const isLinkValid = s.url && s.url.trim() !== '' && s.url.trim() !== '#';
+
+                    if (isLinkValid) {
+                      return (
+                        <a 
+                          key={platform} 
+                          href={s.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-all"
+                          aria-label={`Visit our ${platform} page`}
+                        >
+                          {Icon && <Icon className="w-5 h-5" />}
+                        </a>
+                      );
+                    } else {
+                      return (
+                        <div 
+                          key={platform} 
+                          className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center cursor-not-allowed opacity-40"
+                          title={`رابط ${platform} غير مُعد. يرجى إضافته من لوحة الإدارة.`}
+                          aria-label={`${platform} link not available`}
+                        >
+                          {Icon && <Icon className="w-5 h-5" />}
+                        </div>
+                      );
+                    }
                   })}
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
