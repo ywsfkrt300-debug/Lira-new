@@ -72,6 +72,33 @@ const App: React.FC = () => {
 
   const t = translations[lang];
 
+  // Routing and Title Effect
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '') as View;
+      const validViews: View[] = ['home', 'converter', 'calculator', 'electricity', 'privacy', 'contact'];
+      if (validViews.includes(hash)) {
+        setActiveView(hash);
+      } else {
+        setActiveView('home');
+        window.location.hash = 'home';
+      }
+    };
+    
+    // Initial load
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const pageTitle = t.pageTitles[activeView] || t.title;
+    document.title = `${t.title} | ${pageTitle}`;
+  }, [activeView, t]);
+
   const loadRates = useCallback(async () => {
     setIsRefreshing(true);
     const data = await fetchLatestRates(lang);
@@ -100,7 +127,6 @@ const App: React.FC = () => {
         };
         setSettings(newSettings);
         
-        // After loading settings, update the preloader image
         const imgEl = document.getElementById('preloader-custom-img') as HTMLImageElement;
         const letterEl = document.getElementById('preloader-default-letter');
         if (imgEl && letterEl && newSettings.preloaderImage) {
@@ -255,9 +281,9 @@ const App: React.FC = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl">
-               <button onClick={() => setActiveView('home')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
+               <a href="#home" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
                  <Icons.Home /> {t.home}
-               </button>
+               </a>
                <div className="relative" onMouseEnter={() => setIsServicesMenuOpen(true)} onMouseLeave={() => setIsServicesMenuOpen(false)}>
                  <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
                    <Icons.Services /> {t.services}
@@ -265,10 +291,10 @@ const App: React.FC = () => {
                  {isServicesMenuOpen && services.length > 0 && (
                    <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border dark:border-slate-700 p-2 z-50">
                      {services.map(service => (
-                       <button key={service.view} onClick={() => { setActiveView(service.view as View); setIsServicesMenuOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 font-bold text-sm">
+                       <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 font-bold text-sm">
                          <service.icon className="w-4 h-4 text-emerald-500" />
                          {service.label}
-                       </button>
+                       </a>
                      ))}
                    </div>
                  )}
@@ -285,9 +311,9 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="md:hidden p-2 border-t dark:border-slate-700/50 flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-800/80">
-            <button onClick={() => setActiveView('home')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}>
+            <a href="#home" className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}>
                 <Icons.Home /> {t.home}
-            </button>
+            </a>
             <div className="relative flex-1" onClick={() => setIsServicesMenuOpen(prev => !prev)}>
                 <button className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}>
                     <Icons.Services /> {t.services}
@@ -295,10 +321,10 @@ const App: React.FC = () => {
                 {isServicesMenuOpen && services.length > 0 && (
                    <div className="absolute top-full right-0 mt-2 w-full bg-white rounded-xl shadow-lg border p-2 z-50">
                      {services.map(service => (
-                       <button key={service.view} onClick={() => { setActiveView(service.view as View); setIsServicesMenuOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm">
+                       <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm">
                          <service.icon className="w-4 h-4 text-emerald-500" />
                          {service.label}
-                       </button>
+                       </a>
                      ))}
                    </div>
                  )}
@@ -319,8 +345,8 @@ const App: React.FC = () => {
         <footer className="max-w-6xl mx-auto px-4 py-12 border-t dark:border-slate-800/50 text-center md:text-right flex flex-col md:flex-row justify-between items-center gap-6 w-full">
           <p className="text-sm font-bold dark:text-white/60 text-slate-600/60">© {new Date().getFullYear()} {t.title} - جميع الحقوق محفوظة</p>
           <div className="flex gap-6 text-sm font-bold text-slate-600/60 dark:text-slate-400/60">
-            <button onClick={() => setActiveView('privacy')} className="hover:text-emerald-600 transition-colors">{t.privacyPolicy}</button>
-            <button onClick={() => setActiveView('contact')} className="hover:text-emerald-600 transition-colors">{t.contactUs}</button>
+            <a href="#privacy" className="hover:text-emerald-600 transition-colors">{t.privacyPolicy}</a>
+            <a href="#contact" className="hover:text-emerald-600 transition-colors">{t.contactUs}</a>
           </div>
         </footer>
 

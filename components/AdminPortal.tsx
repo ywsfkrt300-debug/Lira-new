@@ -36,10 +36,18 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const [isSupabaseReady, setIsSupabaseReady] = useState(!!supabase);
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
   const [isDraggingPreloader, setIsDraggingPreloader] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error'; message: string; key: number } | null>(null);
 
   
   const isWriteDisabled = !isSupabaseReady;
   const writeDisabledTooltip = isWriteDisabled ? 'الكتابة معطلة. فشل الاتصال بقاعدة البيانات.' : '';
+
+  useEffect(() => {
+    if (saveStatus) {
+      const timer = setTimeout(() => setSaveStatus(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveStatus]);
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -83,13 +91,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   const handleLogout = () => {
     setIsAuthenticated(false);
   };
+
+  const showSaveStatus = (type: 'success' | 'error', message: string) => {
+    setSaveStatus({ type, message, key: Date.now() });
+  };
   
   const updateSingleSetting = async <K extends keyof typeof SETTINGS_KEY_TO_COLUMN_MAP>(
     settingKey: K,
     value: AdminSettings[K]
   ) => {
     if (isWriteDisabled) {
-      alert('لا يمكن الحفظ. فشل الاتصال بقاعدة البيانات.');
+      showSaveStatus('error', 'فشل الحفظ: لا يوجد اتصال بقاعدة البيانات.');
       return;
     }
     setIsSaving(true);
@@ -104,15 +116,16 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
       
       const newSettings = { ...settings, [settingKey]: value };
       updateSettings(newSettings);
-      setLocalSettings(newSettings); // Ensure local state is also updated
+      setLocalSettings(newSettings);
+      showSaveStatus('success', 'تم حفظ التغييرات بنجاح!');
 
     } catch (e: any) {
       console.error(`Failed to update setting '${settingKey}':`, e);
       let alertMessage = 'خطأ في الحفظ السحابي. يرجى التحقق من اتصالك بالإنترنت.';
       if (e.message && e.message.includes('security policy')) {
-        alertMessage = 'فشل الحفظ بسبب قيود الأمان في Supabase. يرجى التأكد من أن لديك صلاحيات الكتابة (RLS policies) على جدول "admin_settings". يمكنك مراجعة تبويب الأمان لمزيد من المعلومات.';
+        alertMessage = 'فشل الحفظ بسبب قيود الأمان في قاعدة البيانات (RLS).';
       }
-      alert(alertMessage);
+      showSaveStatus('error', alertMessage);
     } finally {
       setIsSaving(false);
     }
@@ -120,12 +133,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
 
   const handlePasswordChange = async () => {
     if (!newPass) {
-      alert("الرجاء إدخال كلمة مرور جديدة.");
-      return;
+        showSaveStatus('error', 'الرجاء إدخال كلمة مرور جديدة.');
+        return;
     }
     if (isWriteDisabled) {
-      alert("لا يمكن تغيير كلمة المرور. فشل الاتصال بقاعدة البيانات.");
-      return;
+        showSaveStatus('error', 'فشل تغيير كلمة المرور: لا يوجد اتصال بقاعدة البيانات.');
+        return;
     }
 
     setIsPasswordSaving(true);
@@ -139,14 +152,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
 
       updateSettings({ ...settings, adminPassword: newPass });
       setNewPass('');
-      alert('تم تغيير كلمة المرور بنجاح!');
+      showSaveStatus('success', 'تم تغيير كلمة المرور بنجاح!');
     } catch (e: any) {
       console.error("Password change error:", e);
       let alertMessage = 'حدث خطأ أثناء تغيير كلمة المرور.';
       if (e.message && e.message.includes('security policy')) {
-        alertMessage = 'فشل تغيير كلمة المرور بسبب قيود الأمان في Supabase. يرجى التأكد من أن لديك صلاحيات الكتابة (RLS policies) على جدول "admin_settings".';
+        alertMessage = 'فشل تغيير كلمة المرور بسبب قيود الأمان في قاعدة البيانات (RLS).';
       }
-      alert(alertMessage);
+      showSaveStatus('error', alertMessage);
     } finally {
       setIsPasswordSaving(false);
     }
@@ -163,13 +176,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   
   const processImageFile = (file: File, type: 'siteLogo' | 'preloaderImage') => {
     if (file && file.type.startsWith('image/')) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        showSaveStatus('error', 'حجم الصورة كبير جداً. الحد الأقصى 2 ميجابايت.');
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         updateSingleSetting(type, reader.result as string);
       };
       reader.readAsDataURL(file);
     } else {
-      alert('الرجاء رفع ملف صورة صالح.');
+      showSaveStatus('error', 'الرجاء رفع ملف صورة صالح.');
     }
   };
 
@@ -264,7 +281,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
           </form>
         </div>
       ) : (
-        <div className="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full max-h-[95vh] md:h-[90vh] md:flex-row">
+        <div className="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full max-h-[95vh] md:h-[90vh] md:flex-row relative">
           <div className="w-full md:w-64 md:flex-shrink-0 bg-slate-50 dark:bg-slate-900/50 p-4 md:p-6 border-b md:border-b-0 md:border-l dark:border-slate-700 flex flex-col">
             <div className="hidden md:flex items-center gap-3 mb-8">
               <div className="p-2 bg-emerald-600 rounded-lg text-white"><Icons.Security className="w-5 h-5" /></div>
@@ -474,6 +491,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
               </button>
             </div>
           </div>
+          {saveStatus && (
+             <div key={saveStatus.key} className={`fixed bottom-5 left-1/2 -translate-x-1/2 p-4 rounded-xl text-white font-bold text-sm shadow-2xl animate-in fade-in slide-in-from-bottom-5 z-[2000] ${saveStatus.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`}>
+                {saveStatus.message}
+             </div>
+          )}
         </div>
       )}
     </div>

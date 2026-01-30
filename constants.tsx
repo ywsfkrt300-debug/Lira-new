@@ -54,6 +54,14 @@ export const translations: Record<'ar' | 'en', Translation> = {
     directDownload: "تحميل مباشر",
     appNote: "تجربة أفضل وأسرع على هاتفك المحمول.",
     rateError: "تعذر تحميل الأسعار الحية. قد تكون هناك مشكلة في الشبكة أو في الخادم المصدر. يرجى المحاولة مرة أخرى لاحقاً.",
+    pageTitles: {
+      home: "الرئيسية",
+      converter: "محول العملات",
+      calculator: "حاسبة الباقي",
+      electricity: "حاسبة الكهرباء",
+      privacy: "سياسة الخصوصية",
+      contact: "اتصل بنا"
+    },
     electricityCalculator: "حاسبة فاتورة الكهرباء",
     consumption: "الاستهلاك",
     kwh: "كيلو واط ساعي",
@@ -118,6 +126,14 @@ export const translations: Record<'ar' | 'en', Translation> = {
     directDownload: "Direct Download",
     appNote: "A better and faster experience on your mobile phone.",
     rateError: "Could not load live rates. There might be a network issue or a problem with the source server. Please try again later.",
+    pageTitles: {
+      home: "Home",
+      converter: "Currency Converter",
+      calculator: "Change Calculator",
+      electricity: "Electricity Calculator",
+      privacy: "Privacy Policy",
+      contact: "Contact Us"
+    },
     electricityCalculator: "Electricity Bill Calculator",
     consumption: "Consumption",
     kwh: "kWh",

@@ -17,7 +17,7 @@ export interface AdminSettings {
   };
   bloodEffectText: string;
   socialLinks: {
-    whatsapp: { url: string; visible: boolean };
+    whatsapp: { url:string; visible: boolean };
     telegram: { url: string; visible: boolean };
     facebook: { url: string; visible: boolean };
     instagram: { url: string; visible: boolean };
@@ -72,6 +72,10 @@ export interface Translation {
   directDownload: string;
   appNote: string;
   rateError: string;
+  // Page Titles
+  pageTitles: {
+    [key in View]: string;
+  };
   // Electricity Calculator
   electricityCalculator: string;
   consumption: string;
