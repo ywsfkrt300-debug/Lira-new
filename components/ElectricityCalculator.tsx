@@ -22,6 +22,11 @@ const ElectricityCalculator: React.FC<ElectricityCalculatorProps> = ({ t, lang }
   const [consumption, setConsumption] = useState<string>('');
   const [tariffId, setTariffId] = useState<string>(ELECTRICITY_TARIFFS[0].id);
 
+  const reset = () => {
+    setConsumption('');
+    setTariffId(ELECTRICITY_TARIFFS[0].id);
+  };
+
   const selectedTariff = useMemo(() => {
     return ELECTRICITY_TARIFFS.find(tariff => tariff.id === tariffId) as ElectricityTariff;
   }, [tariffId]);
@@ -72,13 +77,20 @@ const ElectricityCalculator: React.FC<ElectricityCalculatorProps> = ({ t, lang }
 
   return (
     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-white dark:border-slate-700/50 transition-all duration-500 hover:shadow-amber-500/10 group">
-      <div className="flex items-center justify-between mb-12">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-12 gap-6">
         <h2 className="text-3xl font-black flex items-center gap-4 dark:text-white">
           <div className="flex items-center justify-center w-14 h-14 bg-amber-500 text-white rounded-2xl shadow-xl shadow-amber-500/20 group-hover:scale-110 transition-transform">
             <Icons.Electricity />
           </div>
           {t.electricityCalculator}
         </h2>
+        <button 
+          onClick={reset}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-slate-900/50 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all border dark:border-slate-700"
+        >
+          <Icons.Refresh className="w-3.5 h-3.5" />
+          {t.reset}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
