@@ -159,9 +159,13 @@ const App: React.FC = () => {
   const safeFeatures = settings.enabledFeatures || DEFAULT_ADMIN_SETTINGS.enabledFeatures;
   const safeSocialLinks = settings.socialLinks || DEFAULT_ADMIN_SETTINGS.socialLinks;
 
+  const hasRatesData = rates && !rates.error && 
+                  ((rates.cbsRates && rates.cbsRates.length > 0) || 
+                   (rates.blackMarketRates && rates.blackMarketRates.length > 0));
+
   return (
     <>
-      <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'} print:hidden flex flex-col`}>
+      <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'} main-app-container print:hidden flex flex-col`}>
         <header className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border-b dark:border-slate-700/50 shadow-sm sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4 cursor-pointer" onDoubleClick={() => setIsAdminOpen(true)}>
@@ -199,7 +203,12 @@ const App: React.FC = () => {
                       {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })}
                     </p>
                   )}
-                  <button onClick={() => window.print()} className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all shadow-sm">
+                  <button 
+                    onClick={() => window.print()} 
+                    disabled={isRefreshing || !hasRatesData}
+                    title={t.printRates}
+                    className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     <Icons.Print className="w-5 h-5" />
                   </button>
                   <button onClick={loadRates} disabled={isRefreshing} className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 transition-all shadow-md">

@@ -103,6 +103,19 @@
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
             100% { transform: translateY(-120vh) rotate(720deg); opacity: 0; }
         }
+
+        /* Robust Print Styles */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+            }
+            .main-app-container, .background-shapes {
+                display: none !important;
+            }
+            #printable-document {
+                display: block !important;
+            }
+        }
     </style>
 <script type="importmap">
 {

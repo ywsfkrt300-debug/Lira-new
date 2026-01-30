@@ -64,6 +64,7 @@ export interface Translation {
   directDownload: string;
   appNote: string;
   rateError: string;
+  printRates: string;
 }
 
 export interface ExchangeRate {
