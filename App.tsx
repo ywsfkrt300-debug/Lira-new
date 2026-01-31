@@ -4,7 +4,7 @@ import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
 import Converter from './components/Converter';
 import ChangeCalculator from './components/ChangeCalculator';
-import ElectricityCalculator from './ElectricityCalculator';
+import ElectricityCalculator from './components/ElectricityCalculator';
 import AdminPortal from './components/AdminPortal';
 import RatePrintView from './components/RatePrintView';
 import { fetchLatestRates } from './services/rateService';
