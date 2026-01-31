@@ -97,6 +97,7 @@ const App: React.FC = () => {
   }, []);
 
   const t = translations[lang];
+  const safeSocialLinks = settings.socialLinks || DEFAULT_ADMIN_SETTINGS.socialLinks;
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -189,6 +190,22 @@ const App: React.FC = () => {
 
     let schema: object | null = null;
     let schemaGraph: object[] = [];
+    
+    // FIX: Add type 'any' to 'link' to fix TypeScript error 'property does not exist on type unknown'.
+    const socialUrls = Object.values(safeSocialLinks)
+        .filter((link: any) => link.visible && link.url && link.url.trim() !== '' && link.url.trim() !== '#')
+        .map((link: any) => link.url);
+
+    if (viewToRender === 'home') {
+      schemaGraph.push({
+        "@type": "Organization",
+        "@id": `${baseUrl}#organization`,
+        "name": t.title,
+        "url": baseUrl,
+        "logo": `${baseUrl}og-image.png`,
+        "sameAs": socialUrls,
+      });
+    }
 
     // Add breadcrumbs for non-home pages
     if (viewToRender !== 'home') {
@@ -263,7 +280,7 @@ const App: React.FC = () => {
         scriptTag.textContent = JSON.stringify(schema, null, 2);
         document.head.appendChild(scriptTag);
     }
-  }, [viewToRender, t]);
+  }, [viewToRender, t, safeSocialLinks]);
 
   const loadRates = useCallback(async () => {
     setIsRefreshing(true);
@@ -364,7 +381,7 @@ const App: React.FC = () => {
   }
 
   const safeFeatures = settings.enabledFeatures || DEFAULT_ADMIN_SETTINGS.enabledFeatures;
-  const safeSocialLinks = settings.socialLinks || DEFAULT_ADMIN_SETTINGS.socialLinks;
+  
 
   const services = [
     { view: 'converter', label: t.converter, icon: Icons.Converter, enabled: safeFeatures.converter },
