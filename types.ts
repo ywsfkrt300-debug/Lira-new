@@ -75,6 +75,9 @@ export interface Translation {
   appNote: string;
   rateError: string;
   homeTitle: string; // For H1 tag on home page
+  homeGuideTitle: string;
+  homeGuidePara1: string;
+  homeGuidePara2: string;
   // Page Titles
   pageTitles: {
     [key in View]: string;

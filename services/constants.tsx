@@ -55,6 +55,9 @@ export const translations: Record<'ar' | 'en', Translation> = {
     appNote: "تجربة أفضل وأسرع على هاتفك المحمول.",
     rateError: "تعذر تحميل الأسعار الحية. قد تكون هناك مشكلة في الشبكة أو في الخادم المصدر. يرجى المحاولة مرة أخرى لاحقاً.",
     homeTitle: "أسعار الصرف والعملات في سوريا اليوم",
+    homeGuideTitle: "دليلك الشامل لليرة السورية",
+    homeGuidePara1: "موقع ليرتنا هو وجهتك الأولى لكل ما يتعلق بالليرة السورية. نحن نقدم لك أحدث أسعار الصرف للدولار واليورو والليرة التركية وغيرها من العملات الرئيسية، مع بيانات محدثة لحظة بلحظة من السوق الموازية (السوداء) والمصرف المركزي السوري. هدفنا هو توفير الشفافية والدقة لمساعدتك في اتخاذ قرارات مالية مستنيرة.",
+    homeGuidePara2: "بالإضافة إلى أسعار الصرف، يوفر ليرتنا مجموعة من الأدوات المالية المجانية والمصممة خصيصاً لتلبية احتياجات المستخدم السوري. استخدم <strong>محول العملات</strong> الخاص بنا للتحويل بسهولة بين الليرة السورية القديمة والجديدة، أو جرب <strong>حاسبة الباقي</strong> لتسهيل معاملاتك اليومية. كما يمكنك استخدام <strong>حاسبة فاتورة الكهرباء</strong> لتقدير فاتورتك الشهرية بدقة بناءً على استهلاكك ونوع اشتراكك.",
     pageTitles: {
       home: "أسعار الصرف الحية في سوريا",
       converter: "محول العملات",
@@ -171,6 +174,9 @@ export const translations: Record<'ar' | 'en', Translation> = {
     appNote: "A better and faster experience on your mobile phone.",
     rateError: "Could not load live rates. There might be a network issue or a problem with the source server. Please try again later.",
     homeTitle: "Currency and Exchange Rates in Syria Today",
+    homeGuideTitle: "Your Comprehensive Guide to the Syrian Lira",
+    homeGuidePara1: "Liratna is your premier destination for everything related to the Syrian Lira. We provide you with the latest exchange rates for the Dollar, Euro, Turkish Lira, and other major currencies, with real-time data from the parallel (black) market and the Syrian Central Bank. Our goal is to offer transparency and accuracy to help you make informed financial decisions.",
+    homeGuidePara2: "In addition to exchange rates, Liratna offers a suite of free financial tools specifically designed for the needs of Syrian users. Use our <strong>Currency Converter</strong> to easily switch between the old and new Syrian Lira, or try the <strong>Change Calculator</strong> to simplify your daily transactions. You can also use the <strong>Electricity Bill Calculator</strong> to accurately estimate your monthly bill based on your consumption and subscription type.",
     pageTitles: {
       home: "Live Exchange Rates in Syria",
       converter: "Currency Converter",

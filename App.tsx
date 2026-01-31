@@ -159,89 +159,66 @@ const App: React.FC = () => {
       metaDescriptionTag.setAttribute('content', t.metaDescriptions[viewToRender] || '');
     }
     
-    const scriptId = 'json-ld-schema';
-    let scriptTag = document.getElementById(scriptId) as HTMLScriptElement | null;
-    if (!scriptTag) {
-        scriptTag = document.createElement('script');
-        scriptTag.id = scriptId;
-        scriptTag.type = 'application/ld+json';
-        document.head.appendChild(scriptTag);
+    // Manage dynamic schema for sub-pages. The main schema is in index.html
+    const dynamicScriptId = 'dynamic-json-ld-schema';
+    const existingDynamicScript = document.getElementById(dynamicScriptId);
+    if (existingDynamicScript) {
+        existingDynamicScript.remove();
+    }
+    
+    if (viewToRender === 'home') {
+        // Home page relies on the static schema in index.html
+        return;
     }
 
+    const scriptTag = document.createElement('script');
+    scriptTag.id = dynamicScriptId;
+    scriptTag.type = 'application/ld+json';
+    
     const baseUrl = "https://lirtna-sy.vercel.app/";
     const pageUrl = `${baseUrl}#${viewToRender}`;
 
-    const organizationSchema = {
-      "@type": "Organization",
-      "@id": `${baseUrl}#organization`,
-      "name": t.title,
-      "url": baseUrl,
-      "logo": `${baseUrl}og-image.png`
-    };
-
-    const breadcrumbSchema = (view: View) => ({
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": t.home, "item": `${baseUrl}#home` },
-        ...(view !== 'home' ? [{ "@type": "ListItem", "position": 2, "name": t.pageTitles[view] }] : [])
-      ]
-    });
+    let schema: object | null = null;
     
-    let schemaGraph: object[] = [organizationSchema, breadcrumbSchema(viewToRender)];
-
-    if (viewToRender === 'home') {
-        schemaGraph.push({
-            "@type": "WebSite",
-            "url": baseUrl,
-            "name": t.title,
-            "description": t.metaDescriptions.home,
-            "publisher": { "@id": `${baseUrl}#organization` }
-        });
-        schemaGraph.push({
-            "@type": "FAQPage",
-            "mainEntity": t.faq.map(item => ({
-                "@type": "Question",
-                "name": item.question,
-                "acceptedAnswer": { "@type": "Answer", "text": item.answer }
-            }))
-        });
-        if (rates && !rates.error) {
-           const allRates = (rates.cbsRates || []).concat(rates.blackMarketRates || []);
-           allRates.forEach(rate => {
-              if (rate.currency && (rate.mid || (rate.buy && rate.sell))) {
-                  schemaGraph.push({
-                      "@type": "ExchangeRateSpecification",
-                      "currency": rate.currency,
-                      "currentExchangeRate": {
-                          "@type": "UnitPriceSpecification",
-                          "price": rate.mid || ((rate.buy + rate.sell) / 2),
-                          "priceCurrency": "SYP"
-                      },
-                      "lastReviewed": rates.timestampUtc
-                  });
-              }
-           });
-        }
-    } else if (viewToRender === 'converter') {
-        schemaGraph.push({
-            "@type": "HowTo",
-            "name": t.howToConverter.title,
-            "description": t.howToConverter.description,
-            "step": t.howToConverter.steps.map((step, i) => ({
-                "@type": "HowToStep",
-                "position": i + 1,
-                "name": step.name,
-                "text": step.text
-            }))
-        });
+    const breadcrumbSchema = {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": t.home, "item": baseUrl },
+          { "@type": "ListItem", "position": 2, "name": t.pageTitles[viewToRender], "item": pageUrl }
+        ]
+    };
+    
+    if (viewToRender === 'converter') {
+        schema = {
+            "@context": "https://schema.org",
+            "@graph": [
+                breadcrumbSchema,
+                {
+                    "@type": "HowTo",
+                    "name": t.howToConverter.title,
+                    "description": t.howToConverter.description,
+                    "step": t.howToConverter.steps.map((step) => ({
+                        "@type": "HowToStep",
+                        "name": step.name,
+                        "text": step.text,
+                        "url": pageUrl
+                    }))
+                }
+            ]
+        };
+    } else if (['calculator', 'electricity', 'privacy', 'contact'].includes(viewToRender)) {
+        schema = {
+            "@context": "https://schema.org",
+            ...breadcrumbSchema
+        };
     }
 
-    scriptTag.textContent = JSON.stringify({
-        "@context": "https://schema.org",
-        "@graph": schemaGraph
-    });
-
-  }, [viewToRender, t, rates]);
+    if (schema) {
+        scriptTag.textContent = JSON.stringify(schema);
+        document.head.appendChild(scriptTag);
+    }
+    
+  }, [viewToRender, t]);
 
   const loadRates = useCallback(async () => {
     setIsRefreshing(true);
@@ -395,6 +372,11 @@ const App: React.FC = () => {
                 )}
               </div>
             )}
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
+                <h2 className="text-2xl font-bold dark:text-white">{t.homeGuideTitle}</h2>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{t.homeGuidePara1}</p>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.homeGuidePara2 }}></p>
+            </div>
             <div className="bg-slate-900/95 backdrop-blur-md text-white p-8 rounded-3xl shadow-xl relative overflow-hidden border border-white/10">
               <h3 className="text-xl font-bold mb-4 relative z-10">{t.aboutUs}</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-6 relative z-10">{t.aboutContent}</p>
