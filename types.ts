@@ -22,6 +22,7 @@ export interface AdminSettings {
     telegram: { url: string; visible: boolean };
     facebook: { url: string; visible: boolean };
     instagram: { url: string; visible: boolean };
+    twitter: { url: string; visible: boolean };
   };
   mobileApp: {
     url: string;

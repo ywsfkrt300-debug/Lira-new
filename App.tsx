@@ -30,6 +30,7 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
     telegram: { url: 'https://telegram.org', visible: true },
     facebook: { url: 'https://facebook.com', visible: true },
     instagram: { url: 'https://instagram.com', visible: true },
+    twitter: { url: 'https://x.com', visible: true },
   },
   mobileApp: {
     url: '#',
@@ -96,6 +97,11 @@ const App: React.FC = () => {
   }, []);
 
   const t = translations[lang];
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  }, [lang]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -340,7 +346,7 @@ const App: React.FC = () => {
   if (settings.isMaintenanceMode) {
     return (
       <>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white dir-rtl font-['Tajawal']">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white font-['Tajawal']">
           <div className="text-center space-y-8 max-w-lg">
             <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto shadow-2xl animate-pulse">
               <Icons.Maintenance className="w-10 h-10 text-slate-900" />
@@ -451,7 +457,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'} main-app-container flex flex-col`}>
+      <div className="relative z-10 min-h-screen transition-colors duration-300 main-app-container flex flex-col">
         <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4 cursor-pointer" onDoubleClick={() => setIsAdminOpen(true)}>
