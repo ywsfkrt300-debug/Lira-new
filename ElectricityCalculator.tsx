@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Translation, ElectricityTariff } from './types';
-import { ELECTRICITY_TARIFFS } from './services/constants';
+import { ELECTRICITY_TARIFFS } from './constants';
 import { Icons } from './components/Icons';
 import { trackEvent } from './services/supabaseClient';
 
