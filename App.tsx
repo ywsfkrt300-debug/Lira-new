@@ -398,7 +398,7 @@ const App: React.FC = () => {
                 {settings.siteLogo ? <img src={settings.siteLogo} alt={`شعار ${t.title}`} className="w-full h-full object-contain" /> : "L"}
               </div>
               <div>
-                <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t.title}</h1>
+                <div className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t.title}</div>
               </div>
             </div>
 
