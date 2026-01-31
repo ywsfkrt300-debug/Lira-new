@@ -160,6 +160,23 @@ export const Icons = {
         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
     </IconContainer>
   ),
+  Print: (props: any) => (
+    <IconContainer {...props}>
+        <polyline points="6 9 6 2 18 2 18 9" />
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+        <rect x="6" y="14" width="12" height="8" />
+    </IconContainer>
+  ),
+  Animation: (props: any) => (
+    <IconContainer {...props}>
+        <path d="M14.5 2a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h- significativo" />
+        <path d="m12 5.5-2.5 4.5 2.5 4.5 2.5-4.5-2.5-4.5z" />
+        <path d="m20.5 15.5.5.5 1-1" />
+        <path d="m3.5 15.5-.5.5 1 1" />
+        <path d="m17 3.5 1-1 .5.5" />
+        <path d="m6 3.5 1 1-.5.5" />
+    </IconContainer>
+  ),
   BloodDrop: (props: any) => (
     <svg className={props.className || "w-6 h-6"} viewBox="0 0 24 24" fill="currentColor">
        <path d="M12 2.69l5.66 5.66c1.5 1.5 2.34 3.49 2.34 5.65s-.84 4.15-2.34 5.65c-3.12 3.12-8.19 3.12-11.31 0-1.5-1.5-2.34-3.49-2.34-5.65s.84-4.15 2.34-5.65L12 2.69z" />

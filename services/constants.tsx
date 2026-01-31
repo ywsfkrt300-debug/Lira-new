@@ -1,4 +1,4 @@
-import { Translation, ElectricityTariff } from './types';
+import { Translation, ElectricityTariff } from '../types';
 
 export const translations: Record<'ar' | 'en', Translation> = {
   ar: {
@@ -83,8 +83,26 @@ export const translations: Record<'ar' | 'en', Translation> = {
         {
             question: "كيف يعمل محول العملات بين الليرة القديمة والجديدة؟",
             answer: "محول العملات في ليرتنا يعتمد على نسبة التحويل الرسمية، حيث أن كل 1 ليرة سورية جديدة تساوي 100 ليرة سورية قديمة. الأداة تقوم بالعملية الحسابية بشكل فوري ودقيق."
+        },
+        {
+            question: "ما هو سعر صرف الليرة التركية مقابل الليرة السورية؟",
+            answer: "يوفر موقع ليرتنا أسعار صرف محدثة لليرة التركية واليورو مقابل الليرة السورية، مع بيانات من السوق السوداء والبنك المركزي لتكون على اطلاع دائم."
+        },
+        {
+            question: "كيف يمكن حساب فاتورة الكهرباء في سوريا؟",
+            answer: "استخدم حاسبة الكهرباء في موقع ليرتنا. أدخل استهلاكك بالكيلو واط ونوع الاشتراك (منزلي، تجاري، الخ) لتحصل على تفاصيل دقيقة للفاتورة حسب الشرائح والتعرفة الرسمية."
         }
     ],
+    // SEO How-to for converter
+    howToConverter: {
+        title: "كيفية استخدام محول العملات",
+        description: "خطوات بسيطة لتحويل المبالغ بين الليرة السورية القديمة والجديدة باستخدام أداة ليرتنا.",
+        steps: [
+            { name: "أدخل المبلغ", text: "أدخل المبلغ الذي تريد تحويله في حقل الإدخال الأول." },
+            { name: "اختر العملات", text: "حدد عملة الإدخال والإخراج (من الليرة القديمة إلى الجديدة أو العكس)." },
+            { name: "شاهد النتيجة", text: "تظهر النتيجة المحولة تلقائيًا في الحقل السفلي." }
+        ]
+    },
     electricityCalculator: "حاسبة فاتورة الكهرباء",
     consumption: "الاستهلاك",
     kwh: "كيلو واط ساعي",
@@ -95,6 +113,9 @@ export const translations: Record<'ar' | 'en', Translation> = {
     cost: "التكلفة",
     totalBill: "إجمالي الفاتورة",
     syp: "ل.س",
+    printRates: "طباعة الأسعار",
+    toggleAnimationOn: "تفعيل الرسوم المتحركة",
+    toggleAnimationOff: "إيقاف الرسوم المتحركة",
   },
   en: {
     title: "Liratna",
@@ -178,8 +199,25 @@ export const translations: Record<'ar' | 'en', Translation> = {
         {
             question: "How does the currency converter between old and new lira work?",
             answer: "The currency converter on Liratna uses the official conversion rate, where 1 new Syrian Lira equals 100 old Syrian Lira. The tool performs the calculation instantly and accurately."
+        },
+        {
+            question: "What is the exchange rate for the Turkish Lira against the Syrian Lira?",
+            answer: "Liratna provides updated exchange rates for the Turkish Lira and Euro against the Syrian Lira, with data from both the black market and the central bank to keep you informed."
+        },
+        {
+            question: "How can I calculate my electricity bill in Syria?",
+            answer: "Use the electricity calculator on Liratna. Enter your consumption in kWh and select your subscription type (e.g., household, commercial) to get an accurate bill breakdown based on official tariffs and tiers."
         }
     ],
+    howToConverter: {
+        title: "How to Use the Currency Converter",
+        description: "Simple steps to convert amounts between the old and new Syrian Lira using the Liratna tool.",
+        steps: [
+            { name: "Enter Amount", text: "Enter the amount you want to convert in the first input field." },
+            { name: "Select Currencies", text: "Select the input and output currency (from old to new Lira or vice versa)." },
+            { name: "View Result", text: "The converted result appears automatically in the bottom field." }
+        ]
+    },
     electricityCalculator: "Electricity Bill Calculator",
     consumption: "Consumption",
     kwh: "kWh",
@@ -190,6 +228,9 @@ export const translations: Record<'ar' | 'en', Translation> = {
     cost: "Cost",
     totalBill: "Total Bill",
     syp: "SYP",
+    printRates: "Print Rates",
+    toggleAnimationOn: "Enable Animation",
+    toggleAnimationOff: "Disable Animation",
   }
 };
 

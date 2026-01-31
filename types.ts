@@ -88,6 +88,12 @@ export interface Translation {
     question: string;
     answer: string;
   }[];
+  // SEO How-to for converter
+  howToConverter: {
+    title: string;
+    description: string;
+    steps: { name: string; text: string; }[];
+  };
   // Electricity Calculator
   electricityCalculator: string;
   consumption: string;
@@ -99,6 +105,10 @@ export interface Translation {
   cost: string;
   totalBill: string;
   syp: string;
+  // New UI text
+  printRates: string;
+  toggleAnimationOn: string;
+  toggleAnimationOff: string;
 }
 
 export interface ExchangeRate {

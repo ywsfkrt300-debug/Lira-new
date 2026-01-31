@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
 import Converter from './components/Converter';
 import ChangeCalculator from './components/ChangeCalculator';
 import ElectricityCalculator from './ElectricityCalculator';
 import AdminPortal from './components/AdminPortal';
+import RatePrintView from './components/RatePrintView';
 import { fetchLatestRates } from './services/rateService';
 import { Icons } from './components/Icons';
 import { supabase, trackEvent } from './services/supabaseClient';
@@ -85,7 +87,9 @@ const App: React.FC = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(true);
   const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
+  const [isBgAnimationEnabled, setIsBgAnimationEnabled] = useState(false);
   const firstLoad = useRef(true);
+  const printableContainer = useMemo(() => document.getElementById('printable-container'), []);
   
   const maintenanceMessage = useMemo(() => {
     return MAINTENANCE_MESSAGES[Math.floor(Math.random() * MAINTENANCE_MESSAGES.length)];
@@ -96,6 +100,16 @@ const App: React.FC = () => {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+  
+  useEffect(() => {
+    setIsBgAnimationEnabled(localStorage.getItem('liratna_bg_animation') === 'true');
+  }, []);
+
+  const toggleBgAnimation = () => {
+    const isEnabled = localStorage.getItem('liratna_bg_animation') === 'true';
+    localStorage.setItem('liratna_bg_animation', String(!isEnabled));
+    window.location.reload();
+  };
 
   // Routing and Title Effect
   useEffect(() => {
@@ -145,66 +159,89 @@ const App: React.FC = () => {
       metaDescriptionTag.setAttribute('content', t.metaDescriptions[viewToRender] || '');
     }
     
-    // Manage JSON-LD Structured Data
     const scriptId = 'json-ld-schema';
-    // FIX: Cast to HTMLScriptElement to ensure type safety.
     let scriptTag = document.getElementById(scriptId) as HTMLScriptElement | null;
     if (!scriptTag) {
         scriptTag = document.createElement('script');
         scriptTag.id = scriptId;
+        scriptTag.type = 'application/ld+json';
         document.head.appendChild(scriptTag);
     }
-    scriptTag.type = 'application/ld+json';
 
     const baseUrl = "https://lirtna-sy.vercel.app/";
     const pageUrl = `${baseUrl}#${viewToRender}`;
 
-    let schema: object = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": pageTitle,
-      "url": pageUrl,
-      "description": t.metaDescriptions[viewToRender],
-      "isPartOf": {
-          "@type": "WebSite",
-          "url": baseUrl,
-          "name": t.title,
-          "description": t.subtitle
-      }
+    const organizationSchema = {
+      "@type": "Organization",
+      "@id": `${baseUrl}#organization`,
+      "name": t.title,
+      "url": baseUrl,
+      "logo": `${baseUrl}og-image.png`
     };
 
+    const breadcrumbSchema = (view: View) => ({
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": t.home, "item": `${baseUrl}#home` },
+        ...(view !== 'home' ? [{ "@type": "ListItem", "position": 2, "name": t.pageTitles[view] }] : [])
+      ]
+    });
+    
+    let schemaGraph: object[] = [organizationSchema, breadcrumbSchema(viewToRender)];
+
     if (viewToRender === 'home') {
-        schema = {
-            "@context": "https://schema.org",
+        schemaGraph.push({
             "@type": "WebSite",
             "url": baseUrl,
             "name": t.title,
             "description": t.metaDescriptions.home,
-            "publisher": {
-                "@type": "Organization",
-                "name": t.title,
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": `${baseUrl}og-image.png`
-                }
-            },
-            "mainEntity": {
-                "@type": "FAQPage",
-                "mainEntity": t.faq.map(item => ({
-                    "@type": "Question",
-                    "name": item.question,
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": item.answer
-                    }
-                }))
-            }
-        };
+            "publisher": { "@id": `${baseUrl}#organization` }
+        });
+        schemaGraph.push({
+            "@type": "FAQPage",
+            "mainEntity": t.faq.map(item => ({
+                "@type": "Question",
+                "name": item.question,
+                "acceptedAnswer": { "@type": "Answer", "text": item.answer }
+            }))
+        });
+        if (rates && !rates.error) {
+           const allRates = (rates.cbsRates || []).concat(rates.blackMarketRates || []);
+           allRates.forEach(rate => {
+              if (rate.currency && (rate.mid || (rate.buy && rate.sell))) {
+                  schemaGraph.push({
+                      "@type": "ExchangeRateSpecification",
+                      "currency": rate.currency,
+                      "currentExchangeRate": {
+                          "@type": "UnitPriceSpecification",
+                          "price": rate.mid || ((rate.buy + rate.sell) / 2),
+                          "priceCurrency": "SYP"
+                      },
+                      "lastReviewed": rates.timestampUtc
+                  });
+              }
+           });
+        }
+    } else if (viewToRender === 'converter') {
+        schemaGraph.push({
+            "@type": "HowTo",
+            "name": t.howToConverter.title,
+            "description": t.howToConverter.description,
+            "step": t.howToConverter.steps.map((step, i) => ({
+                "@type": "HowToStep",
+                "position": i + 1,
+                "name": step.name,
+                "text": step.text
+            }))
+        });
     }
 
-    scriptTag.textContent = JSON.stringify(schema);
+    scriptTag.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": schemaGraph
+    });
 
-  }, [viewToRender, t]);
+  }, [viewToRender, t, rates]);
 
   const loadRates = useCallback(async () => {
     setIsRefreshing(true);
@@ -325,7 +362,10 @@ const App: React.FC = () => {
                   <h1 className="text-3xl font-black dark:text-white text-center sm:text-right">{t.homeTitle}</h1>
                   <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-4 flex-shrink-0">
                     {rates && !rates.error && ( <p className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:block"> {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })} </p> )}
-                    <button onClick={loadRates} disabled={isRefreshing} className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 transition-all shadow-md">
+                    <button onClick={() => window.print()} className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all shadow-sm" aria-label={t.printRates} title={t.printRates}>
+                        <Icons.Print className="w-5 h-5" />
+                    </button>
+                    <button onClick={loadRates} disabled={isRefreshing} className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 transition-all shadow-md" aria-label={t.reset}>
                       <Icons.Refresh className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
                     </button>
                   </div>
@@ -424,6 +464,14 @@ const App: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
+               <button 
+                onClick={toggleBgAnimation} 
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all hidden sm:block"
+                aria-label={isBgAnimationEnabled ? t.toggleAnimationOff : t.toggleAnimationOn}
+                title={isBgAnimationEnabled ? t.toggleAnimationOff : t.toggleAnimationOn}
+              >
+                <Icons.Animation className="w-5 h-5" />
+              </button>
               <button 
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
                 className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"
@@ -482,6 +530,10 @@ const App: React.FC = () => {
 
         {isAdminOpen && <AdminPortal settings={settings} updateSettings={setSettings} onClose={() => setIsAdminOpen(false)} />}
       </div>
+      {printableContainer && ReactDOM.createPortal(
+        <RatePrintView rates={rates} t={t} lang={lang} />,
+        printableContainer
+      )}
     </>
   );
 };

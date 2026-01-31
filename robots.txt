@@ -1,3 +1,5 @@
 # Allow all user agents to crawl the entire site.
 User-agent: *
 Allow: /
+
+Sitemap: https://lirtna-sy.vercel.app/sitemap.xml
