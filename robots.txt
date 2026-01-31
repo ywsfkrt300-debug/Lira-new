@@ -1,4 +1,10 @@
+# Allow all standard web crawlers for indexing purposes.
 User-agent: *
 Allow: /
+
+# Specifically disallow Google's AI models from using site content for training.
+# This does not affect Google Search indexing.
+User-agent: Google-Extended
+Disallow: /
 
 Sitemap: https://lirtna-sy.vercel.app/sitemap.xml
