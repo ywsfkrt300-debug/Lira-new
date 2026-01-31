@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Translation, ElectricityTariff } from '../types';
-import { ELECTRICITY_TARIFFS } from '../constants';
+import { Translation, ElectricityTariff } from './types';
+import { ELECTRICITY_TARIFFS } from './services/constants';
 import { Icons } from './components/Icons';
-import { trackEvent } from '../services/supabaseClient';
+import { trackEvent } from './services/supabaseClient';
 
 interface ElectricityCalculatorProps {
   t: Translation;

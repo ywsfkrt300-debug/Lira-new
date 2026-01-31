@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
-import { translations, MAINTENANCE_MESSAGES } from './constants';
+import { translations, MAINTENANCE_MESSAGES } from './services/constants';
 import Converter from './components/Converter';
 import ChangeCalculator from './components/ChangeCalculator';
 import ElectricityCalculator from './ElectricityCalculator';
