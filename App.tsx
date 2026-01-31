@@ -135,9 +135,15 @@ const App: React.FC = () => {
   }, [activeView, viewToRender]);
 
 
+  // SEO Title and Meta Description Effect
   useEffect(() => {
     const pageTitle = t.pageTitles[viewToRender] || t.title;
     document.title = `${t.title} | ${pageTitle}`;
+
+    const metaDescriptionTag = document.querySelector('meta[name="description"]');
+    if (metaDescriptionTag) {
+      metaDescriptionTag.setAttribute('content', t.metaDescriptions[viewToRender] || '');
+    }
   }, [viewToRender, t]);
 
   const loadRates = useCallback(async () => {
@@ -256,8 +262,8 @@ const App: React.FC = () => {
             {safeFeatures.marketRates && (
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-                  <h2 className="text-2xl font-black dark:text-white">{t.marketRates}</h2>
-                  <div className="flex items-center gap-2 sm:gap-4">
+                  <h1 className="text-3xl font-black dark:text-white text-center sm:text-right">{t.homeTitle}</h1>
+                  <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-4 flex-shrink-0">
                     {rates && !rates.error && ( <p className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:block"> {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })} </p> )}
                     <button onClick={loadRates} disabled={isRefreshing} className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 transition-all shadow-md">
                       <Icons.Refresh className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />

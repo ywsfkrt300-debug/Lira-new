@@ -74,8 +74,13 @@ export interface Translation {
   directDownload: string;
   appNote: string;
   rateError: string;
+  homeTitle: string; // For H1 tag on home page
   // Page Titles
   pageTitles: {
+    [key in View]: string;
+  };
+  // SEO Meta Descriptions
+  metaDescriptions: {
     [key in View]: string;
   };
   // Electricity Calculator
