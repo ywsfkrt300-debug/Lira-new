@@ -168,17 +168,13 @@ const App: React.FC = () => {
       metaDescriptionTag.setAttribute('content', t.metaDescriptions[viewToRender] || '');
     }
     
-    // Manage dynamic schema for sub-pages. The main schema is in index.html
     const dynamicScriptId = 'dynamic-json-ld-schema';
-    const existingDynamicScript = document.getElementById(dynamicScriptId);
+    let existingDynamicScript = document.getElementById(dynamicScriptId);
     if (existingDynamicScript) {
         existingDynamicScript.remove();
     }
     
-    if (viewToRender === 'home') {
-        // Home page relies on the static schema in index.html
-        return;
-    }
+    if (viewToRender === 'home') return;
 
     const scriptTag = document.createElement('script');
     scriptTag.id = dynamicScriptId;
@@ -188,6 +184,7 @@ const App: React.FC = () => {
     const pageUrl = `${baseUrl}#${viewToRender}`;
 
     let schema: object | null = null;
+    let howToSchema: object | null = null;
     
     const breadcrumbSchema = {
         "@type": "BreadcrumbList",
@@ -198,32 +195,36 @@ const App: React.FC = () => {
     };
     
     if (viewToRender === 'converter') {
-        schema = {
-            "@context": "https://schema.org",
-            "@graph": [
-                breadcrumbSchema,
-                {
-                    "@type": "HowTo",
-                    "name": t.howToConverter.title,
-                    "description": t.howToConverter.description,
-                    "step": t.howToConverter.steps.map((step) => ({
-                        "@type": "HowToStep",
-                        "name": step.name,
-                        "text": step.text,
-                        "url": pageUrl
-                    }))
-                }
-            ]
+        howToSchema = {
+            "@type": "HowTo",
+            "name": t.howToConverter.title,
+            "description": t.howToConverter.description,
+            "step": t.howToConverter.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
         };
-    } else if (['calculator', 'electricity', 'privacy', 'contact'].includes(viewToRender)) {
-        schema = {
-            "@context": "https://schema.org",
-            ...breadcrumbSchema
+    } else if (viewToRender === 'calculator') {
+        howToSchema = {
+            "@type": "HowTo",
+            "name": t.howToCalculator.title,
+            "description": t.howToCalculator.description,
+            "step": t.howToCalculator.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
+        };
+    } else if (viewToRender === 'electricity') {
+        howToSchema = {
+            "@type": "HowTo",
+            "name": t.howToElectricity.title,
+            "description": t.howToElectricity.description,
+            "step": t.howToElectricity.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
         };
     }
 
+    if (howToSchema) {
+        schema = { "@context": "https://schema.org", "@graph": [breadcrumbSchema, howToSchema] };
+    } else if (['privacy', 'contact'].includes(viewToRender)) {
+        schema = { "@context": "https://schema.org", ...breadcrumbSchema };
+    }
+
     if (schema) {
-        scriptTag.textContent = JSON.stringify(schema);
+        scriptTag.textContent = JSON.stringify(schema, null, 2);
         document.head.appendChild(scriptTag);
     }
     

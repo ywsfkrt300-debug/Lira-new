@@ -1,4 +1,3 @@
-
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
 export type View = 'home' | 'converter' | 'calculator' | 'electricity' | 'privacy' | 'contact';
@@ -91,8 +90,18 @@ export interface Translation {
     question: string;
     answer: string;
   }[];
-  // SEO How-to for converter
+  // SEO How-to schemas
   howToConverter: {
+    title: string;
+    description: string;
+    steps: { name: string; text: string; }[];
+  };
+  howToCalculator: {
+    title: string;
+    description: string;
+    steps: { name: string; text: string; }[];
+  };
+  howToElectricity: {
     title: string;
     description: string;
     steps: { name: string; text: string; }[];

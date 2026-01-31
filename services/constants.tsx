@@ -96,7 +96,6 @@ export const translations: Record<'ar' | 'en', Translation> = {
             answer: "استخدم حاسبة الكهرباء في موقع ليرتنا. أدخل استهلاكك بالكيلو واط ونوع الاشتراك (منزلي، تجاري، الخ) لتحصل على تفاصيل دقيقة للفاتورة حسب الشرائح والتعرفة الرسمية."
         }
     ],
-    // SEO How-to for converter
     howToConverter: {
         title: "كيفية استخدام محول العملات",
         description: "خطوات بسيطة لتحويل المبالغ بين الليرة السورية القديمة والجديدة باستخدام أداة ليرتنا.",
@@ -104,6 +103,24 @@ export const translations: Record<'ar' | 'en', Translation> = {
             { name: "أدخل المبلغ", text: "أدخل المبلغ الذي تريد تحويله في حقل الإدخال الأول." },
             { name: "اختر العملات", text: "حدد عملة الإدخال والإخراج (من الليرة القديمة إلى الجديدة أو العكس)." },
             { name: "شاهد النتيجة", text: "تظهر النتيجة المحولة تلقائيًا في الحقل السفلي." }
+        ]
+    },
+    howToCalculator: {
+        title: "كيفية استخدام حاسبة الباقي",
+        description: "احسب الباقي المستحق بدقة وحدد الفئات النقدية اللازمة لمعاملاتك اليومية.",
+        steps: [
+            { name: "أدخل السعر الإجمالي", text: "اكتب المبلغ الإجمالي المطلوب دفعه في الحقل المخصص." },
+            { name: "حدد المبلغ المدفوع", text: "استخدم الأزرار لإضافة الفئات النقدية التي قمت بدفعها." },
+            { name: "احصل على الباقي", text: "يعرض التطبيق تلقائياً المبلغ المتبقي وتفصيلاً للفئات النقدية المقترحة للباقي." }
+        ]
+    },
+    howToElectricity: {
+        title: "كيفية استخدام حاسبة فاتورة الكهرباء",
+        description: "قدّر قيمة فاتورة الكهرباء الشهرية في سوريا بناءً على استهلاكك ونوع اشتراكك.",
+        steps: [
+            { name: "اختر نوع الاشتراك", text: "حدد نوع الاشتراك الخاص بك من القائمة (منزلي، تجاري، إلخ)." },
+            { name: "أدخل الاستهلاك", text: "اكتب إجمالي استهلاكك بالكيلو واط الساعي (kWh) في الحقل المخصص." },
+            { name: "اطلع على تفاصيل الفاتورة", text: "تظهر قيمة الفاتورة الإجمالية مع تفصيل للتكلفة حسب كل شريحة استهلاك." }
         ]
     },
     electricityCalculator: "حاسبة فاتورة الكهرباء",
@@ -222,6 +239,24 @@ export const translations: Record<'ar' | 'en', Translation> = {
             { name: "Enter Amount", text: "Enter the amount you want to convert in the first input field." },
             { name: "Select Currencies", text: "Select the input and output currency (from old to new Lira or vice versa)." },
             { name: "View Result", text: "The converted result appears automatically in the bottom field." }
+        ]
+    },
+    howToCalculator: {
+        title: "How to Use the Change Calculator",
+        description: "Accurately calculate the change due and identify the required denominations for your daily transactions.",
+        steps: [
+            { name: "Enter Total Price", text: "Type the total amount to be paid in the designated field." },
+            { name: "Specify Amount Paid", text: "Use the buttons to add the cash denominations you have paid with." },
+            { name: "Get the Change", text: "The app automatically displays the remaining amount and a breakdown of suggested denominations for the change." }
+        ]
+    },
+    howToElectricity: {
+        title: "How to Use the Electricity Bill Calculator",
+        description: "Estimate your monthly electricity bill value in Syria based on your consumption and subscription type.",
+        steps: [
+            { name: "Select Subscription Type", text: "Choose your subscription type from the list (Household, Commercial, etc.)." },
+            { name: "Enter Consumption", text: "Input your total consumption in kilowatt-hours (kWh) in the provided field." },
+            { name: "View Bill Details", text: "The total bill value appears with a detailed breakdown of the cost per consumption tier." }
         ]
     },
     electricityCalculator: "Electricity Bill Calculator",
