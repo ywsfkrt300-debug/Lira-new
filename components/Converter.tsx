@@ -59,12 +59,12 @@ const Converter: React.FC<ConverterProps> = ({ t, lang, enableAnalytics }) => {
   return (
     <div className="bg-white dark:bg-slate-900 p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-white dark:border-slate-800 transition-all duration-500 hover:shadow-emerald-500/10 group">
       <div className="flex items-center justify-between mb-12">
-        <h2 className="text-3xl font-black flex items-center gap-4 dark:text-white">
+        <h1 className="text-3xl font-black flex items-center gap-4 dark:text-white">
           <div className="flex items-center justify-center w-14 h-14 bg-emerald-500 text-white rounded-2xl shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform">
             <Icons.Converter />
           </div>
           {t.converter}
-        </h2>
+        </h1>
       </div>
 
       <div className="space-y-10">

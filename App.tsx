@@ -40,7 +40,7 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
 
 const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, content }) => (
     <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 md:p-12 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-800">
-        <h2 className="text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h2>
+        <h1 className="text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h1>
         <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4">
             {content.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
@@ -135,7 +135,7 @@ const App: React.FC = () => {
   }, [activeView, viewToRender]);
 
 
-  // SEO Title and Meta Description Effect
+  // SEO Title, Meta Description, and Structured Data Effect
   useEffect(() => {
     const pageTitle = t.pageTitles[viewToRender] || t.title;
     document.title = `${t.title} | ${pageTitle}`;
@@ -144,6 +144,66 @@ const App: React.FC = () => {
     if (metaDescriptionTag) {
       metaDescriptionTag.setAttribute('content', t.metaDescriptions[viewToRender] || '');
     }
+    
+    // Manage JSON-LD Structured Data
+    const scriptId = 'json-ld-schema';
+    // FIX: Cast to HTMLScriptElement to ensure type safety.
+    let scriptTag = document.getElementById(scriptId) as HTMLScriptElement | null;
+    if (!scriptTag) {
+        scriptTag = document.createElement('script');
+        scriptTag.id = scriptId;
+        document.head.appendChild(scriptTag);
+    }
+    scriptTag.type = 'application/ld+json';
+
+    const baseUrl = "https://lirtna-sy.vercel.app/";
+    const pageUrl = `${baseUrl}#${viewToRender}`;
+
+    let schema: object = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": pageTitle,
+      "url": pageUrl,
+      "description": t.metaDescriptions[viewToRender],
+      "isPartOf": {
+          "@type": "WebSite",
+          "url": baseUrl,
+          "name": t.title,
+          "description": t.subtitle
+      }
+    };
+
+    if (viewToRender === 'home') {
+        schema = {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "url": baseUrl,
+            "name": t.title,
+            "description": t.metaDescriptions.home,
+            "publisher": {
+                "@type": "Organization",
+                "name": t.title,
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": `${baseUrl}og-image.png`
+                }
+            },
+            "mainEntity": {
+                "@type": "FAQPage",
+                "mainEntity": t.faq.map(item => ({
+                    "@type": "Question",
+                    "name": item.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": item.answer
+                    }
+                }))
+            }
+        };
+    }
+
+    scriptTag.textContent = JSON.stringify(schema);
+
   }, [viewToRender, t]);
 
   const loadRates = useCallback(async () => {
@@ -335,7 +395,7 @@ const App: React.FC = () => {
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4 cursor-pointer" onDoubleClick={() => setIsAdminOpen(true)}>
               <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-lg">
-                {settings.siteLogo ? <img src={settings.siteLogo} alt="Logo" className="w-full h-full object-contain" /> : "L"}
+                {settings.siteLogo ? <img src={settings.siteLogo} alt={`شعار ${t.title}`} className="w-full h-full object-contain" /> : "L"}
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t.title}</h1>
@@ -364,10 +424,18 @@ const App: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
+              <button 
+                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"
+                aria-label={theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح'}
+              >
                 {theme === 'light' ? <Icons.Moon className="w-5 h-5" /> : <Icons.Sun className="w-5 h-5" />}
               </button>
-              <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-sm text-slate-900 dark:text-white transition-all">
+              <button 
+                onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} 
+                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-sm text-slate-900 dark:text-white transition-all"
+                aria-label={lang === 'ar' ? 'Switch to English' : 'التحويل إلى العربية'}
+              >
                 {lang === 'ar' ? 'EN' : 'عربي'}
               </button>
             </div>

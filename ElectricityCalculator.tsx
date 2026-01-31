@@ -89,12 +89,12 @@ const ElectricityCalculator: React.FC<ElectricityCalculatorProps> = ({ t, lang, 
   return (
     <div className="bg-white dark:bg-slate-900 p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-white dark:border-slate-800 transition-all duration-500 hover:shadow-amber-500/10 group">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-12 gap-6">
-        <h2 className="text-3xl font-black flex items-center gap-4 dark:text-white">
+        <h1 className="text-3xl font-black flex items-center gap-4 dark:text-white">
           <div className="flex items-center justify-center w-14 h-14 bg-amber-500 text-white rounded-2xl shadow-xl shadow-amber-500/20 group-hover:scale-110 transition-transform">
             <Icons.Electricity />
           </div>
           {t.electricityCalculator}
-        </h2>
+        </h1>
         <button 
           onClick={reset}
           className="flex items-center gap-2 px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all border border-slate-200 dark:border-slate-700"

@@ -64,13 +64,27 @@ export const translations: Record<'ar' | 'en', Translation> = {
       contact: "اتصل بنا"
     },
     metaDescriptions: {
-      home: "أسعار الصرف الحية لليرة السورية مقابل الدولار واليورو والليرة التركية في السوق السوداء والمصرف المركزي. تحديث لحظي وموثوق.",
-      converter: "محول العملات الدقيق بين الليرة السورية القديمة والجديدة. أداة سهلة وسريعة لتحويل المبالغ.",
-      calculator: "حاسبة الباقي والفئات النقدية في سوريا. احسب الباقي المستحق بدقة وسهولة.",
-      electricity: "حاسبة فاتورة الكهرباء في سوريا لمختلف أنواع الاشتراكات المنزلية والتجارية.",
-      privacy: "اطلع على سياسة الخصوصية لموقع ليرتنا وكيفية تعاملنا مع بيانات المستخدمين.",
-      contact: "تواصل مع فريق عمل موقع ليرتنا. يسعدنا استقبال استفساراتكم ومقترحاتكم.",
+      home: "اطلع على سعر الدولار اليوم في سوريا وأسعار الصرف الحية لليرة السورية مقابل اليورو والتركي في السوق السوداء والمصرف المركزي. تحديث لحظي وموثوق.",
+      converter: "أداة تحويل العملات الدقيقة بين الليرة السورية القديمة والجديدة. حول المبالغ المالية بسهولة وسرعة واعرف قيمتها المحدثة.",
+      calculator: "حاسبة الباقي والفئات النقدية في سوريا. أداة ذكية لحساب الباقي المستحق بدقة وتحديد الفئات النقدية اللازمة.",
+      electricity: "احسب فاتورة الكهرباء في سوريا بسهولة. أداة دقيقة لمختلف أنواع الاشتراكات المنزلية والتجارية حسب التعرفة الرسمية.",
+      privacy: "اطلع على سياسة الخصوصية لموقع ليرتنا. نحن نلتزم بحماية بيانات المستخدمين وخصوصيتهم الكاملة.",
+      contact: "تواصل مع فريق عمل موقع ليرتنا. يسعدنا استقبال استفساراتكم ومقترحاتكم لتحسين خدماتنا.",
     },
+    faq: [
+        {
+            question: "كم سعر الدولار اليوم في سوريا في السوق السوداء؟",
+            answer: "موقع ليرتنا يقدم تحديثات لحظية لسعر صرف الدولار مقابل الليرة السورية في السوق الموازية (السوداء) والمصرف المركزي، مع عرض أسعار الشراء والمبيع."
+        },
+        {
+            question: "هل الأسعار المعروضة في موقع ليرتنا دقيقة؟",
+            answer: "نعم، نحن نعتمد على مصادر متعددة وموثوقة لتوفير أسعار صرف حية ودقيقة بأقصى قدر ممكن، مع عرض وقت آخر تحديث للبيانات بشفافية."
+        },
+        {
+            question: "كيف يعمل محول العملات بين الليرة القديمة والجديدة؟",
+            answer: "محول العملات في ليرتنا يعتمد على نسبة التحويل الرسمية، حيث أن كل 1 ليرة سورية جديدة تساوي 100 ليرة سورية قديمة. الأداة تقوم بالعملية الحسابية بشكل فوري ودقيق."
+        }
+    ],
     electricityCalculator: "حاسبة فاتورة الكهرباء",
     consumption: "الاستهلاك",
     kwh: "كيلو واط ساعي",
@@ -145,13 +159,27 @@ export const translations: Record<'ar' | 'en', Translation> = {
       contact: "Contact Us"
     },
     metaDescriptions: {
-      home: "Live exchange rates for the Syrian Lira against the Dollar, Euro, and Turkish Lira in the black market and central bank. Reliable and instant updates.",
-      converter: "Accurate currency converter between old and new Syrian Lira. Easy and fast tool for amount conversion.",
-      calculator: "Change and cash denomination calculator in Syria. Calculate the due change accurately and easily.",
-      electricity: "Electricity bill calculator in Syria for various types of residential and commercial subscriptions.",
-      privacy: "Read Liratna's privacy policy and how we handle user data.",
-      contact: "Contact the Liratna team. We are happy to receive your inquiries and suggestions.",
+      home: "Check today's dollar rate in Syria and live exchange rates for the Syrian Lira against the Euro and Turkish Lira in the black market and central bank. Reliable, real-time updates.",
+      converter: "Accurate currency converter between old and new Syrian Lira. Easily convert financial amounts and know their updated value.",
+      calculator: "Change and cash denomination calculator in Syria. A smart tool to accurately calculate due change and determine necessary cash denominations.",
+      electricity: "Calculate your electricity bill in Syria easily. An accurate tool for various residential and commercial subscriptions based on official tariffs.",
+      privacy: "Read Liratna's privacy policy. We are committed to protecting user data and ensuring complete privacy.",
+      contact: "Contact the Liratna team. We welcome your inquiries and suggestions to improve our services.",
     },
+    faq: [
+        {
+            question: "What is the dollar exchange rate in Syria's black market today?",
+            answer: "Liratna provides real-time updates for the exchange rate of the US Dollar against the Syrian Lira in both the parallel (black) market and the Central Bank, showing buy and sell prices."
+        },
+        {
+            question: "Are the exchange rates on Liratna accurate?",
+            answer: "Yes, we rely on multiple trusted sources to provide the most accurate live exchange rates possible, transparently displaying the last update time for the data."
+        },
+        {
+            question: "How does the currency converter between old and new lira work?",
+            answer: "The currency converter on Liratna uses the official conversion rate, where 1 new Syrian Lira equals 100 old Syrian Lira. The tool performs the calculation instantly and accurately."
+        }
+    ],
     electricityCalculator: "Electricity Bill Calculator",
     consumption: "Consumption",
     kwh: "kWh",

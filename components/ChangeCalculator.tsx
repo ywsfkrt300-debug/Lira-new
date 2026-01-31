@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Translation, NEW_DENOMINATIONS } from '../types';
 import { Icons } from './Icons';
@@ -60,12 +61,12 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t, enableAnalytics 
   return (
     <div className="bg-white dark:bg-slate-900 p-6 md:p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 transition-all duration-500 hover:shadow-blue-500/10 group">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">
-        <h2 className="text-3xl font-black flex items-center gap-4 dark:text-white">
+        <h1 className="text-3xl font-black flex items-center gap-4 dark:text-white">
           <div className="flex items-center justify-center w-14 h-14 bg-blue-500 text-white rounded-2xl shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
             <Icons.Calculator />
           </div>
           {t.calculator}
-        </h2>
+        </h1>
         <button 
           onClick={reset}
           className="flex items-center gap-2 px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all border border-slate-200 dark:border-slate-700"

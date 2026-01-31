@@ -83,6 +83,11 @@ export interface Translation {
   metaDescriptions: {
     [key in View]: string;
   };
+  // SEO FAQ for Structured Data
+  faq: {
+    question: string;
+    answer: string;
+  }[];
   // Electricity Calculator
   electricityCalculator: string;
   consumption: string;
