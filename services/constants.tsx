@@ -64,7 +64,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       contact: "اتصل بنا"
     },
     metaDescriptions: {
-      home: "اطلع على سعر الدولار اليوم في سوريا وأسعار الصرف الحية لليرة السورية مقابل اليورو والتركي في السوق السوداء والمصرف المركزي. تحديث لحظي وموثوق.",
+      home: "موقع ليرتنا لمتابعة أسعار الصرف في سوريا لحظة بلحظة. حوّل العملة السورية من الجديدة إلى القديمة، احسب الباقي، واعرف قيمة فاتورة الكهرباء. دليلك المالي المجاني.",
       converter: "أداة تحويل العملات الدقيقة بين الليرة السورية القديمة والجديدة. حول المبالغ المالية بسهولة وسرعة واعرف قيمتها المحدثة.",
       calculator: "حاسبة الباقي والفئات النقدية في سوريا. أداة ذكية لحساب الباقي المستحق بدقة وتحديد الفئات النقدية اللازمة.",
       electricity: "احسب فاتورة الكهرباء في سوريا بسهولة. أداة دقيقة لمختلف أنواع الاشتراكات المنزلية والتجارية حسب التعرفة الرسمية.",
@@ -180,7 +180,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       contact: "Contact Us"
     },
     metaDescriptions: {
-      home: "Check today's dollar rate in Syria and live exchange rates for the Syrian Lira against the Euro and Turkish Lira in the black market and central bank. Reliable, real-time updates.",
+      home: "Liratna: Track live exchange rates in Syria. Convert Syrian currency from new to old, calculate change, and estimate your electricity bill. Your free financial guide.",
       converter: "Accurate currency converter between old and new Syrian Lira. Easily convert financial amounts and know their updated value.",
       calculator: "Change and cash denomination calculator in Syria. A smart tool to accurately calculate due change and determine necessary cash denominations.",
       electricity: "Calculate your electricity bill in Syria easily. An accurate tool for various residential and commercial subscriptions based on official tariffs.",
