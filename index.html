@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ليرتنا | أسعار صرف العملات في سوريا اليوم وتحديثات لحظية</title>
-    <meta name="description" content="ليرتنا يوفر لك تحديثات لحظية لسعر صرف الدولار والعملات في سوريا بالسوق السوداء والبنك المركزي، بالإضافة إلى أدوات مجانية لتحويل العملات وحساب الفواتير.">
+    <meta name="description" content="ليرتنا: دليلك لأسعار الصرف في سوريا. احصل على تحديثات لحظية لسعر الدولار والعملات، واستخدم أدوات تحويل العملة وحساب الفواتير مجاناً.">
     <meta name="keywords" content="سعر الدولار في سوريا, سعر اليورو في سوريا, سعر الليرة التركية, السوق السوداء, المصرف المركزي, ليرتنا, تحويل العملة السورية, الليرة السورية, أسعار الصرف">
     <meta name="robots" content="index, follow">
     <meta name="google-site-verification" content="b8SGFQuV8fq8hTc3U-a2JNROHLppu01VsPuhaWXbs6o" />
@@ -22,14 +22,14 @@
     <meta property="og:url" content="https://lirtna-sy.vercel.app/">
     <meta property="og:site_name" content="ليرتنا">
     <meta property="og:title" content="ليرتنا | أسعار صرف العملات في سوريا اليوم وتحديثات لحظية">
-    <meta property="og:description" content="ليرتنا يوفر لك تحديثات لحظية لسعر صرف الدولار والعملات في سوريا بالسوق السوداء والبنك المركزي، بالإضافة إلى أدوات مجانية لتحويل العملات وحساب الفواتير.">
+    <meta property="og:description" content="ليرتنا: دليلك لأسعار الصرف في سوريا. احصل على تحديثات لحظية لسعر الدولار والعملات، واستخدم أدوات تحويل العملة وحساب الفواتير مجاناً.">
     <meta property="og:image" content="https://lirtna-sy.vercel.app/og-image.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://lirtna-sy.vercel.app/">
     <meta property="twitter:title" content="ليرتنا | أسعار صرف العملات في سوريا اليوم وتحديثات لحظية">
-    <meta property="twitter:description" content="ليرتنا يوفر لك تحديثات لحظية لسعر صرف الدولار والعملات في سوريا بالسوق السوداء والبنك المركزي، بالإضافة إلى أدوات مجانية لتحويل العملات وحساب الفواتير.">
+    <meta property="twitter:description" content="ليرتنا: دليلك لأسعار الصرف في سوريا. احصل على تحديثات لحظية لسعر الدولار والعملات، واستخدم أدوات تحويل العملة وحساب الفواتير مجاناً.">
     <meta property="twitter:image" content="https://lirtna-sy.vercel.app/og-image.png">
     
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
@@ -94,6 +94,32 @@
             50% { transform: scale(1.05); opacity: 1; }
         }
 
+        .fallback-container {
+            text-align: center;
+            padding: 50px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .fallback-title {
+            font-size: 2em;
+            color: #333;
+            font-weight: bold;
+            margin: 0 0 0.5em 0;
+        }
+        .fallback-subtitle {
+            font-size: 1.2em;
+            color: #666;
+        }
+        .noscript-warning {
+            padding: 20px;
+            background-color: #ffdddd;
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            font-weight: bold;
+            margin: 20px auto;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+
         @media print {
             body > *:not(#printable-container) {
                 display: none !important;
@@ -135,11 +161,11 @@
     </div>
     <div id="currency-background"></div>
     <div id="root">
-        <div style="text-align: center; padding: 50px; font-family: 'Tajawal', sans-serif;" dir="rtl">
-            <h1 style="font-size: 2em; color: #333;">أهلاً بك في ليرتنا</h1>
-            <p style="font-size: 1.2em; color: #666;">جاري تحميل أسعار الصرف والأدوات المالية...</p>
+        <div class="fallback-container" dir="rtl">
+            <p class="fallback-title">أهلاً بك في ليرتنا</p>
+            <p class="fallback-subtitle">جاري تحميل أسعار الصرف والأدوات المالية...</p>
             <noscript>
-                <div style="padding: 20px; background-color: #ffdddd; border: 1px solid #ff0000; color: #ff0000; font-weight: bold; margin: 20px auto; max-width: 600px; border-radius: 8px;">
+                <div class="noscript-warning">
                     يعتمد هذا الموقع على JavaScript ليعمل بشكل صحيح. يرجى تفعيل JavaScript في متصفحك للاستفادة من جميع الميزات.
                 </div>
             </noscript>

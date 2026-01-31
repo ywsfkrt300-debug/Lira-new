@@ -33,7 +33,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
     aboutUs: "من نحن",
     privacyPolicy: "سياسة الخصوصية",
     contactUs: "اتصل بنا",
-    aboutContent: "موقع ليرتنا هو منصة مستقلة تهدف لتسهيل العمليات المالية للمواطن السوري عبر توفير أدوات تحويل دقيقة بين فئات العملة القديمة والجديدة ومتابعة أسعار الصرف العالمية.",
+    aboutContent: "ليرتنا هو منصة خدمية مجانية تم إطلاقها بهدف تبسيط التعاملات المالية اليومية للمواطن السوري. نحن ندرك التحديات المستمرة في فهم أسعار الصرف والتعامل مع الفئات النقدية المختلفة، لذلك نقدم أدوات دقيقة ومحدثة باستمرار، من محول العملات بين القديم والجديد إلى حاسبة الفواتير، مع متابعة لحظية لأسعار الصرف من مصادر متعددة لضمان الشفافية والموثوقية.",
     privacyTitle: "سياسة الخصوصية",
     privacyContent: [
       "في ليرتنا، خصوصيتك هي أولويتنا القصوى. تم تصميم هذه السياسة لمساعدتك على فهم كيفية تعاملنا مع البيانات.",
@@ -67,7 +67,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       contact: "اتصل بنا"
     },
     metaDescriptions: {
-      home: "موقع ليرتنا لمتابعة أسعار الصرف في سوريا لحظة بلحظة. حوّل العملة السورية من الجديدة إلى القديمة، احسب الباقي، واعرف قيمة فاتورة الكهرباء. دليلك المالي المجاني.",
+      home: "ليرتنا: دليلك لأسعار الصرف في سوريا. احصل على تحديثات لحظية لسعر الدولار والعملات، واستخدم أدوات تحويل العملة وحساب الفواتير مجاناً.",
       converter: "أداة تحويل العملات الدقيقة بين الليرة السورية القديمة والجديدة. حول المبالغ المالية بسهولة وسرعة واعرف قيمتها المحدثة.",
       calculator: "حاسبة الباقي والفئات النقدية في سوريا. أداة ذكية لحساب الباقي المستحق بدقة وتحديد الفئات النقدية اللازمة.",
       electricity: "احسب فاتورة الكهرباء في سوريا بسهولة. أداة دقيقة لمختلف أنواع الاشتراكات المنزلية والتجارية حسب التعرفة الرسمية.",
@@ -152,7 +152,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
     aboutUs: "About Us",
     privacyPolicy: "Privacy Policy",
     contactUs: "Contact Us",
-    aboutContent: "Liratna is an independent platform aimed at facilitating financial operations for Syrian citizens by providing accurate conversion tools between old and new currency denominations.",
+    aboutContent: "Liratna is a free service platform launched to simplify daily financial transactions for Syrians. We understand the ongoing challenges in understanding exchange rates and dealing with different currency denominations, so we provide accurate and constantly updated tools, from an old-to-new currency converter to a bill calculator, with real-time tracking of exchange rates from multiple sources to ensure transparency and reliability.",
     privacyTitle: "Privacy Policy",
     privacyContent: [
         "At Liratna, your privacy is our top priority. This policy is designed to help you understand how we handle data.",
@@ -186,7 +186,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       contact: "Contact Us"
     },
     metaDescriptions: {
-      home: "Liratna: Track live exchange rates in Syria. Convert Syrian currency from new to old, calculate change, and estimate your electricity bill. Your free financial guide.",
+      home: "Liratna: Your guide to exchange rates in Syria. Get real-time updates for the dollar and other currencies, and use our free currency converter and bill calculator tools.",
       converter: "Accurate currency converter between old and new Syrian Lira. Easily convert financial amounts and know their updated value.",
       calculator: "Change and cash denomination calculator in Syria. A smart tool to accurately calculate due change and determine necessary cash denominations.",
       electricity: "Calculate your electricity bill in Syria easily. An accurate tool for various residential and commercial subscriptions based on official tariffs.",
