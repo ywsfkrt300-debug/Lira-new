@@ -100,6 +100,15 @@ const App: React.FC = () => {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    const favicon = document.getElementById('dynamic-favicon') as HTMLLinkElement | null;
+    const appleTouchIcon = document.getElementById('dynamic-apple-touch-icon') as HTMLLinkElement | null;
+    if (settings.siteLogo) {
+        if (favicon) favicon.href = settings.siteLogo;
+        if (appleTouchIcon) appleTouchIcon.href = settings.siteLogo;
+    }
+  }, [settings.siteLogo]);
   
   useEffect(() => {
     setIsBgAnimationEnabled(localStorage.getItem('liratna_bg_animation') === 'true');
