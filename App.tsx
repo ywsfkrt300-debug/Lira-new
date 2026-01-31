@@ -3,7 +3,7 @@ import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
 import Converter from './components/Converter';
 import ChangeCalculator from './components/ChangeCalculator';
-import ElectricityCalculator from './components/ElectricityCalculator';
+import ElectricityCalculator from './ElectricityCalculator';
 import AdminPortal from './components/AdminPortal';
 import { fetchLatestRates } from './services/rateService';
 import { Icons } from './components/Icons';
