@@ -77,6 +77,7 @@ export interface Translation {
   homeGuideTitle: string;
   homeGuidePara1: string;
   homeGuidePara2: string;
+  mainNavigation: string;
   // Page Titles
   pageTitles: {
     [key in View]: string;

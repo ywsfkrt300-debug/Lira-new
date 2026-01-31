@@ -167,67 +167,96 @@ const App: React.FC = () => {
     if (metaDescriptionTag) {
       metaDescriptionTag.setAttribute('content', t.metaDescriptions[viewToRender] || '');
     }
-    
+
     const dynamicScriptId = 'dynamic-json-ld-schema';
     let existingDynamicScript = document.getElementById(dynamicScriptId);
     if (existingDynamicScript) {
         existingDynamicScript.remove();
     }
-    
-    if (viewToRender === 'home') return;
 
     const scriptTag = document.createElement('script');
     scriptTag.id = dynamicScriptId;
     scriptTag.type = 'application/ld+json';
-    
+
     const baseUrl = "https://lirtna-sy.vercel.app/";
     const pageUrl = `${baseUrl}#${viewToRender}`;
 
     let schema: object | null = null;
-    let howToSchema: object | null = null;
-    
-    const breadcrumbSchema = {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": t.home, "item": baseUrl },
-          { "@type": "ListItem", "position": 2, "name": t.pageTitles[viewToRender], "item": pageUrl }
-        ]
-    };
-    
-    if (viewToRender === 'converter') {
-        howToSchema = {
+    let schemaGraph: object[] = [];
+
+    // Add breadcrumbs for non-home pages
+    if (viewToRender !== 'home') {
+        schemaGraph.push({
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": t.home, "item": baseUrl },
+              { "@type": "ListItem", "position": 2, "name": t.pageTitles[viewToRender], "item": pageUrl }
+            ]
+        });
+    }
+
+    if (viewToRender === 'home') {
+        schemaGraph.push({
+            "@type": "FAQPage",
+            "mainEntity": t.faq.map(item => ({
+                "@type": "Question",
+                "name": item.question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": item.answer
+                }
+            }))
+        });
+        schemaGraph.push({
+            "@type": "Article",
+            "headline": t.homeGuideTitle,
+            "author": { "@type": "Organization", "name": t.title },
+            "publisher": {
+                "@type": "Organization",
+                "name": t.title,
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://lirtna-sy.vercel.app/og-image.png"
+                }
+            },
+            "mainEntityOfPage": { "@type": "WebPage", "@id": baseUrl },
+            "articleBody": t.homeGuidePara1 + "\n\n" + t.homeGuidePara2.replace(/<[^>]*>?/gm, '') // Strip HTML
+        });
+    } else if (viewToRender === 'converter') {
+        schemaGraph.push({
             "@type": "HowTo",
             "name": t.howToConverter.title,
             "description": t.howToConverter.description,
             "step": t.howToConverter.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
-        };
+        });
     } else if (viewToRender === 'calculator') {
-        howToSchema = {
+        schemaGraph.push({
             "@type": "HowTo",
             "name": t.howToCalculator.title,
             "description": t.howToCalculator.description,
             "step": t.howToCalculator.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
-        };
+        });
     } else if (viewToRender === 'electricity') {
-        howToSchema = {
+        schemaGraph.push({
             "@type": "HowTo",
             "name": t.howToElectricity.title,
             "description": t.howToElectricity.description,
             "step": t.howToElectricity.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
-        };
+        });
     }
-
-    if (howToSchema) {
-        schema = { "@context": "https://schema.org", "@graph": [breadcrumbSchema, howToSchema] };
-    } else if (['privacy', 'contact'].includes(viewToRender)) {
-        schema = { "@context": "https://schema.org", ...breadcrumbSchema };
+    
+    if (schemaGraph.length > 0) {
+        if (schemaGraph.length === 1) {
+            schema = { "@context": "https://schema.org", ...schemaGraph[0] };
+        } else {
+            schema = { "@context": "https://schema.org", "@graph": schemaGraph };
+        }
     }
-
+    
     if (schema) {
         scriptTag.textContent = JSON.stringify(schema, null, 2);
         document.head.appendChild(scriptTag);
     }
-    
   }, [viewToRender, t]);
 
   const loadRates = useCallback(async () => {
@@ -434,7 +463,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl">
+            <nav aria-label={t.mainNavigation} className="hidden md:flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl">
                <a href="#home" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
                  <Icons.Home /> {t.home}
                </a>
@@ -453,7 +482,7 @@ const App: React.FC = () => {
                    </div>
                  )}
                </div>
-            </div>
+            </nav>
 
             <div className="flex items-center gap-2">
                <button 
@@ -480,7 +509,7 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
-          <div className="md:hidden p-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-900/80">
+          <nav aria-label={t.mainNavigation} className="md:hidden p-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-900/80">
             <a href="#home" className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}>
                 <Icons.Home /> {t.home}
             </a>
@@ -499,7 +528,7 @@ const App: React.FC = () => {
                    </div>
                  )}
             </div>
-          </div>
+          </nav>
         </header>
 
         <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10 flex-grow w-full">
