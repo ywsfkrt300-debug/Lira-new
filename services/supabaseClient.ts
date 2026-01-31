@@ -13,7 +13,6 @@ try {
   }
   supabase = createClient(supabaseUrl, supabaseAnonKey);
   console.log("Supabase client initialized successfully.");
-// FIX: Added curly braces to the catch block to correctly handle errors.
 } catch (error) {
   console.error("Failed to create Supabase client:", error);
   supabase = null;
