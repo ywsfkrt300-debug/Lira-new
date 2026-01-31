@@ -39,7 +39,7 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
 };
 
 const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, content }) => (
-    <div className="max-w-4xl mx-auto bg-white/80 dark:bg-slate-800/80 p-8 md:p-12 rounded-3xl shadow-lg border dark:border-slate-700/50">
+    <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 md:p-12 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-800">
         <h2 className="text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h2>
         <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4">
             {content.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
@@ -48,14 +48,14 @@ const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, conte
 );
 
 const RateCardSkeleton: React.FC = () => (
-  <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50">
+  <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800">
     <div className="flex items-center gap-3 mb-6 animate-pulse">
-      <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
-      <div className="w-32 h-5 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+      <div className="w-6 h-6 bg-slate-200 dark:bg-slate-800 rounded-md"></div>
+      <div className="w-32 h-5 bg-slate-200 dark:bg-slate-800 rounded-md"></div>
     </div>
     <div className="space-y-3 animate-pulse">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700 h-[72px]">
+        <div key={i} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 h-[72px]">
           <div className="w-24 h-5 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
           <div className="flex gap-6">
             <div className="text-center space-y-2">
@@ -78,6 +78,8 @@ const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('ar');
   const [theme, setTheme] = useState<Theme>('light');
   const [activeView, setActiveView] = useState<View>('home');
+  const [viewToRender, setViewToRender] = useState<View>('home');
+  const [isViewLoading, setIsViewLoading] = useState(false);
   const [rates, setRates] = useState<RatesResponse | null>(null);
   const [settings, setSettings] = useState<AdminSettings>(DEFAULT_ADMIN_SETTINGS);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -100,11 +102,16 @@ const App: React.FC = () => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as View;
       const validViews: View[] = ['home', 'converter', 'calculator', 'electricity', 'privacy', 'contact'];
-      if (validViews.includes(hash)) {
-        setActiveView(hash);
-      } else {
+      const targetView = validViews.includes(hash) ? hash : 'home';
+      
+      if (activeView !== targetView) {
+        setActiveView(targetView);
+        if (settings.enabledFeatures.enableAnalytics && !firstLoad.current) {
+            trackEvent('PAGE_VIEW');
+        }
+      } else if (!hash && activeView !== 'home') {
+        // Handle case where hash is empty, should default to home
         setActiveView('home');
-        window.location.hash = 'home';
       }
     };
     
@@ -113,12 +120,25 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
-  }, []);
+  }, [activeView, settings.enabledFeatures.enableAnalytics]);
+
+  // View transition effect
+  useEffect(() => {
+    if (activeView !== viewToRender) {
+        setIsViewLoading(true);
+        const timer = setTimeout(() => {
+            setViewToRender(activeView);
+            setIsViewLoading(false);
+        }, 300);
+        return () => clearTimeout(timer);
+    }
+  }, [activeView, viewToRender]);
+
 
   useEffect(() => {
-    const pageTitle = t.pageTitles[activeView] || t.title;
+    const pageTitle = t.pageTitles[viewToRender] || t.title;
     document.title = `${t.title} | ${pageTitle}`;
-  }, [activeView, t]);
+  }, [viewToRender, t]);
 
   const loadRates = useCallback(async () => {
     setIsRefreshing(true);
@@ -229,7 +249,7 @@ const App: React.FC = () => {
 
 
   const renderActiveView = () => {
-    switch (activeView) {
+    switch (viewToRender) {
       case 'home':
         return (
           <>
@@ -253,23 +273,23 @@ const App: React.FC = () => {
                   <div className="p-6 bg-red-50 dark:bg-red-950/20 rounded-3xl text-center text-red-700 dark:text-red-300 font-bold border-2 border-red-200 dark:border-red-800/50">{t.rateError}</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50 transition-all hover:border-emerald-500/30">
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-all hover:border-emerald-500/30">
                       <div className="flex items-center gap-3 mb-6"><Icons.CentralBank className="w-6 h-6 text-emerald-600" /><h3 className="text-lg font-bold dark:text-white">{t.cbs}</h3></div>
                       <div className="space-y-3">
-                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
-                    <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-3xl shadow-sm border dark:border-slate-700/50 transition-all hover:border-blue-500/30">
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-all hover:border-blue-500/30">
                       <div className="flex items-center gap-3 mb-6"><Icons.Market className="w-6 h-6 text-blue-600" /><h3 className="text-lg font-bold dark:text-white">{t.blackMarket}</h3></div>
                       <div className="space-y-3">
-                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border dark:border-slate-700"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
                   </div>
                 )}
               </div>
             )}
-            <div className="bg-slate-900/90 backdrop-blur-md text-white p-8 rounded-3xl shadow-xl relative overflow-hidden border border-white/10">
+            <div className="bg-slate-900/95 backdrop-blur-md text-white p-8 rounded-3xl shadow-xl relative overflow-hidden border border-white/10">
               <h3 className="text-xl font-bold mb-4 relative z-10">{t.aboutUs}</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-6 relative z-10">{t.aboutContent}</p>
               <div className="flex gap-3 relative z-10">
@@ -287,19 +307,25 @@ const App: React.FC = () => {
           </>
         );
       case 'converter': return <div className="max-w-4xl mx-auto"><Converter t={t} lang={lang} enableAnalytics={safeFeatures.enableAnalytics} /></div>;
-      case 'calculator': return <div className="max-w-4xl mx-auto"><ChangeCalculator t={t} /></div>;
-      case 'electricity': return <div className="max-w-5xl mx-auto"><ElectricityCalculator t={t} lang={lang} /></div>;
+      case 'calculator': return <div className="max-w-4xl mx-auto"><ChangeCalculator t={t} enableAnalytics={safeFeatures.enableAnalytics} /></div>;
+      case 'electricity': return <div className="max-w-5xl mx-auto"><ElectricityCalculator t={t} lang={lang} enableAnalytics={safeFeatures.enableAnalytics} /></div>;
       case 'privacy': return <StaticPage title={t.privacyTitle} content={t.privacyContent} />;
       case 'contact': return <StaticPage title={t.contactTitle} content={t.contactContent} />;
       default: return null;
     }
   };
+  
+  const LoadingIndicator = () => (
+    <div className="flex items-center justify-center h-96">
+        <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
 
   return (
     <>
       <div className={`relative z-10 min-h-screen transition-colors duration-300 ${lang === 'ar' ? 'dir-rtl' : 'dir-ltr'} main-app-container flex flex-col`}>
-        <header className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border-b dark:border-slate-700/50 shadow-sm sticky top-0 z-50">
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4 cursor-pointer" onDoubleClick={() => setIsAdminOpen(true)}>
               <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-lg">
@@ -310,16 +336,16 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl">
-               <a href="#home" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
+            <div className="hidden md:flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl">
+               <a href="#home" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
                  <Icons.Home /> {t.home}
                </a>
                <div className="relative" onMouseEnter={() => setIsServicesMenuOpen(true)} onMouseLeave={() => setIsServicesMenuOpen(false)}>
-                 <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
+                 <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
                    <Icons.Services /> {t.services}
                  </button>
                  {isServicesMenuOpen && services.length > 0 && (
-                   <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border dark:border-slate-700 p-2 z-50">
+                   <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-50">
                      {services.map(service => (
                        <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 font-bold text-sm">
                          <service.icon className="w-4 h-4 text-emerald-500" />
@@ -332,15 +358,15 @@ const App: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
+              <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
                 {theme === 'light' ? <Icons.Moon className="w-5 h-5" /> : <Icons.Sun className="w-5 h-5" />}
               </button>
-              <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold text-sm text-slate-900 dark:text-white transition-all">
+              <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-sm text-slate-900 dark:text-white transition-all">
                 {lang === 'ar' ? 'EN' : 'عربي'}
               </button>
             </div>
           </div>
-          <div className="md:hidden p-2 border-t dark:border-slate-700/50 flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-800/80">
+          <div className="md:hidden p-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-900/80">
             <a href="#home" className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}>
                 <Icons.Home /> {t.home}
             </a>
@@ -349,7 +375,7 @@ const App: React.FC = () => {
                     <Icons.Services /> {t.services}
                 </button>
                 {isServicesMenuOpen && services.length > 0 && (
-                   <div className="absolute top-full right-0 mt-2 w-full bg-white rounded-xl shadow-lg border p-2 z-50">
+                   <div className="absolute top-full right-0 mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-50">
                      {services.map(service => (
                        <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm">
                          <service.icon className="w-4 h-4 text-emerald-500" />
@@ -363,7 +389,7 @@ const App: React.FC = () => {
         </header>
 
         <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10 flex-grow w-full">
-          {renderActiveView()}
+          {isViewLoading ? <LoadingIndicator /> : renderActiveView()}
         </main>
         
         {safeFeatures.showBloodEffect && (
@@ -372,7 +398,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <footer className="max-w-6xl mx-auto px-4 py-12 border-t dark:border-slate-800/50 text-center md:text-right flex flex-col md:flex-row justify-between items-center gap-6 w-full">
+        <footer className="max-w-6xl mx-auto px-4 py-12 border-t border-slate-200 dark:border-slate-800 text-center md:text-right flex flex-col md:flex-row justify-between items-center gap-6 w-full">
           <p className="text-sm font-bold dark:text-white/60 text-slate-600/60">© {new Date().getFullYear()} {t.title} - جميع الحقوق محفوظة</p>
           <div className="flex gap-6 text-sm font-bold text-slate-600/60 dark:text-slate-400/60">
             <a href="#privacy" className="hover:text-emerald-600 transition-colors">{t.privacyPolicy}</a>

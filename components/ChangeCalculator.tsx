@@ -1,13 +1,15 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Translation, NEW_DENOMINATIONS } from '../types';
 import { Icons } from './Icons';
+import { trackEvent } from '../services/supabaseClient';
 
 interface ChangeCalculatorProps {
   t: Translation;
+  enableAnalytics: boolean;
 }
 
-const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t }) => {
+const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t, enableAnalytics }) => {
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [paidCounts, setPaidCounts] = useState<Record<number, number>>({});
 
@@ -18,6 +20,15 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t }) => {
   }, [paidCounts]);
 
   const changeNeeded = Math.max(0, amountPaid - (parseFloat(totalPrice) || 0));
+
+  useEffect(() => {
+    if (enableAnalytics && changeNeeded > 0 && parseFloat(totalPrice) > 0) {
+      const handler = setTimeout(() => {
+        trackEvent('CONVERSION_OP');
+      }, 800);
+      return () => clearTimeout(handler);
+    }
+  }, [changeNeeded, totalPrice, enableAnalytics]);
 
   const changeBreakdown = useMemo(() => {
     let remaining = changeNeeded;
@@ -47,7 +58,7 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 p-6 md:p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700/50 transition-all duration-500 hover:shadow-blue-500/10 group">
+    <div className="bg-white dark:bg-slate-900 p-6 md:p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 transition-all duration-500 hover:shadow-blue-500/10 group">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">
         <h2 className="text-3xl font-black flex items-center gap-4 dark:text-white">
           <div className="flex items-center justify-center w-14 h-14 bg-blue-500 text-white rounded-2xl shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
@@ -57,7 +68,7 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t }) => {
         </h2>
         <button 
           onClick={reset}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-slate-900/50 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all border dark:border-slate-700"
+          className="flex items-center gap-2 px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all border border-slate-200 dark:border-slate-700"
         >
           <Icons.Refresh className="w-3.5 h-3.5" />
           {t.reset}
@@ -72,13 +83,13 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t }) => {
             value={totalPrice}
             onChange={(e) => setTotalPrice(e.target.value)}
             placeholder="0"
-            className="w-full p-6 rounded-[1.8rem] border-2 border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-4xl font-black placeholder:text-slate-300 shadow-inner"
+            className="w-full p-6 rounded-[1.8rem] border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-4xl font-black placeholder:text-slate-300 dark:placeholder:text-slate-600 shadow-inner"
           />
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {NEW_DENOMINATIONS.map(den => (
-            <div key={den.value} className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700/50 flex flex-col items-center group/den hover:bg-white dark:hover:bg-slate-800 transition-all">
+            <div key={den.value} className="bg-slate-100 dark:bg-slate-800/50 p-5 rounded-[1.5rem] border border-slate-200 dark:border-slate-700/50 flex flex-col items-center group/den hover:bg-white dark:hover:bg-slate-800 transition-all">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-4">{den.label} {t.newLira}</span>
               <div className="flex items-center justify-between w-full">
                 <button 
@@ -95,7 +106,7 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t }) => {
           ))}
         </div>
 
-        <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-2 border-blue-100 dark:border-blue-800/50 relative overflow-hidden shadow-sm">
+        <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-950 dark:to-indigo-950 border-2 border-blue-200 dark:border-blue-800/50 relative overflow-hidden shadow-sm">
           <div className="relative z-10">
             <label className="block text-xs font-black uppercase tracking-[0.2em] text-blue-600/60 dark:text-blue-400/60 mb-3">{t.changeNeeded}</label>
             <div className="flex items-baseline gap-3 mb-8">
@@ -113,9 +124,9 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t }) => {
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {Object.entries(changeBreakdown.breakdown).map(([val, count]) => (
-                    <div key={val} className="px-5 py-3 bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl text-sm shadow-sm border dark:border-slate-700 flex items-center gap-3">
+                    <div key={val} className="px-5 py-3 bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl text-sm shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-3">
                       <span className="font-black text-blue-600 dark:text-blue-400 text-lg leading-none">{count}</span>
-                      <span className="text-slate-300">×</span>
+                      <span className="text-slate-300 dark:text-slate-500">×</span>
                       <span className="font-black dark:text-slate-200 text-base">{val}</span>
                     </div>
                   ))}
