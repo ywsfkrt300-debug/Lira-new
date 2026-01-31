@@ -184,14 +184,27 @@
         </div>
     </div>
     <div id="printable-container"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="/currency-background.js"></script>
     <script>
+      function loadScript(src, callback) {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = callback;
+        script.onerror = () => console.error(`Failed to load script: ${src}`);
+        document.body.appendChild(script);
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
         const bgEl = document.getElementById('currency-background');
-        if (localStorage.getItem('liratna_bg_animation') === 'true' && typeof CURRENCY_BG === 'function') {
+        if (localStorage.getItem('liratna_bg_animation') === 'true') {
           bgEl.classList.remove('hidden');
-          CURRENCY_BG({ el: "#currency-background" });
+          
+          loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
+            loadScript('/currency-background.js', function() {
+              if (typeof CURRENCY_BG === 'function') {
+                CURRENCY_BG({ el: "#currency-background" });
+              }
+            });
+          });
         } else {
           bgEl.classList.add('hidden');
         }
