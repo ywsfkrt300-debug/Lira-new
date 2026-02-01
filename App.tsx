@@ -204,6 +204,53 @@ const App: React.FC = () => {
         "url": baseUrl,
         "logo": `${baseUrl}og-image.png`,
         "sameAs": socialUrls,
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "areaServed": "SY",
+          "availableLanguage": ["Arabic", "English"]
+        }
+      });
+      
+      // Define the Website
+      schemaGraph.push({
+        "@type": "WebSite",
+        "@id": `${baseUrl}#website`,
+        "url": baseUrl,
+        "name": "ليرتنا - Liratna",
+        "description": t.metaDescriptions.home,
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${baseUrl}?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      });
+
+      // Declare Software Applications available on the site
+      schemaGraph.push({
+        "@type": "SoftwareApplication",
+        "name": t.converter,
+        "operatingSystem": "Web",
+        "applicationCategory": "FinanceApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "url": `${baseUrl}#converter`
+      });
+
+      schemaGraph.push({
+        "@type": "SoftwareApplication",
+        "name": t.electricityCalculator,
+        "operatingSystem": "Web",
+        "applicationCategory": "UtilitiesApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "url": `${baseUrl}#electricity`
       });
     }
 
