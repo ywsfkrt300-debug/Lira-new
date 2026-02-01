@@ -1,9 +1,14 @@
-# Allow all standard web crawlers for indexing purposes.
 User-agent: *
 Allow: /
 
-# Specifically disallow Google's AI models from using site content for training.
-# This does not affect Google Search indexing.
+# Ensure Google Images can index the site media
+User-agent: Googlebot-Image
+Allow: /
+
+# Block AI scrapers to protect data and bandwidth
+User-agent: GPTBot
+Disallow: /
+
 User-agent: Google-Extended
 Disallow: /
 
