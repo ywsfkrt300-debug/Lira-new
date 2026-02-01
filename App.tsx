@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
@@ -38,13 +39,14 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
     visible: true,
   },
   siteLogo: null,
+  logoSize: 40, // Default size 40px
   preloaderImage: null,
 };
 
 const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, content }) => (
-    <article className="max-w-4xl mx-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-8 md:p-12 rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700/50">
-        <h1 className="text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h1>
-        <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed">
+    <article className="max-w-4xl mx-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 md:p-12 rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700/50">
+        <h1 className="text-2xl md:text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h1>
+        <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed font-medium">
             {content.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
     </article>
@@ -155,7 +157,7 @@ const App: React.FC = () => {
         const timer = setTimeout(() => {
             setViewToRender(activeView);
             setIsViewLoading(false);
-        }, 300);
+        }, 200); // Faster transition
         return () => clearTimeout(timer);
     }
   }, [activeView, viewToRender]);
@@ -334,6 +336,7 @@ const App: React.FC = () => {
           socialLinks: { ...DEFAULT_ADMIN_SETTINGS.socialLinks, ...(data.social_links || {}) },
           mobileApp: { ...DEFAULT_ADMIN_SETTINGS.mobileApp, ...(data.mobile_app || {}) },
           siteLogo: data.site_logo ?? DEFAULT_ADMIN_SETTINGS.siteLogo,
+          logoSize: data.logo_size ?? DEFAULT_ADMIN_SETTINGS.logoSize,
           preloaderImage: data.preloader_image ?? DEFAULT_ADMIN_SETTINGS.preloaderImage,
         };
       }
@@ -371,7 +374,7 @@ const App: React.FC = () => {
         const preloader = document.getElementById('preloader');
         if (preloader) {
           preloader.classList.add('fade-out');
-          setTimeout(() => preloader.remove(), 500);
+          setTimeout(() => preloader.remove(), 400); // Faster fade
         }
         firstLoad.current = false;
       }
@@ -382,13 +385,13 @@ const App: React.FC = () => {
   if (settings.isMaintenanceMode) {
     return (
       <>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950 text-white font-['Tajawal'] relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950 text-white font-['Cairo'] relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900 to-slate-950 z-0"></div>
           <div className="text-center space-y-8 max-w-lg relative z-10 glass p-10 rounded-3xl border border-white/10">
             <div className="w-24 h-24 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(245,158,11,0.3)] animate-pulse">
               <Icons.Maintenance className="w-12 h-12 text-amber-500" />
             </div>
-            <h1 className="text-4xl font-bold">عذراً، الموقع تحت الصيانة</h1>
+            <h1 className="text-4xl font-black">عذراً، الموقع تحت الصيانة</h1>
             <p className="text-slate-300 font-medium text-lg">{maintenanceMessage}</p>
           </div>
         </div>
@@ -415,15 +418,15 @@ const App: React.FC = () => {
           <>
             {safeFeatures.marketRates && (
               <div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
-                  <h1 className="text-3xl md:text-4xl font-black dark:text-white text-center sm:text-right bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">{t.homeTitle}</h1>
-                  <div className="flex items-center justify-center sm:justify-end gap-3 flex-shrink-0">
-                    {rates && !rates.error && ( <p className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:block bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700"> {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })} </p> )}
-                    <button onClick={() => window.print()} className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all shadow-sm flex items-center justify-center" aria-label={t.printRates}>
-                        <Icons.Print className="w-5 h-5" />
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-6">
+                  <h1 className="text-3xl md:text-5xl font-black dark:text-white text-center md:text-right bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 leading-tight py-2">{t.homeTitle}</h1>
+                  <div className="flex items-center justify-center md:justify-end gap-3 flex-shrink-0">
+                    {rates && !rates.error && ( <p className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden md:block bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700"> {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })} </p> )}
+                    <button onClick={() => window.print()} className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all shadow-sm flex items-center justify-center" aria-label={t.printRates}>
+                        <Icons.Print className="w-6 h-6" />
                     </button>
-                    <button onClick={loadRates} disabled={isRefreshing} className="w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center" aria-label={t.reset}>
-                      <Icons.Refresh className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    <button onClick={loadRates} disabled={isRefreshing} className="w-12 h-12 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center" aria-label={t.reset}>
+                      <Icons.Refresh className={`w-6 h-6 ${isRefreshing ? 'animate-spin' : ''}`} />
                     </button>
                   </div>
                 </div>
@@ -437,31 +440,31 @@ const App: React.FC = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Central Bank Card */}
-                    <div className="group bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-emerald-500/30">
+                    <div className="group bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-emerald-500/30">
                       <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-                          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-                             <Icons.CentralBank className="w-6 h-6" />
+                          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                             <Icons.CentralBank className="w-8 h-8" />
                           </div>
                           <div>
-                             <h3 className="text-lg font-black dark:text-white">{t.cbs}</h3>
+                             <h3 className="text-xl font-black dark:text-white">{t.cbs}</h3>
                              <p className="text-xs text-slate-400 font-bold">نشرة الحوالات والصرافة</p>
                           </div>
                       </div>
                       <div className="space-y-3">
                         {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( 
-                            <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors"> 
-                                <span className="font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <div key={r.currency} className="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors"> 
+                                <span className="font-black text-lg text-slate-700 dark:text-slate-300 flex items-center gap-3">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
                                     {r.currency}
                                 </span> 
                                 <div className="flex gap-8">
                                     <div className="text-center">
                                         <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.buy}</p>
-                                        <p className="text-lg font-black text-emerald-700 dark:text-emerald-400">{r.buy.toLocaleString()}</p>
+                                        <p className="text-xl md:text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">{r.buy.toLocaleString()}</p>
                                     </div>
                                     <div className="text-center">
                                         <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.sell}</p>
-                                        <p className="text-lg font-black text-slate-800 dark:text-slate-200">{r.sell.toLocaleString()}</p>
+                                        <p className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tight">{r.sell.toLocaleString()}</p>
                                     </div>
                                 </div> 
                             </div>
@@ -470,31 +473,31 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Black Market Card */}
-                    <div className="group bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-blue-500/30">
+                    <div className="group bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-blue-500/30">
                       <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-                          <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                             <Icons.Market className="w-6 h-6" />
+                          <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                             <Icons.Market className="w-8 h-8" />
                           </div>
                           <div>
-                             <h3 className="text-lg font-black dark:text-white">{t.blackMarket}</h3>
+                             <h3 className="text-xl font-black dark:text-white">{t.blackMarket}</h3>
                              <p className="text-xs text-slate-400 font-bold">الأسعار الرائجة في السوق</p>
                           </div>
                       </div>
                       <div className="space-y-3">
                         {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( 
-                            <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors"> 
-                                <span className="font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                                     <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                            <div key={r.currency} className="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors"> 
+                                <span className="font-black text-lg text-slate-700 dark:text-slate-300 flex items-center gap-3">
+                                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></span>
                                     {r.currency}
                                 </span> 
                                 <div className="flex gap-8">
                                     <div className="text-center">
                                         <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.buy}</p>
-                                        <p className="text-lg font-black text-blue-700 dark:text-blue-400">{r.buy.toLocaleString()}</p>
+                                        <p className="text-xl md:text-2xl font-black text-blue-700 dark:text-blue-400 tracking-tight">{r.buy.toLocaleString()}</p>
                                     </div>
                                     <div className="text-center">
                                         <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.sell}</p>
-                                        <p className="text-lg font-black text-slate-800 dark:text-slate-200">{r.sell.toLocaleString()}</p>
+                                        <p className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tight">{r.sell.toLocaleString()}</p>
                                     </div>
                                 </div> 
                             </div>
@@ -525,11 +528,11 @@ const App: React.FC = () => {
 
             <article className="mt-10 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
                 <header>
-                    <h2 className="text-2xl font-black dark:text-white">{t.homeGuideTitle}</h2>
+                    <h2 className="text-2xl md:text-3xl font-black dark:text-white">{t.homeGuideTitle}</h2>
                 </header>
-                <div className="prose prose-slate dark:prose-invert max-w-none">
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">{t.homeGuidePara1}</p>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: t.homeGuidePara2 }}></p>
+                <div className="prose prose-lg dark:prose-invert max-w-none">
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{t.homeGuidePara1}</p>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: t.homeGuidePara2 }}></p>
                 </div>
             </article>
 
@@ -544,7 +547,7 @@ const App: React.FC = () => {
                         <Icons.About className="w-6 h-6 text-emerald-400" />
                         {t.aboutUs}
                     </h3>
-                    <p className="text-slate-300 text-sm leading-relaxed mb-6 font-medium">{t.aboutContent}</p>
+                    <p className="text-slate-300 text-base leading-relaxed mb-6 font-medium">{t.aboutContent}</p>
                   </div>
                   <div className="flex gap-3 flex-wrap md:justify-end">
                     {Object.entries(safeSocialLinks).map(([platform, data]) => {
@@ -585,10 +588,14 @@ const App: React.FC = () => {
       <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-[#050b1d] pointer-events-none"></div>
       
       <div className="relative z-10 min-h-screen transition-colors duration-300 main-app-container flex flex-col font-sans">
-        <header className="sticky top-0 z-50 transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm supports-[backdrop-filter]:bg-white/60">
+        <header className="sticky top-0 z-50 transition-all duration-300 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm supports-[backdrop-filter]:bg-white/70">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div className="flex items-center gap-3 cursor-pointer group" onDoubleClick={() => setIsAdminOpen(true)}>
-              <div className={`w-10 h-10 flex items-center justify-center transition-transform group-hover:rotate-6 ${!settings.siteLogo ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl text-white font-black text-xl shadow-lg shadow-emerald-500/20' : ''}`}>
+              {/* Dynamic Logo Size applied here */}
+              <div 
+                  className={`flex items-center justify-center transition-transform group-hover:rotate-6 ${!settings.siteLogo ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl text-white font-black text-xl shadow-lg shadow-emerald-500/20' : ''}`}
+                  style={{ width: `${settings.logoSize}px`, height: `${settings.logoSize}px` }}
+              >
                 {settings.siteLogo ? <img src={settings.siteLogo} alt={`شعار ${t.title}`} className="w-full h-full object-contain drop-shadow-sm" /> : "L"}
               </div>
               <div className="flex flex-col">
@@ -633,7 +640,7 @@ const App: React.FC = () => {
               </button>
               <button 
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
-                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700 active:scale-95"
                 aria-label={theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح'}
               >
                 {theme === 'light' ? <Icons.Moon className="w-5 h-5" /> : <Icons.Sun className="w-5 h-5" />}

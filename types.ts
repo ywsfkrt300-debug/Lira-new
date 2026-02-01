@@ -1,3 +1,4 @@
+
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
 export type View = 'home' | 'converter' | 'calculator' | 'electricity' | 'privacy' | 'contact';
@@ -30,6 +31,7 @@ export interface AdminSettings {
     visible: boolean;
   };
   siteLogo: string | null;
+  logoSize: number; // New property for logo size
   preloaderImage: string | null;
 }
 

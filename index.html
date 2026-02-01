@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -49,8 +50,12 @@
     <meta property="twitter:description" content="تحديث مباشر لأسعار الصرف في سوريا. أدوات مالية ذكية: محول عملات، حاسبة فواتير، وتوقعات السوق.">
     <meta property="twitter:image" content="https://lirtna-sy.vercel.app/og-image.png">
     
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap"></noscript>
+    <!-- Preconnect for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Improved Fonts: Cairo for Arabic, Inter for Numbers/English -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -58,17 +63,18 @@
             scroll-behavior: smooth;
         }
         body {
-            font-family: 'Inter', 'Tajawal', sans-serif;
+            font-family: 'Inter', 'Cairo', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f8fafc; /* slate-50 */
             transition: background-color 0.3s ease, color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         .dark body {
             background-color: #020617; /* slate-950 */
         }
         [dir="rtl"] {
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Cairo', sans-serif;
         }
         
         /* Glassmorphism Utilities */
@@ -112,15 +118,42 @@
             display: none;
         }
 
-        /* Preloader Styles */
+        /* Optimized Preloader Styles */
         #preloader {
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
         }
         
+        .loader-ring {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .loader-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border: 8px solid #10b981;
+            border-radius: 50%;
+            animation: loader-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #10b981 transparent transparent transparent;
+        }
+        .loader-ring div:nth-child(1) { animation-delay: -0.45s; }
+        .loader-ring div:nth-child(2) { animation-delay: -0.3s; }
+        .loader-ring div:nth-child(3) { animation-delay: -0.15s; }
+        @keyframes loader-ring {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .fallback-container {
             text-align: center;
             padding: 50px;
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Cairo', sans-serif;
         }
         .noscript-warning {
             padding: 20px;
@@ -159,15 +192,15 @@
 </script>
 </head>
 <body class="text-slate-800 dark:text-slate-200 selection:bg-emerald-500 selection:text-white overflow-x-hidden min-h-screen">
-    <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-500 ease-in-out">
-        <div class="relative w-32 h-32 mb-8 flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-4 border-emerald-500/20 animate-ping"></div>
-            <div class="w-full h-full rounded-full bg-slate-800 border-2 border-emerald-500/50 flex items-center justify-center shadow-2xl shadow-emerald-500/20">
-                 <img id="preloader-custom-img" class="hidden max-w-[80%] max-h-[80%] rounded-full" alt="شعار موقع ليرتنا - Liratna Logo" />
-                 <div id="preloader-default-letter" class="flex items-center justify-center text-emerald-400 font-black text-6xl pb-2">L</div>
+    <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center text-white transition-opacity duration-500 ease-in-out">
+        <div class="relative mb-6">
+            <div class="loader-ring"><div></div><div></div><div></div><div></div></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                 <img id="preloader-custom-img" class="hidden w-12 h-12 object-contain rounded-full" alt="شعار ليرتنا" />
+                 <div id="preloader-default-letter" class="text-emerald-500 font-black text-2xl pb-1">L</div>
             </div>
         </div>
-        <p class="text-lg font-bold tracking-widest animate-pulse text-emerald-400">جاري التحميل...</p>
+        <p class="text-xl font-bold tracking-widest text-emerald-400">ليرتنا</p>
     </div>
     
     <div id="currency-background"></div>
@@ -187,6 +220,7 @@
       function loadScript(src, callback) {
         const script = document.createElement('script');
         script.src = src;
+        script.async = true; // Async loading for speed
         script.onload = callback;
         script.onerror = () => console.error(`Failed to load script: ${src}`);
         document.body.appendChild(script);

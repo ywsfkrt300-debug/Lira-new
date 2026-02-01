@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { AdminSettings } from '../types';
 import { Icons } from './Icons';
@@ -18,6 +19,7 @@ const SETTINGS_KEY_TO_COLUMN_MAP: { [K in keyof Omit<AdminSettings, 'adminPasswo
   socialLinks: 'social_links',
   mobileApp: 'mobile_app',
   siteLogo: 'site_logo',
+  logoSize: 'logo_size',
   preloaderImage: 'preloader_image',
 };
 
@@ -237,15 +239,59 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
     { id: 'security', label: 'الأمان وقاعدة البيانات', icon: Icons.Security },
   ];
   
+  // Logic to convert Image to SVG wrapper and resize if necessary to keep it fast
   const processImageFile = (file: File, type: 'siteLogo' | 'preloaderImage') => {
     if (file && file.type.startsWith('image/')) {
       if (file.size > 2 * 1024 * 1024) { 
         showSaveStatus('error', 'حجم الصورة كبير جداً. الحد الأقصى 2 ميجابايت.');
         return;
       }
+
       const reader = new FileReader();
-      reader.onloadend = () => {
-        updateSingleSetting(type, reader.result as string);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+        
+        img.onload = () => {
+          // If it's already an SVG, save it directly
+          if (file.type === 'image/svg+xml') {
+            updateSingleSetting(type, img.src);
+            return;
+          }
+
+          // If conversion is requested (Auto-convert to SVG wrapper)
+          // We limit dimensions to ensure the base64 string isn't massive within the SVG
+          const MAX_WIDTH = 500;
+          const MAX_HEIGHT = 500;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+             const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+             width = width * ratio;
+             height = height * ratio;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Get resized base64 data
+            const resizedBase64 = canvas.toDataURL('image/png');
+            
+            // Wrap in SVG structure to fulfill "Convert to SVG" requirement
+            // This creates a valid SVG file containing the raster image
+            const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><image href="${resizedBase64}" width="100%" height="100%" /></svg>`;
+            
+            // Convert the SVG string to a data URI
+            const svgDataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+            
+            updateSingleSetting(type, svgDataUri);
+          }
+        };
       };
       reader.readAsDataURL(file);
     } else {
@@ -257,7 +303,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
     const isDragging = type === 'siteLogo' ? isDraggingLogo : isDraggingPreloader;
     const setIsDragging = type === 'siteLogo' ? setIsDraggingLogo : setIsDraggingPreloader;
     const imageSrc = localSettings[type];
-    const title = type === 'siteLogo' ? 'شعار الموقع' : 'صورة التحميل';
+    const title = type === 'siteLogo' ? 'شعار الموقع (يتم تحويله لـ SVG)' : 'صورة التحميل';
 
     return (
         <div className="p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
@@ -265,6 +311,30 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
             <Icons.Upload className="w-5 h-5 text-emerald-500" />
             {title}
           </h4>
+          
+          {/* Logo Size Slider - Only for siteLogo */}
+          {type === 'siteLogo' && (
+            <div className="mb-6 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl">
+               <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs font-bold text-slate-500">حجم الشعار: {localSettings.logoSize}px</label>
+               </div>
+               <input 
+                 type="range" 
+                 min="30" 
+                 max="100" 
+                 step="2"
+                 value={localSettings.logoSize} 
+                 onChange={(e) => {
+                    const newVal = parseInt(e.target.value);
+                    setLocalSettings(prev => ({ ...prev, logoSize: newVal }));
+                 }}
+                 onMouseUp={() => updateSingleSetting('logoSize', localSettings.logoSize)}
+                 onTouchEnd={() => updateSingleSetting('logoSize', localSettings.logoSize)}
+                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+               />
+            </div>
+          )}
+
           <label 
               title={writeDisabledTooltip}
               onDragOver={(e) => { e.preventDefault(); if (!isWriteDisabled) setIsDragging(true); }}
@@ -316,7 +386,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   };
 
   return (
-    <div className="fixed inset-0 z-[2000] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 dir-rtl font-['Tajawal'] animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[2000] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 dir-rtl font-['Cairo'] animate-in fade-in duration-300">
       {!isAuthenticated ? (
         <div className={`w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-10 text-center relative transition-all border border-slate-200 dark:border-slate-800 ${loginError ? 'shake' : ''}`}>
           <button onClick={onClose} className="absolute top-4 left-4 text-slate-400 hover:text-red-500 transition-colors">
