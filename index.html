@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>ليرتنا | سعر الدولار في سوريا وتصريف العملات (تحديث لحظي)</title>
     <meta name="description" content="أدق تطبيق لمعرفة سعر الدولار في سوريا اليوم لحظة بلحظة. يشمل أدوات مجانية: محول الليرة السورية (قديم/جديد)، حاسبة فاتورة الكهرباء 2025، وأسعار الذهب والعملات.">
-    <meta name="keywords" content="سعر الدولار في سوريا, الليرة السورية اليوم, تصريف العملات, السوق السوداء دمشق, محول الليرة السورية, حاسبة فاتورة الكهرباء سوريا, أسعار الذهب سوريا, المصرف المركزي, 2025">
+    <meta name="keywords" content="سعر الدولار في سوريا, الليرة السورية اليوم, تصريف العملات, السوق السوداء دمشق, محول الليرة السورية, حاسبة فاتورة الكهرباء سوريا, أسعار الذهب سوريا, المصرف المركزي, 2025, سعر اليورو في سوريا, سعر الذهب دمشق">
+    <meta name="author" content="Liratna Team">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="google-site-verification" content="b8SGFQuV8fq8hTc3U-a2JNROHLppu01VsPuhaWXbs6o" />
+    <meta name="theme-color" content="#10b981">
     
     <!-- Geo Tags for Local SEO -->
     <meta name="geo.region" content="SY" />
@@ -24,6 +26,12 @@
     <link rel="icon" id="dynamic-favicon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" id="dynamic-apple-touch-icon" href="/apple-touch-icon.png">
 
+    <!-- Mobile Web App Capable -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ليرتنا">
+    <meta name="application-name" content="ليرتنا">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://lirtna-sy.vercel.app/">
@@ -32,6 +40,7 @@
     <meta property="og:description" content="تحديث مباشر لأسعار الصرف في سوريا (السوق السوداء والمركزي). استخدم محول العملات وحاسبة الكهرباء مجاناً. دليلك المالي الأول.">
     <meta property="og:image" content="https://lirtna-sy.vercel.app/og-image.png">
     <meta property="og:locale" content="ar_SY" />
+    <meta property="og:locale:alternate" content="en_US" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -40,8 +49,8 @@
     <meta property="twitter:description" content="تحديث مباشر لأسعار الصرف في سوريا. أدوات مالية ذكية: محول عملات، حاسبة فواتير، وتوقعات السوق.">
     <meta property="twitter:image" content="https://lirtna-sy.vercel.app/og-image.png">
     
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;900&display=swap"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap"></noscript>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -52,7 +61,7 @@
             font-family: 'Inter', 'Tajawal', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f1f5f9; /* slate-100 */
+            background-color: #f8fafc; /* slate-50 */
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         .dark body {
@@ -61,6 +70,19 @@
         [dir="rtl"] {
             font-family: 'Tajawal', sans-serif;
         }
+        
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
         @keyframes shake {
           10%, 90% { transform: translate3d(-1px, 0, 0); }
           20%, 80% { transform: translate3d(2px, 0, 0); }
@@ -83,51 +105,22 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            z-index: 0; /* Behind React content which has z-10 */
+            z-index: 0;
+            pointer-events: none;
         }
         #currency-background.hidden {
             display: none;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2), inset 0 0 15px rgba(16, 185, 129, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(16, 185, 129, 0.7), 0 0 80px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.5);
-            }
-        }
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
         }
 
         /* Preloader Styles */
         #preloader {
             font-family: 'Tajawal', sans-serif;
         }
-        .preloader-icon-container {
-            animation: pulse-glow 3s infinite ease-in-out;
-        }
-        #preloader-default-letter {
-            animation: breathe 3s infinite ease-in-out;
-            text-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-        }
-
+        
         .fallback-container {
             text-align: center;
             padding: 50px;
             font-family: 'Tajawal', sans-serif;
-        }
-        .fallback-title {
-            font-size: 2em;
-            color: #333;
-            font-weight: bold;
-            margin: 0 0 0.5em 0;
-        }
-        .fallback-subtitle {
-            font-size: 1.2em;
-            color: #666;
         }
         .noscript-warning {
             padding: 20px;
@@ -165,22 +158,23 @@
 }
 </script>
 </head>
-<body class="text-slate-800 dark:text-slate-200 selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden">
+<body class="text-slate-800 dark:text-slate-200 selection:bg-emerald-500 selection:text-white overflow-x-hidden min-h-screen">
     <div id="preloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-500 ease-in-out">
-        <div class="w-32 h-32 mb-8 flex items-center justify-center rounded-full bg-emerald-500/10 preloader-icon-container">
-            <img id="preloader-custom-img" class="hidden max-w-full max-h-full rounded-full" alt="شعار موقع ليرتنا - Liratna Logo" />
-            <div id="preloader-default-letter" class="flex items-center justify-center text-emerald-400 font-black text-6xl">L</div>
+        <div class="relative w-32 h-32 mb-8 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-4 border-emerald-500/20 animate-ping"></div>
+            <div class="w-full h-full rounded-full bg-slate-800 border-2 border-emerald-500/50 flex items-center justify-center shadow-2xl shadow-emerald-500/20">
+                 <img id="preloader-custom-img" class="hidden max-w-[80%] max-h-[80%] rounded-full" alt="شعار موقع ليرتنا - Liratna Logo" />
+                 <div id="preloader-default-letter" class="flex items-center justify-center text-emerald-400 font-black text-6xl pb-2">L</div>
+            </div>
         </div>
-        <p class="text-lg font-bold tracking-widest animate-pulse">جاري تحميل ليرتنا...</p>
-        <h1 class="absolute bottom-10 text-xs text-slate-500 font-normal">
-            أفضل موقع لأسعار العملات في سوريا
-        </h1>
+        <p class="text-lg font-bold tracking-widest animate-pulse text-emerald-400">جاري التحميل...</p>
     </div>
+    
     <div id="currency-background"></div>
     <div id="root">
         <div class="fallback-container" dir="rtl">
-            <h1 class="fallback-title">ليرتنا | سعر الصرف في سوريا</h1>
-            <p class="fallback-subtitle">جاري تحميل أدوات تحويل العملة وحاسبة الفواتير...</p>
+            <h1 class="text-3xl font-bold mb-4">ليرتنا | سعر الصرف في سوريا</h1>
+            <p class="text-slate-500">جاري تحميل أدوات تحويل العملة وحاسبة الفواتير...</p>
             <noscript>
                 <div class="noscript-warning">
                     يعتمد هذا الموقع على JavaScript ليعمل بشكل صحيح. يرجى تفعيل JavaScript في متصفحك للحصول على أسعار الصرف الحية.

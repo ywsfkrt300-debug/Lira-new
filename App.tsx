@@ -42,12 +42,12 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
 };
 
 const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, content }) => (
-    <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 md:p-12 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-800">
+    <article className="max-w-4xl mx-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-8 md:p-12 rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700/50">
         <h1 className="text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h1>
-        <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4">
+        <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed">
             {content.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
-    </div>
+    </article>
 );
 
 const RateCardSkeleton: React.FC = () => (
@@ -58,7 +58,7 @@ const RateCardSkeleton: React.FC = () => (
     </div>
     <div className="space-y-3 animate-pulse">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 h-[72px]">
+        <div key={i} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 h-[72px]">
           <div className="w-24 h-5 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
           <div className="flex gap-6">
             <div className="text-center space-y-2">
@@ -75,7 +75,6 @@ const RateCardSkeleton: React.FC = () => (
     </div>
   </div>
 );
-
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('ar');
@@ -127,7 +126,6 @@ const App: React.FC = () => {
     window.location.reload();
   };
 
-  // Routing and Title Effect
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as View;
@@ -140,7 +138,6 @@ const App: React.FC = () => {
             trackEvent('PAGE_VIEW');
         }
       } else if (!hash && activeView !== 'home') {
-        // Handle case where hash is empty, should default to home
         setActiveView('home');
       }
     };
@@ -152,7 +149,6 @@ const App: React.FC = () => {
     };
   }, [activeView, settings.enabledFeatures.enableAnalytics]);
 
-  // View transition effect
   useEffect(() => {
     if (activeView !== viewToRender) {
         setIsViewLoading(true);
@@ -164,8 +160,7 @@ const App: React.FC = () => {
     }
   }, [activeView, viewToRender]);
 
-
-  // SEO Title, Meta Description, and Structured Data Effect
+  // --- LEGENDARY SEO: JSON-LD Structured Data Injection ---
   useEffect(() => {
     const pageTitle = t.pageTitles[viewToRender] || t.title;
     document.title = `${t.title} | ${pageTitle}`;
@@ -177,9 +172,7 @@ const App: React.FC = () => {
 
     const dynamicScriptId = 'dynamic-json-ld-schema';
     let existingDynamicScript = document.getElementById(dynamicScriptId);
-    if (existingDynamicScript) {
-        existingDynamicScript.remove();
-    }
+    if (existingDynamicScript) existingDynamicScript.remove();
 
     const scriptTag = document.createElement('script');
     scriptTag.id = dynamicScriptId;
@@ -188,146 +181,126 @@ const App: React.FC = () => {
     const baseUrl = "https://lirtna-sy.vercel.app/";
     const pageUrl = `${baseUrl}#${viewToRender}`;
 
-    let schema: object | null = null;
     let schemaGraph: object[] = [];
     
-    // FIX: Add type 'any' to 'link' to fix TypeScript error 'property does not exist on type unknown'.
+    // 1. Organization Schema
     const socialUrls = Object.values(safeSocialLinks)
-        .filter((link: any) => link.visible && link.url && link.url.trim() !== '' && link.url.trim() !== '#')
+        .filter((link: any) => link.visible && link.url && link.url.trim() !== '#' && link.url.startsWith('http'))
         .map((link: any) => link.url);
 
+    schemaGraph.push({
+      "@type": "Organization",
+      "@id": `${baseUrl}#organization`,
+      "name": t.title,
+      "url": baseUrl,
+      "logo": {
+        "@type": "ImageObject",
+        "url": settings.siteLogo || `${baseUrl}og-image.png`
+      },
+      "sameAs": socialUrls,
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "areaServed": "SY",
+        "availableLanguage": ["Arabic", "English"]
+      }
+    });
+
+    // 2. WebSite Schema
     if (viewToRender === 'home') {
-      schemaGraph.push({
-        "@type": "Organization",
-        "@id": `${baseUrl}#organization`,
-        "name": t.title,
-        "url": baseUrl,
-        "logo": `${baseUrl}og-image.png`,
-        "sameAs": socialUrls,
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "contactType": "customer support",
-          "areaServed": "SY",
-          "availableLanguage": ["Arabic", "English"]
-        }
-      });
-      
-      // Define the Website
-      schemaGraph.push({
-        "@type": "WebSite",
-        "@id": `${baseUrl}#website`,
-        "url": baseUrl,
-        "name": "ليرتنا - Liratna",
-        "description": t.metaDescriptions.home,
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": `${baseUrl}?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
-      });
-
-      // Declare Software Applications available on the site
-      schemaGraph.push({
-        "@type": "SoftwareApplication",
-        "name": t.converter,
-        "operatingSystem": "Web",
-        "applicationCategory": "FinanceApplication",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "url": `${baseUrl}#converter`
-      });
-
-      schemaGraph.push({
-        "@type": "SoftwareApplication",
-        "name": t.electricityCalculator,
-        "operatingSystem": "Web",
-        "applicationCategory": "UtilitiesApplication",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "url": `${baseUrl}#electricity`
-      });
-    }
-
-    // Add breadcrumbs for non-home pages
-    if (viewToRender !== 'home') {
         schemaGraph.push({
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              { "@type": "ListItem", "position": 1, "name": t.home, "item": baseUrl },
-              { "@type": "ListItem", "position": 2, "name": t.pageTitles[viewToRender], "item": pageUrl }
-            ]
+            "@type": "WebSite",
+            "@id": `${baseUrl}#website`,
+            "url": baseUrl,
+            "name": "ليرتنا - Liratna",
+            "description": t.metaDescriptions.home,
+            "publisher": { "@id": `${baseUrl}#organization` },
+            "potentialAction": {
+            "@type": "SearchAction",
+            "target": `${baseUrl}?q={search_term_string}`,
+            "query-input": "required name=search_term_string"
+            }
         });
-    }
-
-    if (viewToRender === 'home') {
+        
+        // FAQ Schema for Home
         schemaGraph.push({
             "@type": "FAQPage",
             "mainEntity": t.faq.map(item => ({
                 "@type": "Question",
                 "name": item.question,
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": item.answer
-                }
+                "acceptedAnswer": { "@type": "Answer", "text": item.answer }
             }))
         });
-        schemaGraph.push({
-            "@type": "Article",
-            "headline": t.homeGuideTitle,
-            "author": { "@type": "Organization", "name": t.title },
-            "publisher": {
-                "@type": "Organization",
-                "name": t.title,
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://lirtna-sy.vercel.app/og-image.png"
-                }
-            },
-            "mainEntityOfPage": { "@type": "WebPage", "@id": baseUrl },
-            "articleBody": t.homeGuidePara1 + "\n\n" + t.homeGuidePara2.replace(/<[^>]*>?/gm, '') // Strip HTML
-        });
-    } else if (viewToRender === 'converter') {
-        schemaGraph.push({
-            "@type": "HowTo",
-            "name": t.howToConverter.title,
-            "description": t.howToConverter.description,
-            "step": t.howToConverter.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
-        });
-    } else if (viewToRender === 'calculator') {
-        schemaGraph.push({
-            "@type": "HowTo",
-            "name": t.howToCalculator.title,
-            "description": t.howToCalculator.description,
-            "step": t.howToCalculator.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
-        });
-    } else if (viewToRender === 'electricity') {
-        schemaGraph.push({
-            "@type": "HowTo",
-            "name": t.howToElectricity.title,
-            "description": t.howToElectricity.description,
-            "step": t.howToElectricity.steps.map(step => ({ "@type": "HowToStep", "name": step.name, "text": step.text, "url": pageUrl }))
-        });
+    }
+
+    // 3. WebPage Schema (Generic for all pages)
+    schemaGraph.push({
+      "@type": "WebPage",
+      "@id": pageUrl,
+      "url": pageUrl,
+      "name": pageTitle,
+      "description": t.metaDescriptions[viewToRender],
+      "isPartOf": { "@id": `${baseUrl}#website` },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": t.home, "item": baseUrl },
+            { "@type": "ListItem", "position": 2, "name": pageTitle, "item": pageUrl }
+        ]
+      }
+    });
+
+    // 4. SoftwareApplication Schema (Specific Tools)
+    if (viewToRender === 'converter') {
+      schemaGraph.push({
+        "@type": "SoftwareApplication",
+        "name": t.converter,
+        "operatingSystem": "Any",
+        "applicationCategory": "FinanceApplication",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "url": pageUrl
+      });
+      // HowTo Schema
+      schemaGraph.push({
+        "@type": "HowTo",
+        "name": t.howToConverter.title,
+        "description": t.howToConverter.description,
+        "step": t.howToConverter.steps.map((step, i) => ({ 
+            "@type": "HowToStep", 
+            "position": i + 1,
+            "name": step.name, 
+            "text": step.text, 
+            "url": pageUrl 
+        }))
+      });
+    }
+
+    if (viewToRender === 'electricity') {
+      schemaGraph.push({
+        "@type": "SoftwareApplication",
+        "name": t.electricityCalculator,
+        "operatingSystem": "Any",
+        "applicationCategory": "UtilitiesApplication",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "url": pageUrl
+      });
+       schemaGraph.push({
+        "@type": "HowTo",
+        "name": t.howToElectricity.title,
+        "description": t.howToElectricity.description,
+        "step": t.howToElectricity.steps.map((step, i) => ({ 
+            "@type": "HowToStep", 
+            "position": i + 1,
+            "name": step.name, 
+            "text": step.text, 
+            "url": pageUrl 
+        }))
+      });
     }
     
-    if (schemaGraph.length > 0) {
-        if (schemaGraph.length === 1) {
-            schema = { "@context": "https://schema.org", ...schemaGraph[0] };
-        } else {
-            schema = { "@context": "https://schema.org", "@graph": schemaGraph };
-        }
-    }
-    
-    if (schema) {
-        scriptTag.textContent = JSON.stringify(schema, null, 2);
-        document.head.appendChild(scriptTag);
-    }
-  }, [viewToRender, t, safeSocialLinks]);
+    scriptTag.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": schemaGraph }, null, 2);
+    document.head.appendChild(scriptTag);
+  }, [viewToRender, t, safeSocialLinks, settings.siteLogo]);
 
   const loadRates = useCallback(async () => {
     setIsRefreshing(true);
@@ -350,7 +323,6 @@ const App: React.FC = () => {
                 (mergedFeatures as any)[key] = (dbFeatures as any)[key];
             }
         }
-
         return {
           ...DEFAULT_ADMIN_SETTINGS,
           isMaintenanceMode: data.is_maintenance_mode ?? DEFAULT_ADMIN_SETTINGS.isMaintenanceMode,
@@ -366,7 +338,7 @@ const App: React.FC = () => {
         };
       }
     } catch (e) {
-      console.error("Failed to load settings from Supabase:", e);
+      console.error("Failed to load settings:", e);
     }
     return DEFAULT_ADMIN_SETTINGS;
   }, []);
@@ -410,16 +382,17 @@ const App: React.FC = () => {
   if (settings.isMaintenanceMode) {
     return (
       <>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white font-['Tajawal']">
-          <div className="text-center space-y-8 max-w-lg">
-            <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto shadow-2xl animate-pulse">
-              <Icons.Maintenance className="w-10 h-10 text-slate-900" />
+        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950 text-white font-['Tajawal'] relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900 to-slate-950 z-0"></div>
+          <div className="text-center space-y-8 max-w-lg relative z-10 glass p-10 rounded-3xl border border-white/10">
+            <div className="w-24 h-24 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(245,158,11,0.3)] animate-pulse">
+              <Icons.Maintenance className="w-12 h-12 text-amber-500" />
             </div>
-            <h1 className="text-3xl font-bold">عذراً، الموقع تحت الصيانة</h1>
-            <p className="text-slate-400 font-medium">{maintenanceMessage}</p>
+            <h1 className="text-4xl font-bold">عذراً، الموقع تحت الصيانة</h1>
+            <p className="text-slate-300 font-medium text-lg">{maintenanceMessage}</p>
           </div>
         </div>
-        <button onClick={() => setIsAdminOpen(true)} className="fixed bottom-5 right-5 w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 z-[1001] backdrop-blur-sm" aria-label="الدخول كمسؤول" title="الدخول كمسؤول">
+        <button onClick={() => setIsAdminOpen(true)} className="fixed bottom-5 right-5 w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-white/50 hover:bg-white/20 hover:text-white transition-all duration-300 z-[1001] backdrop-blur-sm" aria-label="الدخول كمسؤول">
           <Icons.Settings className="w-6 h-6" />
         </button>
         {isAdminOpen && <AdminPortal settings={settings} updateSettings={setSettings} onClose={() => setIsAdminOpen(false)} />}
@@ -428,8 +401,6 @@ const App: React.FC = () => {
   }
 
   const safeFeatures = settings.enabledFeatures || DEFAULT_ADMIN_SETTINGS.enabledFeatures;
-  
-
   const services = [
     { view: 'converter', label: t.converter, icon: Icons.Converter, enabled: safeFeatures.converter },
     { view: 'calculator', label: t.calculator, icon: Icons.Calculator, enabled: safeFeatures.calculator },
@@ -444,14 +415,14 @@ const App: React.FC = () => {
           <>
             {safeFeatures.marketRates && (
               <div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-                  <h1 className="text-3xl font-black dark:text-white text-center sm:text-right">{t.homeTitle}</h1>
-                  <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-4 flex-shrink-0">
-                    {rates && !rates.error && ( <p className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:block"> {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })} </p> )}
-                    <button onClick={() => window.print()} className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all shadow-sm" aria-label={t.printRates} title={t.printRates}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+                  <h1 className="text-3xl md:text-4xl font-black dark:text-white text-center sm:text-right bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">{t.homeTitle}</h1>
+                  <div className="flex items-center justify-center sm:justify-end gap-3 flex-shrink-0">
+                    {rates && !rates.error && ( <p className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:block bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700"> {t.lastUpdate}: {new Date(rates.timestampUtc).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US', { timeStyle: 'short', dateStyle: 'short' })} </p> )}
+                    <button onClick={() => window.print()} className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all shadow-sm flex items-center justify-center" aria-label={t.printRates}>
                         <Icons.Print className="w-5 h-5" />
                     </button>
-                    <button onClick={loadRates} disabled={isRefreshing} className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 transition-all shadow-md" aria-label={t.reset}>
+                    <button onClick={loadRates} disabled={isRefreshing} className="w-10 h-10 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center" aria-label={t.reset}>
                       <Icons.Refresh className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
                     </button>
                   </div>
@@ -462,45 +433,114 @@ const App: React.FC = () => {
                     <RateCardSkeleton />
                   </div>
                 ) : rates?.error ? (
-                  <div className="p-6 bg-red-50 dark:bg-red-950/20 rounded-3xl text-center text-red-700 dark:text-red-300 font-bold border-2 border-red-200 dark:border-red-800/50">{t.rateError}</div>
+                  <div className="p-8 bg-red-50 dark:bg-red-950/20 rounded-3xl text-center text-red-700 dark:text-red-300 font-bold border border-red-200 dark:border-red-900/50 shadow-sm">{t.rateError}</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-all hover:border-emerald-500/30">
-                      <div className="flex items-center gap-3 mb-6"><Icons.CentralBank className="w-6 h-6 text-emerald-600" /><h3 className="text-lg font-bold dark:text-white">{t.cbs}</h3></div>
+                    {/* Central Bank Card */}
+                    <div className="group bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-emerald-500/30">
+                      <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                             <Icons.CentralBank className="w-6 h-6" />
+                          </div>
+                          <div>
+                             <h3 className="text-lg font-black dark:text-white">{t.cbs}</h3>
+                             <p className="text-xs text-slate-400 font-bold">نشرة الحوالات والصرافة</p>
+                          </div>
+                      </div>
                       <div className="space-y-3">
-                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.cbsRates.length > 0 ? rates.cbsRates.map(r => ( 
+                            <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors"> 
+                                <span className="font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    {r.currency}
+                                </span> 
+                                <div className="flex gap-8">
+                                    <div className="text-center">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.buy}</p>
+                                        <p className="text-lg font-black text-emerald-700 dark:text-emerald-400">{r.buy.toLocaleString()}</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.sell}</p>
+                                        <p className="text-lg font-black text-slate-800 dark:text-slate-200">{r.sell.toLocaleString()}</p>
+                                    </div>
+                                </div> 
+                            </div>
+                        )) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-all hover:border-blue-500/30">
-                      <div className="flex items-center gap-3 mb-6"><Icons.Market className="w-6 h-6 text-blue-600" /><h3 className="text-lg font-bold dark:text-white">{t.blackMarket}</h3></div>
+
+                    {/* Black Market Card */}
+                    <div className="group bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-blue-500/30">
+                      <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                          <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                             <Icons.Market className="w-6 h-6" />
+                          </div>
+                          <div>
+                             <h3 className="text-lg font-black dark:text-white">{t.blackMarket}</h3>
+                             <p className="text-xs text-slate-400 font-bold">الأسعار الرائجة في السوق</p>
+                          </div>
+                      </div>
                       <div className="space-y-3">
-                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800"> <span className="font-bold text-slate-600 dark:text-slate-400">{r.currency}</span> <div className="flex gap-6"><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.buy}</p><p className="text-lg font-bold dark:text-white">{r.buy.toLocaleString()}</p></div><div className="text-center"><p className="text-[10px] text-slate-400 uppercase font-black">{t.sell}</p><p className="text-lg font-bold dark:text-white">{r.sell.toLocaleString()}</p></div></div> </div>)) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
+                        {rates && rates.blackMarketRates.length > 0 ? rates.blackMarketRates.map(r => ( 
+                            <div key={r.currency} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors"> 
+                                <span className="font-black text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                     <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    {r.currency}
+                                </span> 
+                                <div className="flex gap-8">
+                                    <div className="text-center">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.buy}</p>
+                                        <p className="text-lg font-black text-blue-700 dark:text-blue-400">{r.buy.toLocaleString()}</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.sell}</p>
+                                        <p className="text-lg font-black text-slate-800 dark:text-slate-200">{r.sell.toLocaleString()}</p>
+                                    </div>
+                                </div> 
+                            </div>
+                        )) : <p className="text-center text-slate-400 text-sm py-4">{'لا توجد بيانات حالياً'}</p>}
                       </div>
                     </div>
                   </div>
                 )}
               </div>
             )}
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
-                <h2 className="text-2xl font-bold dark:text-white">{t.homeGuideTitle}</h2>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{t.homeGuidePara1}</p>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.homeGuidePara2 }}></p>
-            </div>
-            <div className="bg-slate-900/95 backdrop-blur-md text-white p-8 rounded-3xl shadow-xl relative overflow-hidden border border-white/10">
-              <h3 className="text-xl font-bold mb-4 relative z-10">{t.aboutUs}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6 relative z-10">{t.aboutContent}</p>
-              <div className="flex gap-3 relative z-10">
-                {Object.entries(safeSocialLinks).map(([platform, data]) => {
-                  const s = data as { url: string; visible: boolean };
-                  if (!s || !s.visible) return null;
-                  const Icon = (Icons as any)[platform.charAt(0).toUpperCase() + platform.slice(1)];
-                  const isLinkValid = s.url && s.url.trim() !== '' && s.url.trim() !== '#';
-                  if (isLinkValid) { return ( <a key={platform} href={s.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-all" aria-label={`Visit our ${platform} page`}> {Icon && <Icon className="w-5 h-5" />} </a> ); }
-                  else { return ( <div key={platform} className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center cursor-not-allowed opacity-40" title={`رابط ${platform} غير مُعد. يرجى إضافته من لوحة الإدارة.`} aria-label={`${platform} link not available`}> {Icon && <Icon className="w-5 h-5" />} </div> ); }
-                })}
+            
+            <article className="mt-10 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+                <header>
+                    <h2 className="text-2xl font-black dark:text-white">{t.homeGuideTitle}</h2>
+                </header>
+                <div className="prose prose-slate dark:prose-invert max-w-none">
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">{t.homeGuidePara1}</p>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: t.homeGuidePara2 }}></p>
+                </div>
+            </article>
+
+            <section className="bg-slate-900 dark:bg-slate-950 text-white p-8 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden border border-white/10 mt-10">
+              <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
               </div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-            </div>
+              <div className="relative z-10 flex flex-col md:flex-row gap-8 justify-between items-start">
+                  <div className="md:w-2/3">
+                    <h3 className="text-2xl font-black mb-4 flex items-center gap-2">
+                        <Icons.About className="w-6 h-6 text-emerald-400" />
+                        {t.aboutUs}
+                    </h3>
+                    <p className="text-slate-300 text-sm leading-relaxed mb-6 font-medium">{t.aboutContent}</p>
+                  </div>
+                  <div className="flex gap-3 flex-wrap md:justify-end">
+                    {Object.entries(safeSocialLinks).map(([platform, data]) => {
+                    const s = data as { url: string; visible: boolean };
+                    if (!s || !s.visible) return null;
+                    const Icon = (Icons as any)[platform.charAt(0).toUpperCase() + platform.slice(1)];
+                    const isLinkValid = s.url && s.url.trim() !== '' && s.url.trim() !== '#' && s.url.startsWith('http');
+                    if (isLinkValid) { return ( <a key={platform} href={s.url} target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-emerald-600 hover:border-emerald-500 hover:scale-110 transition-all shadow-lg" aria-label={`Visit our ${platform} page`}> {Icon && <Icon className="w-5 h-5" />} </a> ); }
+                    return null;
+                    })}
+                  </div>
+              </div>
+            </section>
           </>
         );
       case 'converter': return <div className="max-w-4xl mx-auto"><Converter t={t} lang={lang} enableAnalytics={safeFeatures.enableAnalytics} /></div>;
@@ -514,38 +554,49 @@ const App: React.FC = () => {
   
   const LoadingIndicator = () => (
     <div className="flex items-center justify-center h-96">
-        <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="relative w-20 h-20">
+            <div className="absolute inset-0 rounded-full border-4 border-emerald-100 dark:border-slate-700"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
+        </div>
     </div>
   );
 
 
   return (
     <>
-      <div className="relative z-10 min-h-screen transition-colors duration-300 main-app-container flex flex-col">
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-0 z-50">
+      {/* Global Background Gradient */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-[#050b1d] pointer-events-none"></div>
+      
+      <div className="relative z-10 min-h-screen transition-colors duration-300 main-app-container flex flex-col font-sans">
+        <header className="sticky top-0 z-50 transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm supports-[backdrop-filter]:bg-white/60">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-            <div className="flex items-center gap-4 cursor-pointer" onDoubleClick={() => setIsAdminOpen(true)}>
-              <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-lg">
-                {settings.siteLogo ? <img src={settings.siteLogo} alt={`شعار ${t.title}`} className="w-full h-full object-contain" /> : "L"}
+            <div className="flex items-center gap-3 cursor-pointer group" onDoubleClick={() => setIsAdminOpen(true)}>
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform">
+                {settings.siteLogo ? <img src={settings.siteLogo} alt={`شعار ${t.title}`} className="w-full h-full object-contain p-1" /> : "L"}
               </div>
-              <div>
-                <div className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t.title}</div>
+              <div className="flex flex-col">
+                <div className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none">{t.title}</div>
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 hidden md:block">Syria Exchange Rates</div>
               </div>
             </div>
 
-            <nav aria-label={t.mainNavigation} className="hidden md:flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl">
-               <a href="#home" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
+            {/* Desktop Navigation */}
+            <nav aria-label={t.mainNavigation} className="hidden md:flex items-center gap-1 p-1.5 bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm">
+               <a href="#home" className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${activeView === 'home' ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
                  <Icons.Home /> {t.home}
                </a>
                <div className="relative" onMouseEnter={() => setIsServicesMenuOpen(true)} onMouseLeave={() => setIsServicesMenuOpen(false)}>
-                 <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
+                 <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
                    <Icons.Services /> {t.services}
+                   <Icons.ArrowSwap className={`w-3 h-3 transition-transform ${isServicesMenuOpen ? '-rotate-90' : 'rotate-90'}`} />
                  </button>
                  {isServicesMenuOpen && services.length > 0 && (
-                   <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-50">
+                   <div className="absolute top-full right-0 mt-2 w-60 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 p-2 z-50 transform origin-top animate-in fade-in zoom-in-95 duration-200">
                      {services.map(service => (
-                       <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 font-bold text-sm">
-                         <service.icon className="w-4 h-4 text-emerald-500" />
+                       <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 font-bold text-sm text-slate-700 dark:text-slate-200 transition-colors">
+                         <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600">
+                            <service.icon className="w-4 h-4" />
+                         </div>
                          {service.label}
                        </a>
                      ))}
@@ -557,7 +608,7 @@ const App: React.FC = () => {
             <div className="flex items-center gap-2">
                <button 
                 onClick={toggleBgAnimation} 
-                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all hidden sm:block"
+                className={`p-2.5 rounded-xl transition-all hidden sm:block ${isBgAnimationEnabled ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
                 aria-label={isBgAnimationEnabled ? t.toggleAnimationOff : t.toggleAnimationOn}
                 title={isBgAnimationEnabled ? t.toggleAnimationOff : t.toggleAnimationOn}
               >
@@ -565,33 +616,35 @@ const App: React.FC = () => {
               </button>
               <button 
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
-                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
                 aria-label={theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح'}
               >
                 {theme === 'light' ? <Icons.Moon className="w-5 h-5" /> : <Icons.Sun className="w-5 h-5" />}
               </button>
               <button 
                 onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} 
-                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-sm text-slate-900 dark:text-white transition-all"
+                className="h-10 px-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm transition-all hover:scale-105 active:scale-95 shadow-lg shadow-slate-900/10"
                 aria-label={lang === 'ar' ? 'Switch to English' : 'التحويل إلى العربية'}
               >
                 {lang === 'ar' ? 'EN' : 'عربي'}
               </button>
             </div>
           </div>
-          <nav aria-label={t.mainNavigation} className="md:hidden p-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-900/80">
-            <a href="#home" className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}>
-                <Icons.Home /> {t.home}
+
+          {/* Mobile Navigation */}
+          <nav aria-label={t.mainNavigation} className="md:hidden p-3 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-center gap-3 bg-white/95 dark:bg-slate-950/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+            <a href="#home" className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${activeView === 'home' ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                <Icons.Home className="w-4 h-4" /> {t.home}
             </a>
             <div className="relative flex-1" onClick={() => setIsServicesMenuOpen(prev => !prev)}>
-                <button className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}>
-                    <Icons.Services /> {t.services}
+                <button className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                    <Icons.Services className="w-4 h-4" /> {t.services}
                 </button>
                 {isServicesMenuOpen && services.length > 0 && (
-                   <div className="absolute top-full right-0 mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-50">
+                   <div className="absolute bottom-full left-0 mb-3 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-2 z-50 animate-in slide-in-from-bottom-5">
                      {services.map(service => (
-                       <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm">
-                         <service.icon className="w-4 h-4 text-emerald-500" />
+                       <a key={service.view} href={`#${service.view}`} onClick={(e) => { e.stopPropagation(); setIsServicesMenuOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 font-bold text-sm dark:text-white border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                         <div className="text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded-lg"><service.icon className="w-4 h-4" /></div>
                          {service.label}
                        </a>
                      ))}
@@ -601,21 +654,29 @@ const App: React.FC = () => {
           </nav>
         </header>
 
-        <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10 flex-grow w-full">
+        <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10 flex-grow w-full relative z-10">
           {isViewLoading ? <LoadingIndicator /> : renderActiveView()}
         </main>
         
         {safeFeatures.showBloodEffect && (
-          <div className="bg-red-700 text-white py-1.5 overflow-hidden whitespace-nowrap border-b border-red-900 text-xs font-bold uppercase tracking-wider my-10">
-            <div className="flex items-center gap-12 animate-[marquee_30s_linear_infinite]">{Array.from({ length: 15 }).map((_, i) => (<span key={i} className="flex items-center gap-2"><Icons.BloodDrop className="w-3 h-3 text-red-300" /> {settings.bloodEffectText}</span>))}</div>
+          <div className="bg-gradient-to-r from-red-800 via-red-600 to-red-800 text-white py-2 overflow-hidden whitespace-nowrap border-y border-red-900 shadow-inner text-xs font-bold uppercase tracking-wider my-8 relative z-10">
+            <div className="flex items-center gap-12 animate-[marquee_30s_linear_infinite]">{Array.from({ length: 15 }).map((_, i) => (<span key={i} className="flex items-center gap-2"><Icons.BloodDrop className="w-3 h-3 text-red-200 drop-shadow-sm" /> {settings.bloodEffectText}</span>))}</div>
           </div>
         )}
 
-        <footer className="max-w-6xl mx-auto px-4 py-12 border-t border-slate-200 dark:border-slate-800 text-center md:text-right flex flex-col md:flex-row justify-between items-center gap-6 w-full">
-          <p className="text-sm font-bold dark:text-white/60 text-slate-600/60">© {new Date().getFullYear()} {t.title} - جميع الحقوق محفوظة</p>
-          <div className="flex gap-6 text-sm font-bold text-slate-600/60 dark:text-slate-400/60">
-            <a href="#privacy" className="hover:text-emerald-600 transition-colors">{t.privacyPolicy}</a>
-            <a href="#contact" className="hover:text-emerald-600 transition-colors">{t.contactUs}</a>
+        <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm relative z-10">
+          <div className="max-w-6xl mx-auto px-4 py-12 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-center md:text-right">
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                    <div className="w-6 h-6 bg-slate-900 dark:bg-white rounded-md flex items-center justify-center text-white dark:text-slate-900 text-xs font-black">L</div>
+                    <span className="font-black dark:text-white">{t.title}</span>
+                </div>
+                <p className="text-xs font-bold dark:text-white/40 text-slate-600/60">© {new Date().getFullYear()} - جميع الحقوق محفوظة</p>
+            </div>
+            <div className="flex gap-8 text-sm font-bold text-slate-500 dark:text-slate-400">
+                <a href="#privacy" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.privacyPolicy}</a>
+                <a href="#contact" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.contactUs}</a>
+            </div>
           </div>
         </footer>
 
