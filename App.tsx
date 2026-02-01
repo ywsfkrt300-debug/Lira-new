@@ -506,6 +506,23 @@ const App: React.FC = () => {
               </div>
             )}
             
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {services.map(service => (
+                <a 
+                  key={service.view} 
+                  href={`#${service.view}`}
+                  className="group relative bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-emerald-500/10 hover:border-emerald-500/30 transition-all hover:-translate-y-1"
+                >
+                  <div className="flex flex-col items-center text-center gap-3">
+                    <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 shadow-sm">
+                       <service.icon className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-black text-lg text-slate-700 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{service.label}</h3>
+                  </div>
+                </a>
+              ))}
+            </div>
+
             <article className="mt-10 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
                 <header>
                     <h2 className="text-2xl font-black dark:text-white">{t.homeGuideTitle}</h2>
@@ -571,8 +588,8 @@ const App: React.FC = () => {
         <header className="sticky top-0 z-50 transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm supports-[backdrop-filter]:bg-white/60">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
             <div className="flex items-center gap-3 cursor-pointer group" onDoubleClick={() => setIsAdminOpen(true)}>
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform">
-                {settings.siteLogo ? <img src={settings.siteLogo} alt={`شعار ${t.title}`} className="w-full h-full object-contain p-1" /> : "L"}
+              <div className={`w-10 h-10 flex items-center justify-center transition-transform group-hover:rotate-6 ${!settings.siteLogo ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl text-white font-black text-xl shadow-lg shadow-emerald-500/20' : ''}`}>
+                {settings.siteLogo ? <img src={settings.siteLogo} alt={`شعار ${t.title}`} className="w-full h-full object-contain drop-shadow-sm" /> : "L"}
               </div>
               <div className="flex flex-col">
                 <div className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none">{t.title}</div>
