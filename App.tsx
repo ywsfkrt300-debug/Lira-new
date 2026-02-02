@@ -8,6 +8,7 @@ import ChangeCalculator from './components/ChangeCalculator';
 import ElectricityCalculator from './components/ElectricityCalculator';
 import AdminPortal from './components/AdminPortal';
 import RatePrintView from './components/RatePrintView';
+import ApiDocs from './components/ApiDocs';
 import { fetchLatestRates } from './services/rateService';
 import { Icons } from './components/Icons';
 import { supabase, trackEvent } from './services/supabaseClient';
@@ -131,7 +132,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as View;
-      const validViews: View[] = ['home', 'converter', 'calculator', 'electricity', 'privacy', 'contact'];
+      const validViews: View[] = ['home', 'converter', 'calculator', 'electricity', 'privacy', 'contact', 'api'];
       const targetView = validViews.includes(hash) ? hash : 'home';
       
       if (activeView !== targetView) {
@@ -568,6 +569,7 @@ const App: React.FC = () => {
       case 'electricity': return <div className="max-w-5xl mx-auto"><ElectricityCalculator t={t} lang={lang} enableAnalytics={safeFeatures.enableAnalytics} /></div>;
       case 'privacy': return <StaticPage title={t.privacyTitle} content={t.privacyContent} />;
       case 'contact': return <StaticPage title={t.contactTitle} content={t.contactContent} />;
+      case 'api': return <ApiDocs />;
       default: return null;
     }
   };
@@ -610,11 +612,11 @@ const App: React.FC = () => {
                  <Icons.Home /> {t.home}
                </a>
                <div className="relative" onMouseEnter={() => setIsServicesMenuOpen(true)} onMouseLeave={() => setIsServicesMenuOpen(false)}>
-                 <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
+                 <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 w-full ${['converter', 'calculator', 'electricity', 'api'].includes(activeView) ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
                    <Icons.Services /> {t.services}
                    <Icons.ArrowSwap className={`w-3 h-3 transition-transform ${isServicesMenuOpen ? '-rotate-90' : 'rotate-90'}`} />
                  </button>
-                 {isServicesMenuOpen && services.length > 0 && (
+                 {isServicesMenuOpen && (
                    <div className="absolute top-full right-0 mt-2 w-60 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 p-2 z-50 transform origin-top animate-in fade-in zoom-in-95 duration-200">
                      {services.map(service => (
                        <a key={service.view} href={`#${service.view}`} onClick={() => setIsServicesMenuOpen(false)} className="w-full text-right flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 font-bold text-sm text-slate-700 dark:text-slate-200 transition-colors">
@@ -661,10 +663,10 @@ const App: React.FC = () => {
                 <Icons.Home className="w-4 h-4" /> {t.home}
             </a>
             <div className="relative flex-1" onClick={() => setIsServicesMenuOpen(prev => !prev)}>
-                <button className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                <button className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${['converter', 'calculator', 'electricity', 'api'].includes(activeView) ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                     <Icons.Services className="w-4 h-4" /> {t.services}
                 </button>
-                {isServicesMenuOpen && services.length > 0 && (
+                {isServicesMenuOpen && (
                    <div className="absolute bottom-full left-0 mb-3 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-2 z-50 animate-in slide-in-from-bottom-5">
                      {services.map(service => (
                        <a key={service.view} href={`#${service.view}`} onClick={(e) => { e.stopPropagation(); setIsServicesMenuOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 font-bold text-sm dark:text-white border-b border-slate-100 dark:border-slate-700/50 last:border-0">
@@ -700,6 +702,7 @@ const App: React.FC = () => {
             <div className="flex gap-8 text-sm font-bold text-slate-500 dark:text-slate-400">
                 <a href="#privacy" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.privacyPolicy}</a>
                 <a href="#contact" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.contactUs}</a>
+                 <a href="#api" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.api}</a>
             </div>
           </div>
         </footer>
