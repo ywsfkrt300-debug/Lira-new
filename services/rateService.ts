@@ -1,31 +1,37 @@
 import { RatesResponse } from '../types';
 
-const API_URL = '/api/rates'; // Use our own API endpoint
+const API_URL = 'https://lirascope.syria-cloud.sy/api/v1/rates/latest';
 
 export const fetchLatestRates = async (lang: string = 'ar'): Promise<RatesResponse> => {
   try {
-    // Currencies are now handled by the API by default if not specified
-    const url = `${API_URL}?lang=${lang}`;
+    const url = `${API_URL}?lang=${lang}&currencies=USD,EUR,TRY`;
     const response = await fetch(url);
     
     if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     
-    // The response from our API already matches the RatesResponse structure
-    const data: RatesResponse = await response.json();
+    const data = await response.json();
+    
+    // Adapt the external API response to our internal RatesResponse structure
+    const transformedData: RatesResponse = {
+      cbsRates: data.cbsRates || [],
+      blackMarketRates: data.marketRates || [], // The external API uses 'marketRates'
+      timestampUtc: data.timestampUtc || new Date().toISOString(),
+    };
+
     if (data.error) {
         throw new Error(data.error);
     }
-    return data;
+    return transformedData;
 
   } catch (error) {
-    console.error('Error fetching rates from internal API:', error);
+    console.error('Error fetching rates directly from LiraScope API:', error);
     return {
       cbsRates: [],
       blackMarketRates: [],
       timestampUtc: new Date().toISOString(),
-      error: 'Failed to fetch rates from internal API.',
+      error: 'Failed to fetch rates from external source.',
     };
   }
 };
