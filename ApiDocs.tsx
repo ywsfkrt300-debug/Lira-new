@@ -8,7 +8,7 @@ const CodeBlock: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 const ApiDocs: React.FC = () => {
-    const baseUrl = 'https://lirtna-sy.vercel.app/api';
+    const baseUrl = typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api';
 
     return (
         <article className="max-w-4xl mx-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 md:p-12 rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700/50 text-slate-700 dark:text-slate-300">
