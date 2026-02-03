@@ -3,6 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://lirtna-sy.vercel.app/</loc>
+    <lastmod>2024-01-01</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -10,5 +11,35 @@
       <image:title>سعر الدولار والعملات في سوريا - موقع ليرتنا</image:title>
       <image:caption>أدق أسعار الصرف والذهب في سوريا لحظة بلحظة مع أدوات مالية ذكية</image:caption>
     </image:image>
+  </url>
+  <url>
+    <loc>https://lirtna-sy.vercel.app/#converter</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lirtna-sy.vercel.app/#calculator</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lirtna-sy.vercel.app/#electricity</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lirtna-sy.vercel.app/#privacy</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://lirtna-sy.vercel.app/#contact</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

@@ -1,8 +1,26 @@
-import { RatesResponse } from '../types';
+import { RatesResponse, Language, ExchangeRate } from '../types';
 
 const API_URL = 'https://lirascope.syria-cloud.sy/api/v1/rates/latest';
 
-export const fetchLatestRates = async (lang: string = 'ar'): Promise<RatesResponse> => {
+const currencyNames: Record<string, { ar: string, en: string }> = {
+    'USD': { ar: 'الدولار الأمريكي', en: 'US Dollar' },
+    'EUR': { ar: 'اليورو', en: 'Euro' },
+    'TRY': { ar: 'الليرة التركية', en: 'Turkish Lira' },
+};
+
+const transformRates = (rates: any[], lang: Language): ExchangeRate[] => {
+    if (!rates || !Array.isArray(rates)) return [];
+    
+    // The API returns currency codes (e.g., 'USD'). This maps them to full names.
+    return rates.map(rate => ({
+        ...rate,
+        currency: lang === 'ar' 
+            ? (currencyNames[rate.currency]?.ar || rate.currency) 
+            : (currencyNames[rate.currency]?.en || rate.currency)
+    }));
+};
+
+export const fetchLatestRates = async (lang: Language = 'ar'): Promise<RatesResponse> => {
   try {
     const url = `${API_URL}?lang=${lang}&currencies=USD,EUR,TRY`;
     const response = await fetch(url);
@@ -12,21 +30,21 @@ export const fetchLatestRates = async (lang: string = 'ar'): Promise<RatesRespon
     }
     
     const data = await response.json();
-    
-    // Adapt the external API response to our internal RatesResponse structure
-    const transformedData: RatesResponse = {
-      cbsRates: data.cbsRates || [],
-      blackMarketRates: data.marketRates || [], // The external API uses 'marketRates'
-      timestampUtc: data.timestampUtc || new Date().toISOString(),
-    };
 
     if (data.error) {
         throw new Error(data.error);
     }
+    
+    const transformedData: RatesResponse = {
+      cbsRates: transformRates(data.cbsRates, lang),
+      blackMarketRates: transformRates(data.marketRates, lang), // External API uses 'marketRates'
+      timestampUtc: data.timestampUtc || new Date().toISOString(),
+    };
+
     return transformedData;
 
   } catch (error) {
-    console.error('Error fetching rates directly from LiraScope API:', error);
+    console.error('Error fetching and transforming rates:', error);
     return {
       cbsRates: [],
       blackMarketRates: [],

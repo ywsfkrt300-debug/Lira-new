@@ -1,14 +1,13 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { Language, Theme, RatesResponse, AdminSettings, View } from './types';
+import { Language, Theme, RatesResponse, AdminSettings, View, Translation } from './types';
 import { translations, MAINTENANCE_MESSAGES } from './constants';
 import Converter from './components/Converter';
 import ChangeCalculator from './components/ChangeCalculator';
 import ElectricityCalculator from './components/ElectricityCalculator';
 import AdminPortal from './components/AdminPortal';
 import RatePrintView from './components/RatePrintView';
-import ApiDocs from './components/ApiDocs';
 import { fetchLatestRates } from './services/rateService';
 import { Icons } from './components/Icons';
 import { supabase, trackEvent } from './services/supabaseClient';
@@ -51,6 +50,21 @@ const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, conte
             {content.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
     </article>
+);
+
+const NotFoundPage: React.FC<{t: Translation}> = ({t}) => (
+    <div className="text-center py-10 md:py-20 flex flex-col items-center justify-center animate-in fade-in duration-500">
+        <div className="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 text-amber-500 rounded-full flex items-center justify-center mb-6 animate-pulse">
+            <Icons.Location className="w-12 h-12" />
+        </div>
+        <h1 className="text-5xl md:text-7xl font-black text-slate-800 dark:text-white mb-4">404</h1>
+        <h2 className="text-2xl font-bold text-slate-600 dark:text-slate-300 mb-8">{t.pageTitles.notFound.split('|')[0]}</h2>
+        <p className="max-w-md text-slate-500 mb-10">{t.metaDescriptions.notFound}</p>
+        <a href="#home" className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center gap-2 transform hover:scale-105 active:scale-100">
+            <Icons.Home className="w-5 h-5" />
+            <span>{t.notFoundGoHome}</span>
+        </a>
+    </div>
 );
 
 const RateCardSkeleton: React.FC = () => (
@@ -131,17 +145,17 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '') as View;
-      const validViews: View[] = ['home', 'converter', 'calculator', 'electricity', 'privacy', 'contact', 'api'];
-      const targetView = validViews.includes(hash) ? hash : 'home';
+      // FIX: The hash from window.location can be an empty string, which is not a valid 'View'.
+      // It's now treated as a string and validated before being assigned to a 'View' typed variable.
+      const hash = window.location.hash.replace('#', '');
+      const validViews: View[] = ['home', 'converter', 'calculator', 'electricity', 'privacy', 'contact'];
+      const targetView: View = validViews.includes(hash as View) ? hash as View : (hash === '' ? 'home' : 'notFound');
       
       if (activeView !== targetView) {
         setActiveView(targetView);
         if (settings.enabledFeatures.enableAnalytics && !firstLoad.current) {
             trackEvent('PAGE_VIEW');
         }
-      } else if (!hash && activeView !== 'home') {
-        setActiveView('home');
       }
     };
     
@@ -158,7 +172,7 @@ const App: React.FC = () => {
         const timer = setTimeout(() => {
             setViewToRender(activeView);
             setIsViewLoading(false);
-        }, 200); // Faster transition
+        }, 250); // Slightly longer for smoother transition
         return () => clearTimeout(timer);
     }
   }, [activeView, viewToRender]);
@@ -569,7 +583,7 @@ const App: React.FC = () => {
       case 'electricity': return <div className="max-w-5xl mx-auto"><ElectricityCalculator t={t} lang={lang} enableAnalytics={safeFeatures.enableAnalytics} /></div>;
       case 'privacy': return <StaticPage title={t.privacyTitle} content={t.privacyContent} />;
       case 'contact': return <StaticPage title={t.contactTitle} content={t.contactContent} />;
-      case 'api': return <ApiDocs />;
+      case 'notFound': return <NotFoundPage t={t} />;
       default: return null;
     }
   };
@@ -612,7 +626,7 @@ const App: React.FC = () => {
                  <Icons.Home /> {t.home}
                </a>
                <div className="relative" onMouseEnter={() => setIsServicesMenuOpen(true)} onMouseLeave={() => setIsServicesMenuOpen(false)}>
-                 <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 w-full ${['converter', 'calculator', 'electricity', 'api'].includes(activeView) ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
+                 <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
                    <Icons.Services /> {t.services}
                    <Icons.ArrowSwap className={`w-3 h-3 transition-transform ${isServicesMenuOpen ? '-rotate-90' : 'rotate-90'}`} />
                  </button>
@@ -663,7 +677,7 @@ const App: React.FC = () => {
                 <Icons.Home className="w-4 h-4" /> {t.home}
             </a>
             <div className="relative flex-1" onClick={() => setIsServicesMenuOpen(prev => !prev)}>
-                <button className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${['converter', 'calculator', 'electricity', 'api'].includes(activeView) ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                <button className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                     <Icons.Services className="w-4 h-4" /> {t.services}
                 </button>
                 {isServicesMenuOpen && (
@@ -681,7 +695,9 @@ const App: React.FC = () => {
         </header>
 
         <main className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10 flex-grow w-full relative z-10">
-          {isViewLoading ? <LoadingIndicator /> : renderActiveView()}
+          <div key={viewToRender} className="transition-opacity duration-300">
+            {isViewLoading ? <LoadingIndicator /> : renderActiveView()}
+          </div>
         </main>
         
         {safeFeatures.showBloodEffect && (
@@ -702,7 +718,6 @@ const App: React.FC = () => {
             <div className="flex gap-8 text-sm font-bold text-slate-500 dark:text-slate-400">
                 <a href="#privacy" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.privacyPolicy}</a>
                 <a href="#contact" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.contactUs}</a>
-                 <a href="#api" className="hover:text-emerald-600 dark:hover:text-white transition-colors py-2">{t.api}</a>
             </div>
           </div>
         </footer>

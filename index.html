@@ -54,8 +54,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Improved Fonts: Cairo for Arabic, Inter for Numbers/English -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Preloaded, Non-Render-Blocking Fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;900&display=swap"></noscript>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -75,6 +76,14 @@
         }
         [dir="rtl"] {
             font-family: 'Cairo', sans-serif;
+        }
+        
+        /* Global Focus Style for Accessibility & UX */
+        *:focus-visible {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+            border-radius: 8px;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
         }
         
         /* Glassmorphism Utilities */

@@ -1,7 +1,12 @@
+# Allow all well-behaved search engines
 User-agent: *
 Allow: /
 
-# Ensure Google Images can index the site media
+# Explicitly allow Google's AI agent
+User-agent: Google-Extended
+Allow: /
+
+# Allow Google Images to crawl site media
 User-agent: Googlebot-Image
 Allow: /
 
@@ -9,4 +14,5 @@ Allow: /
 User-agent: GPTBot
 Disallow: /
 
+# Sitemap location
 Sitemap: https://lirtna-sy.vercel.app/sitemap.xml

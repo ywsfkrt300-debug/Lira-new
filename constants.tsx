@@ -33,7 +33,6 @@ export const translations: Record<'ar' | 'en', Translation> = {
     aboutUs: "عن ليرتنا",
     privacyPolicy: "الخصوصية",
     contactUs: "تواصل معنا",
-    api: "API للمطورين",
     aboutContent: "موقع ليرتنا (Liratna) هو المنصة الرقمية الأولى في سوريا التي تجمع بين دقة أسعار الصرف (الدولار، اليورو، الذهب) وبين الأدوات الخدمية التي يحتاجها المواطن يومياً. نقدم حلولاً تقنية لمشاكل العملة القديمة والجديدة، وحساب فواتير الكهرباء المعقدة، كل ذلك مجاناً وبدون إعلانات مزعجة. هدفنا رفع الوعي المالي وتسهيل حياة السوريين.",
     privacyTitle: "سياسة الخصوصية والأمان",
     privacyContent: [
@@ -59,6 +58,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
     homeGuidePara1: "هل تبحث عن **سعر الدولار اليوم في سوريا**؟ موقع ليرتنا يقدم لك الإجابة الأدق والأسرع. نحن نراقب حركة السوق السوداء (الموازية) ونشرة الحوالات والصرافة من **المصرف المركزي السوري** لحظة بلحظة. لا داعي للتشتت بين الصفحات؛ هنا تجد سعر اليورو، الليرة التركية، الريال السعودي، والذهب، في جدول واحد محدث وتفاعلي.",
     homeGuidePara2: "ليرتنا ليس مجرد لوحة أسعار؛ إنه مساعدك الشخصي. هل تعاني عند التعامل بالفئات النقدية؟ استخدم <a href=\"#converter\" class=\"text-emerald-600 dark:text-emerald-400 hover:underline font-bold\">محول الليرة السورية</a> للتنقل بين القديم والجديد بضغطة زر. هل تريد معرفة قيمة فاتورتك بدقة؟ <a href=\"#electricity\" class=\"text-emerald-600 dark:text-emerald-400 hover:underline font-bold\">حاسبة فاتورة الكهرباء 2025</a> تحسب لك التكلفة حسب الشرائح الجديدة فوراً. بالإضافة إلى <a href=\"#calculator\" class=\"text-emerald-600 dark:text-emerald-400 hover:underline font-bold\">حاسبة الباقي</a> التي تضمن حقك عند الشراء. موقع ليرتنا هو رفيقك المالي الذكي في سوريا.",
     mainNavigation: "تصفح الموقع",
+    notFoundGoHome: "العودة إلى الرئيسية",
     pageTitles: {
       home: "سعر الدولار اليوم في سوريا | تحديث لحظي للسوق السوداء والمركزي",
       converter: "محول الليرة السورية (قديم - جديد) | أداة تحويل العملة الدقيقة",
@@ -66,7 +66,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       electricity: "حاسبة فاتورة الكهرباء في سوريا 2025 | حساب التكلفة حسب الشرائح",
       privacy: "سياسة الخصوصية | موقع ليرتنا",
       contact: "اتصل بنا | فريق موقع ليرتنا",
-      api: "API للمطورين | وثائق الواجهة البرمجية لموقع ليرتنا"
+      notFound: "الصفحة غير موجودة | موقع ليرتنا"
     },
     metaDescriptions: {
       home: "حصرياً: سعر الدولار في سوريا لحظة بلحظة من السوق السوداء والمركزي. اكتشف أدواتنا المجانية: حاسبة الكهرباء، ومحول العملة السورية. موقع ليرتنا - دليلك الموثوق.",
@@ -75,7 +75,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       electricity: "احسب قيمة فاتورة الكهرباء المنزلية والتجارية في سوريا وفق التعرفة الجديدة لعام 2025. اعرف شريحتك وتكلفة الكيلو واط بدقة.",
       privacy: "تعرف على كيفية حماية موقع ليرتنا لبياناتك. نحن نضمن خصوصية تامة وعدم تخزين لأي معلومات مالية.",
       contact: "تواصل مع فريق ليرتنا لأي استفسار حول أسعار الصرف أو الأدوات المالية. نحن هنا لخدمتكم.",
-      api: "وثائق API الرسمية لموقع ليرتنا. تعلم كيفية الوصول إلى أسعار الصرف، تحويل العملات، وحساب فواتير الكهرباء برمجياً."
+      notFound: "عذراً، الصفحة التي تبحث عنها غير موجودة. قد يكون الرابط خاطئاً. عد إلى الرئيسية لمتابعة أسعار الصرف."
     },
     faq: [
         {
@@ -168,7 +168,6 @@ export const translations: Record<'ar' | 'en', Translation> = {
     aboutUs: "About Liratna",
     privacyPolicy: "Privacy",
     contactUs: "Contact",
-    api: "Developer API",
     aboutContent: "Liratna is Syria's premier digital platform combining accurate exchange rate tracking (USD, Euro, Gold) with essential daily utility tools. We offer technical solutions for the old/new currency confusion and complex electricity bill calculations, all for free and ad-free. Our goal is to enhance financial literacy and simplify life for Syrians.",
     privacyTitle: "Privacy & Security Policy",
     privacyContent: [
@@ -194,6 +193,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
     homeGuidePara1: "Looking for the **USD rate in Syria today**? Liratna gives you the most accurate answer. We monitor the parallel (Black) market and **Central Bank of Syria** remittance bulletins moment by moment. No need to check multiple sources; find Euro, Turkish Lira, Saudi Riyal, and Gold rates in one interactive, updated table.",
     homeGuidePara2: "Liratna is more than a rate board; it's your personal assistant. Struggling with cash denominations? Use the <a href=\"#converter\" class=\"text-emerald-600 dark:text-emerald-400 hover:underline font-bold\">Syrian Lira Converter</a> to switch between old and new values instantly. Need to check your bill? The <a href=\"#electricity\" class=\"text-emerald-600 dark:text-emerald-400 hover:underline font-bold\">2025 Electricity Calculator</a> computes costs based on new tiers. Plus, the <a href=\"#calculator\" class=\"text-emerald-600 dark:text-emerald-400 hover:underline font-bold\">Change Calculator</a> ensures you get the right change. Liratna is your smart financial companion in Syria.",
     mainNavigation: "Site Navigation",
+    notFoundGoHome: "Return to Home",
     pageTitles: {
       home: "USD Rate in Syria Today | Live Black Market & Central Bank",
       converter: "Syrian Lira Converter (Old/New) | Accurate Currency Tool",
@@ -201,7 +201,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       electricity: "Syria Electricity Bill Calculator 2025 | New Tariffs",
       privacy: "Privacy Policy | Liratna",
       contact: "Contact Us | Liratna Team",
-      api: "Developer API | Liratna API Documentation"
+      notFound: "Page Not Found | Liratna"
     },
     metaDescriptions: {
       home: "Exclusive: Live USD rates in Syria from Black Market and Central Bank. Discover our free tools: Electricity Calculator, Lira Converter. Liratna - Your trusted guide.",
@@ -210,7 +210,7 @@ export const translations: Record<'ar' | 'en', Translation> = {
       electricity: "Calculate residential and commercial electricity bills in Syria according to the new 2025 tariffs. Know your tier and kWh cost accurately.",
       privacy: "Learn how Liratna protects your data. We guarantee complete privacy and zero storage of financial information.",
       contact: "Contact Liratna team for inquiries about exchange rates or financial tools. We are here to serve you.",
-      api: "Official API documentation for Liratna. Learn how to programmatically access exchange rates, currency conversions, and electricity bill calculations."
+      notFound: "Sorry, the page you are looking for does not exist. The link may be incorrect. Return to the homepage for the latest exchange rates."
     },
     faq: [
         {

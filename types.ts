@@ -1,7 +1,7 @@
 
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
-export type View = 'home' | 'converter' | 'calculator' | 'electricity' | 'privacy' | 'contact' | 'api';
+export type View = 'home' | 'converter' | 'calculator' | 'electricity' | 'privacy' | 'contact' | 'notFound';
 
 
 export interface AdminSettings {
@@ -67,7 +67,6 @@ export interface Translation {
   aboutUs: string;
   privacyPolicy: string;
   contactUs: string;
-  api: string;
   aboutContent: string;
   privacyTitle: string;
   privacyContent: string[];
@@ -82,6 +81,7 @@ export interface Translation {
   homeGuidePara1: string;
   homeGuidePara2: string;
   mainNavigation: string;
+  notFoundGoHome: string;
   // Page Titles
   pageTitles: {
     [key in View]: string;
