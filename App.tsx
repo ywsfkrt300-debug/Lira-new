@@ -11,6 +11,7 @@ import RatePrintView from './components/RatePrintView';
 import { fetchLatestRates } from './services/rateService';
 import { Icons } from './components/Icons';
 import { supabase, trackEvent } from './services/supabaseClient';
+import Typewriter from './components/Typewriter';
 
 const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
   isMaintenanceMode: false,
@@ -46,9 +47,7 @@ const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
 const StaticPage: React.FC<{title: string; content: string[]}> = ({ title, content }) => (
     <article className="max-w-4xl mx-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 md:p-12 rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700/50">
         <h1 className="text-2xl md:text-3xl font-black mb-8 dark:text-white border-b-2 border-emerald-500/30 pb-4">{title}</h1>
-        <div className="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed font-medium">
-            {content.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
-        </div>
+        <Typewriter paragraphs={content} />
     </article>
 );
 
