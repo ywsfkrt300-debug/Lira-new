@@ -32,7 +32,7 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t, enableAnalytics 
   }, [changeNeeded, totalPrice, enableAnalytics]);
 
   const changeBreakdown = useMemo(() => {
-    let remaining = changeNeeded;
+    let remaining = Math.round(changeNeeded);
     const breakdown: Record<number, number> = {};
     
     [...NEW_DENOMINATIONS].sort((a, b) => b.value - a.value).forEach(den => {
@@ -112,7 +112,7 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t, enableAnalytics 
             <label className="block text-xs font-black uppercase tracking-[0.2em] text-blue-600/60 dark:text-blue-400/60 mb-3">{t.changeNeeded}</label>
             <div className="flex items-baseline gap-3 mb-8">
               <span className="text-5xl md:text-6xl font-black text-blue-700 dark:text-blue-300 tracking-tighter">
-                {changeNeeded.toLocaleString()}
+                {Math.round(changeNeeded).toLocaleString()}
               </span>
               <span className="text-xl font-bold text-blue-600/70 dark:text-blue-400/70 uppercase">{t.newLira}</span>
             </div>
@@ -131,7 +131,7 @@ const ChangeCalculator: React.FC<ChangeCalculatorProps> = ({ t, enableAnalytics 
                       <span className="font-black dark:text-slate-200 text-base">{val}</span>
                     </div>
                   ))}
-                  {changeBreakdown.remainder > 0 && (
+                  {changeBreakdown.remainder >= 1 && (
                      <div className="px-5 py-3 bg-amber-500/10 border-2 border-amber-500/20 rounded-2xl text-[10px] font-black text-amber-600 uppercase flex items-center gap-2">
                        <Icons.Maintenance className="w-4 h-4" /> + {changeBreakdown.remainder}
                      </div>

@@ -106,6 +106,7 @@ const App: React.FC = () => {
   const [isBgAnimationEnabled, setIsBgAnimationEnabled] = useState(false);
   const firstLoad = useRef(true);
   const printableContainer = useMemo(() => document.getElementById('printable-container'), []);
+  const mobileServicesMenuRef = useRef<HTMLDivElement>(null);
   
   const maintenanceMessage = useMemo(() => {
     return MAINTENANCE_MESSAGES[Math.floor(Math.random() * MAINTENANCE_MESSAGES.length)];
@@ -135,6 +136,19 @@ const App: React.FC = () => {
   useEffect(() => {
     setIsBgAnimationEnabled(localStorage.getItem('liratna_bg_animation') === 'true');
   }, []);
+
+  // Effect to handle closing mobile services menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+        if (isServicesMenuOpen && mobileServicesMenuRef.current && !mobileServicesMenuRef.current.contains(event.target as Node)) {
+            setIsServicesMenuOpen(false);
+        }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isServicesMenuOpen]);
 
   const toggleBgAnimation = () => {
     const isEnabled = localStorage.getItem('liratna_bg_animation') === 'true';
@@ -418,11 +432,13 @@ const App: React.FC = () => {
   }
 
   const safeFeatures = settings.enabledFeatures || DEFAULT_ADMIN_SETTINGS.enabledFeatures;
-  const services = [
+  const services = useMemo(() => [
     { view: 'converter', label: t.converter, icon: Icons.Converter, enabled: safeFeatures.converter },
     { view: 'calculator', label: t.calculator, icon: Icons.Calculator, enabled: safeFeatures.calculator },
     { view: 'electricity', label: t.electricityCalculator, icon: Icons.Electricity, enabled: safeFeatures.electricityCalculator },
-  ].filter(s => s.enabled);
+  ].filter(s => s.enabled), [safeFeatures, t]);
+  
+  const serviceViews = useMemo(() => services.map(s => s.view), [services]);
 
 
   const renderActiveView = () => {
@@ -625,7 +641,7 @@ const App: React.FC = () => {
                  <Icons.Home /> {t.home}
                </a>
                <div className="relative" onMouseEnter={() => setIsServicesMenuOpen(true)} onMouseLeave={() => setIsServicesMenuOpen(false)}>
-                 <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 w-full ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
+                 <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 w-full ${serviceViews.includes(activeView as any) ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-white shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
                    <Icons.Services /> {t.services}
                    <Icons.ArrowSwap className={`w-3 h-3 transition-transform ${isServicesMenuOpen ? '-rotate-90' : 'rotate-90'}`} />
                  </button>
@@ -675,8 +691,8 @@ const App: React.FC = () => {
             <a href="#home" className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${activeView === 'home' ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                 <Icons.Home className="w-4 h-4" /> {t.home}
             </a>
-            <div className="relative flex-1" onClick={() => setIsServicesMenuOpen(prev => !prev)}>
-                <button className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${['converter', 'calculator', 'electricity'].includes(activeView) ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+            <div ref={mobileServicesMenuRef} className="relative flex-1" onClick={() => setIsServicesMenuOpen(prev => !prev)}>
+                <button className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${serviceViews.includes(activeView as any) ? 'bg-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                     <Icons.Services className="w-4 h-4" /> {t.services}
                 </button>
                 {isServicesMenuOpen && (
