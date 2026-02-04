@@ -1,3 +1,4 @@
+
 import { RatesResponse, Language, ExchangeRate } from '../types';
 
 const API_URL = 'https://lirascope.syria-cloud.sy/api/v1/rates/latest';
@@ -22,6 +23,7 @@ const transformRates = (rates: any[], lang: Language): ExchangeRate[] => {
 
 export const fetchLatestRates = async (lang: Language = 'ar'): Promise<RatesResponse> => {
   try {
+    // Fetch rates specifically for US Dollar, Euro, and Turkish Lira as requested.
     const url = `${API_URL}?lang=${lang}&currencies=USD,EUR,TRY`;
     const response = await fetch(url);
     
