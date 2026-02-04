@@ -305,6 +305,30 @@ const App: React.FC = () => {
       });
     }
 
+    if (viewToRender === 'calculator') {
+      schemaGraph.push({
+        "@type": "SoftwareApplication",
+        "name": t.calculator,
+        "operatingSystem": "Any",
+        "applicationCategory": "FinanceApplication",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "url": pageUrl
+      });
+      // HowTo Schema
+      schemaGraph.push({
+        "@type": "HowTo",
+        "name": t.howToCalculator.title,
+        "description": t.howToCalculator.description,
+        "step": t.howToCalculator.steps.map((step, i) => ({ 
+            "@type": "HowToStep", 
+            "position": i + 1,
+            "name": step.name, 
+            "text": step.text, 
+            "url": pageUrl 
+        }))
+      });
+    }
+
     if (viewToRender === 'electricity') {
       schemaGraph.push({
         "@type": "SoftwareApplication",

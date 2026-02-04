@@ -386,7 +386,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
   };
 
   return (
-    <div className="fixed inset-0 z-[2000] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 dir-rtl font-['Cairo'] animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[2000] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
       {!isAuthenticated ? (
         <div className={`w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-10 text-center relative transition-all border border-slate-200 dark:border-slate-800 ${loginError ? 'shake' : ''}`}>
           <button onClick={onClose} className="absolute top-4 left-4 text-slate-400 hover:text-red-500 transition-colors">
@@ -398,39 +398,41 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ settings, updateSettings, onC
           <h2 className="text-3xl font-black mb-2 dark:text-white">بوابة الإدارة</h2>
           <p className="text-sm text-slate-500 mb-8 font-medium">مرحباً بك، يرجى إثبات هويتك للمتابعة</p>
           <form onSubmit={handleLogin}>
-            <div className="relative mb-6 group">
-                <input
-                type="password"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-bold text-lg tracking-widest focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600"
-                placeholder="رمز الدخول"
-                autoFocus
-                />
-            </div>
-            {loginError && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
-                <Icons.Security className="w-4 h-4" />
-                {loginError}
+            <div className="space-y-4">
+              <div className="relative group">
+                  <input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="w-full p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-bold text-lg tracking-widest focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                  placeholder="رمز الدخول"
+                  autoFocus
+                  />
               </div>
-            )}
-            <button 
-              type="submit" 
-              disabled={isLoggingIn || Date.now() < lockoutTime}
-              className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
-            >
-              {isLoggingIn ? (
-                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                  <>
-                    الدخول
-                    <Icons.ArrowSwap className="w-4 h-4 rotate-180" />
-                  </>
+              {loginError && (
+                <div className="p-3 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                  <Icons.Security className="w-4 h-4" />
+                  {loginError}
+                </div>
               )}
-            </button>
+              <button 
+                type="submit" 
+                disabled={isLoggingIn || Date.now() < lockoutTime}
+                className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+              >
+                {isLoggingIn ? (
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                    <>
+                      الدخول
+                      <Icons.ArrowSwap className="w-4 h-4 rotate-180" />
+                    </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       ) : (
