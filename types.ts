@@ -124,8 +124,6 @@ export interface Translation {
   syp: string;
   // New UI text
   printRates: string;
-  toggleAnimationOn: string;
-  toggleAnimationOff: string;
 }
 
 export interface ExchangeRate {

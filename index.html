@@ -73,12 +73,30 @@
             font-family: 'Poppins', 'Tajawal', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8fafc; /* slate-50 */
-            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: url('https://image2url.com/r2/default/images/1770583318219-3d9e6dc8-0487-45dd-a6c4-de086863862a.png');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            transition: color 0.3s ease;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
+            z-index: 1;
         }
-        .dark body {
-            background-color: #020617; /* slate-950 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(248, 250, 252, 0.3); /* Light overlay */
+            transition: background-color 0.3s ease;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .dark body::before {
+             background-color: rgba(2, 6, 23, 0.7); /* Dark overlay */
         }
         
         /* Global Focus Style for Accessibility & UX */
@@ -114,20 +132,6 @@
         #preloader.fade-out {
             opacity: 0;
             pointer-events: none;
-        }
-
-        #currency-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            z-index: 0;
-            pointer-events: none;
-        }
-        #currency-background.hidden {
-            display: none;
         }
 
         /* Optimized Preloader Styles */
@@ -215,7 +219,6 @@
         <p class="text-xl font-bold tracking-widest text-emerald-400">ليرتنا</p>
     </div>
     
-    <div id="currency-background"></div>
     <div id="root">
         <div class="fallback-container" dir="rtl">
             <h1 class="text-3xl font-bold mb-4">ليرتنا | سعر الصرف في سوريا</h1>
@@ -228,33 +231,6 @@
         </div>
     </div>
     <div id="printable-container"></div>
-    <script>
-      function loadScript(src, callback) {
-        const script = document.createElement('script');
-        script.src = src;
-        script.async = true; // Async loading for speed
-        script.onload = callback;
-        script.onerror = () => console.error(`Failed to load script: ${src}`);
-        document.body.appendChild(script);
-      }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        const bgEl = document.getElementById('currency-background');
-        if (localStorage.getItem('liratna_bg_animation') === 'true') {
-          bgEl.classList.remove('hidden');
-          
-          loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function() {
-            loadScript('/currency-background.js', function() {
-              if (typeof CURRENCY_BG === 'function') {
-                CURRENCY_BG({ el: "#currency-background" });
-              }
-            });
-          });
-        } else {
-          bgEl.classList.add('hidden');
-        }
-      });
-    </script>
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>

@@ -103,7 +103,6 @@ const App: React.FC = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(true);
   const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
-  const [isBgAnimationEnabled, setIsBgAnimationEnabled] = useState(false);
   const firstLoad = useRef(true);
   const printableContainer = useMemo(() => document.getElementById('printable-container'), []);
   const mobileServicesMenuRef = useRef<HTMLDivElement>(null);
@@ -133,10 +132,6 @@ const App: React.FC = () => {
     }
   }, [settings.siteLogo]);
   
-  useEffect(() => {
-    setIsBgAnimationEnabled(localStorage.getItem('liratna_bg_animation') === 'true');
-  }, []);
-
   // Effect to handle closing mobile services menu on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -149,12 +144,6 @@ const App: React.FC = () => {
         document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isServicesMenuOpen]);
-
-  const toggleBgAnimation = () => {
-    const isEnabled = localStorage.getItem('liratna_bg_animation') === 'true';
-    localStorage.setItem('liratna_bg_animation', String(!isEnabled));
-    window.location.reload();
-  };
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -639,9 +628,6 @@ const App: React.FC = () => {
 
   return (
     <>
-      {/* Global Background Gradient */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-[#050b1d] pointer-events-none"></div>
-      
       <div className="relative z-10 min-h-screen transition-colors duration-300 main-app-container flex flex-col font-sans">
         <header className="sticky top-0 z-50 transition-all duration-300 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm supports-[backdrop-filter]:bg-white/70">
           <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
@@ -685,14 +671,6 @@ const App: React.FC = () => {
             </nav>
 
             <div className="flex items-center gap-2">
-               <button 
-                onClick={toggleBgAnimation} 
-                className={`p-2.5 rounded-xl transition-all hidden sm:block ${isBgAnimationEnabled ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-                aria-label={isBgAnimationEnabled ? t.toggleAnimationOff : t.toggleAnimationOn}
-                title={isBgAnimationEnabled ? t.toggleAnimationOff : t.toggleAnimationOn}
-              >
-                <Icons.Animation className="w-5 h-5" />
-              </button>
               <button 
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
                 className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700 active:scale-95"

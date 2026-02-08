@@ -1,3 +1,4 @@
+
 import { Translation, ElectricityTariff } from './types';
 
 export const translations: Record<'ar' | 'en', Translation> = {
@@ -133,8 +134,6 @@ export const translations: Record<'ar' | 'en', Translation> = {
     totalBill: "إجمالي الدفع",
     syp: "ل.س",
     printRates: "طباعة النشرة",
-    toggleAnimationOn: "تشغيل الخلفية",
-    toggleAnimationOff: "إيقاف الخلفية",
   },
   en: {
     title: "Liratna",
@@ -268,8 +267,6 @@ export const translations: Record<'ar' | 'en', Translation> = {
     totalBill: "Total Due",
     syp: "SYP",
     printRates: "Print Rates",
-    toggleAnimationOn: "Enable BG",
-    toggleAnimationOff: "Disable BG",
   }
 };
 
